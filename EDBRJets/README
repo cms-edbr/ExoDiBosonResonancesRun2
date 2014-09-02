@@ -1,0 +1,12 @@
+To setup the N-subjetiness code in CMSSW_7_0_X, follow the following steps:
+
+### Copy the fastjet-contrib files to the SCRAM toolbox
+cd $CMSSW_BASE/src
+cp $CMSSW_BASE/src/ExoDiBosonResonances/EDBRJets/tools/* $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
+
+### Tell SCRAM that those tools are going to be setup
+scram setup fastjet-contrib
+scram setup fastjet-contrib-archive
+
+### Rebuild everything
+scram b -j 8
