@@ -30,7 +30,7 @@ void loopPlot(){
   if(wantElectrons) flavour=11; if(wantMuons) flavour=13; if(wantElectrons and wantMuons) flavour=0;
   
   /// Luminosity value in fb^-1
-  double lumiValue = 19.768; 
+  double lumiValue = 10.0; 
   /// Should we scale the histograms to data?
   bool scaleToData = false;
   // Should we scale only wjets to make total MC = DATA?
@@ -91,7 +91,7 @@ void loopPlot(){
   /// Setup names of MC signal files for trees.
   const int nMCSig=1;//set to zero if you don't want to plot
   std::string mcLabelsSig[nMCSig]={"RSGravToZZ_kMpl01_M-1000",};
-  double kFactorsSig_array[nMCSig] = {1E-3};
+  double kFactorsSig_array[nMCSig] = {5E-4};
 
   std::vector<double> kFactorsMCSig;
   for (int index=0; index<nMCSig; index++)

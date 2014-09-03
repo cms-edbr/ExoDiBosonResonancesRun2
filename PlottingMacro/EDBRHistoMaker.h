@@ -148,11 +148,12 @@ class EDBRHistoMaker {
 
   bool eventPassesFlavorCut();
   bool eventPassesLeptonicZPtCut(double ptZll_threshold);
+  bool eventPassesHadronicZPtCut(double ptZjj_threshold);
   bool eventPassesLep1PtCut(double ptlep1_threshold);
   bool eventInSidebandRegion();
   bool eventInSignalRegion();
   bool eventPassesRegionCut();
-  bool eventPassesCut(double ptZll_threshold, double ptlep1_threshold );
+  bool eventPassesCut(double ptZ_threshold, double ptlep1_threshold );
   bool eventPassesVBFCut();
 
   double deltaPhi(const double& phi1, const double& phi2)
@@ -430,6 +431,15 @@ bool EDBRHistoMaker::eventPassesLeptonicZPtCut(double ptZll_threshold){
   return passesLeptonicZPt;
 }
 
+bool EDBRHistoMaker::eventPassesHadronicZPtCut(double ptZjj_threshold){
+
+  bool passesHadronicZPt = false;
+
+  passesHadronicZPt = (ptVlep > ptZjj_threshold);
+
+  return passesHadronicZPt;
+}
+
 bool EDBRHistoMaker::eventInSidebandRegion(){
 
   bool isInSideband = false;
@@ -458,12 +468,13 @@ bool EDBRHistoMaker::eventPassesRegionCut(){
 }
 
 /// An all around cutting function
-bool EDBRHistoMaker::eventPassesCut(double ptZll_threshold, double ptlep1_threshold ) {
+bool EDBRHistoMaker::eventPassesCut(double ptZ_threshold, double ptlep1_threshold ) {
 
   bool passesFlavour = eventPassesFlavorCut();
   bool passesRegion  = eventPassesRegionCut();
   bool passesNXJet   = true;
-  bool passesLeptonicZPt = eventPassesLeptonicZPtCut(ptZll_threshold);
+  bool passesLeptonicZPt = eventPassesLeptonicZPtCut(ptZ_threshold);
+  bool passesHadronicZPt = eventPassesHadronicZPtCut(ptZ_threshold);
   bool passesLep1Pt  = eventPassesLep1PtCut(ptlep1_threshold);
   //bool passesVBF     = eventPassesVBFCut();
   //bool passesVTag = vTagPurity==0;
@@ -482,9 +493,10 @@ bool EDBRHistoMaker::eventPassesCut(double ptZll_threshold, double ptlep1_thresh
     passesRegion &&
     passesNXJet && 
     passesLep1Pt &&
-    passesLeptonicZPt;// && passesVTag;//&&passesMZZ;
+    passesLeptonicZPt &&
+    passesHadronicZPt;
   
-  return result;//&&passesVTag&&passesMZZ;
+  return result;
 }
 
 ///----------------------------------------------------------------
@@ -528,8 +540,8 @@ void EDBRHistoMaker::Loop(std::string outFileName){
     // cut (Sideband / SignalRegion, Muon / Electron, 
     // Single / Double jet ...) 
 
-    // Remember: bool eventPassesCut(double ptZll_threshold, double ptlep1_threshold );
-    if(eventPassesCut(80, 20)){
+    // Remember: bool eventPassesCut(double ptZ_threshold, double ptlep1_threshold );
+    if(eventPassesCut(200, 20)){
       
       // In case we need particular events
       //if(candMass>2400.0)

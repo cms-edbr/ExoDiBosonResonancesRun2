@@ -4,6 +4,8 @@ process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 option = 'RECO' # 'GEN' or 'RECO'
+WBOSONCUT = "pt > 100.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
+ZBOSONCUT = "pt > 100.0 & 70.0 < mass < 110.0"
 
 ### GEN level studies
 if option == 'GEN':
@@ -29,8 +31,10 @@ if option == 'RECO':
     process.goodMuons.src = "slimmedMuons"
     process.goodElectrons.src = "slimmedElectrons"
     process.goodJets.src = "slimmedJetsAK8"
+    #process.Wtoenu.MET  = "slimmedMETs"
+    #process.Wtomunu.MET = "slimmedMETs"
 
-process.leptonicV.cut = "pt > 80.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
+process.leptonicV.cut = ZBOSONCUT
 if option == 'RECO':
     process.hadronicV.cut = \
         'pt > 100 &'+\
@@ -85,11 +89,11 @@ print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
-                                    originalNEvents = cms.int32(4469930),
-                                    crossSectionPb = cms.double(2.179),
+                                    originalNEvents = cms.int32(1),
+                                    crossSectionPb = cms.double(1),
                                     targetLumiInvPb = cms.double(1.0),
-                                    EDBRChannel = cms.string("VW_CHANNEL"),
-                                    isGen = cms.bool(True),
+                                    EDBRChannel = cms.string("VZ_CHANNEL"),
+                                    isGen = cms.bool(False),
                                     hadronicVSrc = cms.string("hadronicV"),
                                     leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
@@ -103,24 +107,23 @@ if option=='RECO':
     process.treeDumper.metSrc = 'slimmedMETs'
     process.treeDumper.isGen  = False
 
+### In case you need to select the decay channel at GEN level
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
+process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
+process.leptonicDecay.src = "prunedGenParticles"
+process.hadronicDecay.src = "prunedGenParticles"
 
-process.printTree = cms.EDAnalyzer("ParticleListDrawer",
-  maxEventsToPrint = cms.untracked.int32(10),
-  printVertex = cms.untracked.bool(False),
-  src = cms.InputTag("Wtomunu")
-)
-
-process.analysis = cms.Path(process.leptonSequence +
+process.analysis = cms.Path(process.leptonicDecay + 
+                            process.hadronicDecay + 
+                            process.leptonSequence +
                             process.jetSequence +
                             process.gravitonSequence +
                             process.treeDumper)
 
-#process.printing = cms.Path(process.printTree)
-
-
 ### Source
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.DYJetsToLL_HT-600toInf")
+#process.load("ExoDiBosonResonances.EDBRCommon.simulation.DYJetsToLL_HT-600toInf")
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.RSGravToZZ_kMpl01_M-1000")
 #process.source.fileNames = ["file:/home/trtomei/tmp/pp_ZP_WW_enqq_BM1_13tev.root",]
 
 process.maxEvents.input = -1
@@ -130,5 +133,5 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_DYJetsToLL_HT-600toInf.root")
+                                   fileName = cms.string("treeEDBR_RSGravToZZ_kMpl01_M-1000.root")
                                    )
