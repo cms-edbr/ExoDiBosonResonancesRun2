@@ -1,6 +1,7 @@
 Instructions to setup the ExoDiBosonResonances code
 ========
 
+```
 cmsrel CMSSW_7_0_7_patch1
 cd CMSSW_7_0_7_patch1/src/
 cmsenv
@@ -14,6 +15,10 @@ scram setup fastjet-contrib
 scram setup fastjet-contrib-archive
 # Then compile:
 scram b -j 9
+```
 
-IMPORTANT: these instructions should always be up-to-date with the ones in our Twiki:
-https://twiki.cern.ch/twiki/bin/view/CMS/ExoDiBosonResonancesRun2
+#IMPORTANT: 
+
+These instructions should always be up-to-date with the ones in our Twiki:
+
+`https://twiki.cern.ch/twiki/bin/view/CMS/ExoDiBosonResonancesRun2`
