@@ -45,6 +45,7 @@ private:
 
   int nevent, run, ls;
   int nVtx;
+  int numCands;
   double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad;
   double met, metPhi, mtVlep;
   double tau1, tau2, tau3, tau21;
@@ -76,7 +77,8 @@ private:
   double targetLumiInvPb_;
   std::string EDBRChannel_;
   bool isGen_;
-  std::string hadronicVSrc_, leptonicVSrc_, gravitonSrc_, metSrc_;
+  //std::string hadronicVSrc_, leptonicVSrc_;
+  std::string gravitonSrc_, metSrc_;
 };
 
 //
@@ -89,10 +91,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   crossSectionPb_  = iConfig.getParameter<double>("crossSectionPb");
   targetLumiInvPb_ = iConfig.getParameter<double>("targetLumiInvPb");
   EDBRChannel_     = iConfig.getParameter<std::string>("EDBRChannel");
-  isGen_     = iConfig.getParameter<bool>("isGen");
+  isGen_           = iConfig.getParameter<bool>("isGen");
   // Sources
-  hadronicVSrc_ = iConfig.getParameter<std::string>("hadronicVSrc");
-  leptonicVSrc_ = iConfig.getParameter<std::string>("leptonicVSrc");
+  //hadronicVSrc_ = iConfig.getParameter<std::string>("hadronicVSrc");
+  //leptonicVSrc_ = iConfig.getParameter<std::string>("leptonicVSrc");
   gravitonSrc_ = iConfig.getParameter<std::string>("gravitonSrc");
   metSrc_= iConfig.getParameter<std::string>("metSrc");
 
@@ -112,7 +114,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
   edm::Service<TFileService> fs;
   outTree_ = fs->make<TTree>("EDBRCandidates","EDBR Candidates");
+
+  /// Basic event quantities
   outTree_->Branch("event"           ,&nevent         ,"event/I"          );
+  outTree_->Branch("numCands"        ,&numCands       ,"numCands/I"       );
   outTree_->Branch("ptVlep"          ,&ptVlep         ,"ptVlep/D"         );
   outTree_->Branch("ptVhad"          ,&ptVhad         ,"ptVhad/D"         );
   outTree_->Branch("yVlep"           ,&yVlep          ,"yVlep/D"          );
@@ -126,6 +131,12 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   outTree_->Branch("tau2"            ,&tau2           ,"tau2/D"           );
   outTree_->Branch("tau3"            ,&tau3           ,"tau3/D"           );
   outTree_->Branch("tau21"           ,&tau21          ,"tau21/D"          );
+  outTree_->Branch("lep"             ,&lep            ,"lep/I"            );
+  outTree_->Branch("region"          ,&reg            ,"region/I"         );
+  outTree_->Branch("channel"         ,&channel        ,"channel/I"        );
+  outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
+
+  /// Electron ID quantities
   outTree_->Branch("ptel1"           ,&ptel1          ,"ptel1/D"          );
   outTree_->Branch("ptel2"           ,&ptel2          ,"ptel2/D"          );
   outTree_->Branch("etaSC1"          ,&etaSC1         ,"etaSC1/D"         );
@@ -150,6 +161,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
   outTree_->Branch("passConVeto2"    ,&passConVeto2   ,"passConVeto2/I"   );
+  
+  /// Generic kinematic quantities
   outTree_->Branch("ptlep1"          ,&ptlep1         ,"ptlep1/D"         );
   outTree_->Branch("ptlep2"          ,&ptlep2         ,"ptlep2/D"         );
   outTree_->Branch("ptjet1"          ,&ptjet1         ,"ptjet1/D"         );
@@ -161,9 +174,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   outTree_->Branch("phijet1"         ,&phijet1        ,"phijet1/D"        );
   outTree_->Branch("met"             ,&met            ,"met/D"            );
   outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
-  outTree_->Branch("lep"             ,&lep            ,"lep/I"            );
-  outTree_->Branch("region"          ,&reg            ,"region/I"         );
-  outTree_->Branch("channel"         ,&channel        ,"channel/I"        );
+
+  /// Other quantities
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
   outTree_->Branch("lumiWeight"      ,&lumiWeight     ,"lumiWeight/D"     );
   outTree_->Branch("pileupWeight"    ,&pileupWeight   ,"pileupWeight/D"   );
@@ -171,7 +183,6 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   outTree_->Branch("delPhilepmet"    ,&delPhilepmet   ,"delPhilepmet/D"   );
   outTree_->Branch("deltaRlepjet"    ,&deltaRlepjet   ,"deltaRlepjet/D"   );
   outTree_->Branch("delPhijetmet"    ,&delPhijetmet   ,"delPhijetmet/D"   );
-  outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
 }
 
 
@@ -198,11 +209,11 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    run    = iEvent.eventAuxiliary().run();
    ls     = iEvent.eventAuxiliary().luminosityBlock();
 
-   edm::Handle<edm::View<pat::Jet> > hadronicVs;
-   iEvent.getByLabel(hadronicVSrc_.c_str(), hadronicVs);
+   //edm::Handle<edm::View<pat::Jet> > hadronicVs;
+   //iEvent.getByLabel(hadronicVSrc_.c_str(), hadronicVs);
    
-   edm::Handle<edm::View<reco::Candidate> > leptonicVs;
-   iEvent.getByLabel(leptonicVSrc_.c_str(), leptonicVs);
+   //edm::Handle<edm::View<reco::Candidate> > leptonicVs;
+   //iEvent.getByLabel(leptonicVSrc_.c_str(), leptonicVs);
    
    edm::Handle<edm::View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
@@ -210,12 +221,19 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<edm::View<reco::Candidate> > metHandle;
    iEvent.getByLabel(metSrc_.c_str(), metHandle);
    
+   /// How should we choose the correct graviton candidate?
+   numCands = gravitons->size();
+
+   //StringCutObjectSelector<T>
+   
    const reco::Candidate& graviton  = gravitons->at(0);
-   const pat::Jet& hadronicV = hadronicVs->at(0);
-   const reco::Candidate& leptonicV = leptonicVs->at(0);
+   //const pat::Jet& hadronicV = hadronicVs->at(0);
+   //const reco::Candidate& leptonicV = leptonicVs->at(0);
+   const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
+   const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
    const reco::Candidate& metCand = metHandle->at(0);
    
-   /// All the quantities which depende on RECO could go here
+   /// All the quantities which depend on RECO could go here
    edm::Handle<edm::View<reco::Vertex> > vertices;
    if(not isGen_) {
      iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
@@ -252,6 +270,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    tau21 = hadronicV.userFloat("tau21");
 
    // ID for electrons
+   /// FIXME: this should be better written, since it checks only for ONE of the daughters to be an electron.
+   /// What for the WW case?
    if( leptonicV.daughter(0)->isElectron() ) {
        const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
        const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
@@ -339,6 +359,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    lep = abs(leptonicV.daughter(0)->pdgId());
 
+   /// FIXME: these should NOT be hardcoded
    if(massVhad < 50 or massVhad > 110)
      reg = -1;
    if(massVhad > 50 and massVhad < 70)

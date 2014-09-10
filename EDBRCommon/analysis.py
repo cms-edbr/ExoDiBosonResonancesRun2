@@ -60,7 +60,8 @@ process.hadronicVFilter = cms.EDFilter("CandViewCountFilter",
 process.graviton = cms.EDProducer("CandViewCombiner",
                                   decay = cms.string("leptonicV hadronicV"),
                                   checkCharge = cms.bool(False),
-                                  cut = cms.string("mass > 180")
+                                  cut = cms.string("mass > 180"),
+                                  roles = cms.vstring('leptonicV', 'hadronicV')
                                   )
 
 ### We should add some modules to remove multiple candidates at some point...
