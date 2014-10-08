@@ -2,10 +2,10 @@ Instructions to setup the ExoDiBosonResonances code
 ========
 
 ```
-cmsrel CMSSW_7_0_7_patch1
-cd CMSSW_7_0_7_patch1/src/
+cmsrel CMSSW_7_0_9
+cd CMSSW_7_0_9/src
 cmsenv
-git cms-init # This will allow you to checkout packages in official CMSSW
+git cms-init # This will allow you to checkout packages in official CMSSW.
 git clone git@github.com:cms-edbr/ExoDiBosonResonancesRun2.git ExoDiBosonResonances
 # Before compiling, you need to setup the N-subjettiness
 cd $CMSSW_BASE/src
