@@ -4,6 +4,7 @@ process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 option = 'RECO' # 'GEN' or 'RECO'
+filterMode = False
 WBOSONCUT = "pt > 100.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
 ZBOSONCUT = "pt > 100.0 & 70.0 < mass < 110.0"
 
@@ -61,7 +62,7 @@ process.graviton = cms.EDProducer("CandViewCombiner",
                                   decay = cms.string("leptonicV hadronicV"),
                                   checkCharge = cms.bool(False),
                                   cut = cms.string("mass > 180"),
-                                  roles = cms.vstring('leptonicV', 'hadronicV')
+                                  roles = cms.vstring('leptonicV', 'hadronicV'),
                                   )
 
 ### We should add some modules to remove multiple candidates at some point...
@@ -89,6 +90,13 @@ print "Leptonic V cut = "+str(process.leptonicV.cut)
 print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
+### If you're running in signal, you may want to not filter at this level
+### but only later at the tree analysis.
+if filterMode == False:
+    process.leptonicVFilter.minNumber = 0
+    process.hadronicVFilter.minNumber = 0
+    process.gravitonFilter.minNumber = 0
+    
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     originalNEvents = cms.int32(1),
                                     crossSectionPb = cms.double(1),
@@ -127,7 +135,7 @@ process.analysis = cms.Path(process.leptonicDecay +
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RSGravToZZ_kMpl01_M-1000")
 #process.source.fileNames = ["file:/home/trtomei/tmp/pp_ZP_WW_enqq_BM1_13tev.root",]
 
-process.maxEvents.input = -1
+process.maxEvents.input = 10000
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000

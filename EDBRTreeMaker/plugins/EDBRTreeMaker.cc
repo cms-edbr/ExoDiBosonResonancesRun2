@@ -226,148 +226,155 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //StringCutObjectSelector<T>
    
-   const reco::Candidate& graviton  = gravitons->at(0);
-   //const pat::Jet& hadronicV = hadronicVs->at(0);
-   //const reco::Candidate& leptonicV = leptonicVs->at(0);
-   const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
-   const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
-   const reco::Candidate& metCand = metHandle->at(0);
-   
-   /// All the quantities which depend on RECO could go here
-   edm::Handle<edm::View<reco::Vertex> > vertices;
-   if(not isGen_) {
-     iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
-     nVtx = vertices->size();
-     massVhad = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
-   }
-   
-   if(isGen_) {
-     nVtx = 0;
-     massVhad = hadronicV.userFloat("ak8GenJetsPrunedLinks");
-   }
-
-   /// For the time being, set these to 1
-   triggerWeight=1.0;
-   pileupWeight=1.0;
-
-   double targetEvents = targetLumiInvPb_*crossSectionPb_;
-   lumiWeight = targetEvents/originalNEvents_;
-
-   candMass = graviton.mass();
-   
-   ptVlep = leptonicV.pt();
-   ptVhad = hadronicV.pt();
-   yVlep = leptonicV.eta();
-   yVhad = hadronicV.eta();
-   phiVlep = leptonicV.phi();
-   phiVhad = hadronicV.phi();
-   massVlep = leptonicV.mass();
-   mtVlep = leptonicV.mt();
-   
-   tau1 = hadronicV.userFloat("tau1");
-   tau2 = hadronicV.userFloat("tau2");
-   tau3 = hadronicV.userFloat("tau3");
-   tau21 = hadronicV.userFloat("tau21");
-
-   // ID for electrons
-   /// FIXME: this should be better written, since it checks only for ONE of the daughters to be an electron.
-   /// What for the WW case?
-   if( leptonicV.daughter(0)->isElectron() ) {
-       const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
-       const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
-       ptel1   = el1->pt();
-       ptel2   = el2->pt();
-       etaSC1  = el1->superCluster()->eta();
-       etaSC2  = el2->superCluster()->eta();
-       dEtaIn1 = el1->deltaEtaSuperClusterTrackAtVtx();
-       dEtaIn2 = el2->deltaEtaSuperClusterTrackAtVtx();
-       dPhiIn1 = el1->deltaPhiSuperClusterTrackAtVtx();
-       dPhiIn2 = el2->deltaPhiSuperClusterTrackAtVtx();
-       hOverE1 = el1->hcalOverEcal();
-       hOverE2 = el2->hcalOverEcal();
-       full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
-       full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
-       if( el1->ecalEnergy() == 0 ){
-         printf("Electron energy is zero!\n");
-         ooEmooP1 = 1e30;
-       }else if( !std::isfinite(el1->ecalEnergy())){
-         printf("Electron energy is not finite!\n");
-         ooEmooP1 = 1e30;
-       }else{
-         ooEmooP1 = fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() );
+   if(numCands != 0 ) {
+       const reco::Candidate& graviton  = gravitons->at(0);
+       //const pat::Jet& hadronicV = hadronicVs->at(0);
+       //const reco::Candidate& leptonicV = leptonicVs->at(0);
+       const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
+       const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
+       const reco::Candidate& metCand = metHandle->at(0);
+       
+       /// All the quantities which depend on RECO could go here
+       edm::Handle<edm::View<reco::Vertex> > vertices;
+       if(not isGen_) {
+	   iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
+	   nVtx = vertices->size();
+	   massVhad = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
        }
-       if( el2->ecalEnergy() == 0 ){
-         printf("Electron energy is zero!\n");
-         ooEmooP2 = 1e30;
-       }else if( !std::isfinite(el2->ecalEnergy())){
-         printf("Electron energy is not finite!\n");
-         ooEmooP2 = 1e30;
-       }else{
-         ooEmooP2 = fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() );
+       
+       if(isGen_) {
+	   nVtx = 0;
+	   massVhad = hadronicV.userFloat("ak8GenJetsPrunedLinks");
        }
-       d01 = (-1)*el1->gsfTrack()->dxy(math::XYZPoint(0.,0.,0.)); //Distance wrt origin is not correct  
-       d02 = (-1)*el2->gsfTrack()->dxy(math::XYZPoint(0.,0.,0.)); //Implementation of primary vertex needed! 
-       dz1 = el1->gsfTrack()->dz(math::XYZPoint(0.,0.,0.));
-       dz2 = el2->gsfTrack()->dz(math::XYZPoint(0.,0.,0.));
-       reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
-       reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
-       double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
-       double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - 0.5*pfIso2.sumPUPt );
-       relIso1 = absiso1/el1->pt();
-       relIso2 = absiso2/el2->pt();
-       missingHits1 = el1->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-       missingHits2 = el2->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-       passConVeto1 = el1->passConversionVeto();
-       passConVeto2 = el2->passConversionVeto();
+
+       /// For the time being, set these to 1
+       triggerWeight=1.0;
+       pileupWeight=1.0;
+
+       double targetEvents = targetLumiInvPb_*crossSectionPb_;
+       lumiWeight = targetEvents/originalNEvents_;
+
+       candMass = graviton.mass();
+   
+       ptVlep = leptonicV.pt();
+       ptVhad = hadronicV.pt();
+       yVlep = leptonicV.eta();
+       yVhad = hadronicV.eta();
+       phiVlep = leptonicV.phi();
+       phiVhad = hadronicV.phi();
+       massVlep = leptonicV.mass();
+       mtVlep = leptonicV.mt();
+   
+       tau1 = hadronicV.userFloat("tau1");
+       tau2 = hadronicV.userFloat("tau2");
+       tau3 = hadronicV.userFloat("tau3");
+       tau21 = hadronicV.userFloat("tau21");
+
+       // ID for electrons
+       /// FIXME: this should be better written, since it checks only for ONE of the daughters to be an electron.
+       /// What for the WW case?
+       if( leptonicV.daughter(0)->isElectron() ) {
+	   const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
+	   const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+	   ptel1   = el1->pt();
+	   ptel2   = el2->pt();
+	   etaSC1  = el1->superCluster()->eta();
+	   etaSC2  = el2->superCluster()->eta();
+	   dEtaIn1 = el1->deltaEtaSuperClusterTrackAtVtx();
+	   dEtaIn2 = el2->deltaEtaSuperClusterTrackAtVtx();
+	   dPhiIn1 = el1->deltaPhiSuperClusterTrackAtVtx();
+	   dPhiIn2 = el2->deltaPhiSuperClusterTrackAtVtx();
+	   hOverE1 = el1->hcalOverEcal();
+	   hOverE2 = el2->hcalOverEcal();
+	   full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
+	   full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
+	   if( el1->ecalEnergy() == 0 ){
+	       printf("Electron energy is zero!\n");
+	       ooEmooP1 = 1e30;
+	   }else if( !std::isfinite(el1->ecalEnergy())){
+	       printf("Electron energy is not finite!\n");
+	       ooEmooP1 = 1e30;
+	   }else{
+	       ooEmooP1 = fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() );
+	   }
+	   if( el2->ecalEnergy() == 0 ){
+	       printf("Electron energy is zero!\n");
+	       ooEmooP2 = 1e30;
+	   }else if( !std::isfinite(el2->ecalEnergy())){
+	       printf("Electron energy is not finite!\n");
+	       ooEmooP2 = 1e30;
+	   }else{
+	       ooEmooP2 = fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() );
+	   }
+	   d01 = (-1)*el1->gsfTrack()->dxy(math::XYZPoint(0.,0.,0.)); //Distance wrt origin is not correct  
+	   d02 = (-1)*el2->gsfTrack()->dxy(math::XYZPoint(0.,0.,0.)); //Implementation of primary vertex needed! 
+	   dz1 = el1->gsfTrack()->dz(math::XYZPoint(0.,0.,0.));
+	   dz2 = el2->gsfTrack()->dz(math::XYZPoint(0.,0.,0.));
+	   reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
+	   reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
+	   double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
+	   double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - 0.5*pfIso2.sumPUPt );
+	   relIso1 = absiso1/el1->pt();
+	   relIso2 = absiso2/el2->pt();
+	   missingHits1 = el1->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+	   missingHits2 = el2->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+	   passConVeto1 = el1->passConversionVeto();
+	   passConVeto2 = el2->passConversionVeto();
+       }
+       else {
+	   ptel1 = -99., ptel2 = -99;
+	   etaSC1 = -99., etaSC2 = -99.;
+	   dEtaIn1 = -99., dEtaIn2 = -99.;
+	   dPhiIn1 = -99., dPhiIn2 = -99.;
+	   hOverE1 = -99., hOverE2 = -99.;
+	   full5x5_sigma1 = -99., full5x5_sigma2 = -99.;
+	   ooEmooP1 = -99., ooEmooP2 = -99.;
+	   d01 = -99., d02 = -99.;
+	   dz1 = -99., dz2 = -99.;
+	   relIso1 = -99., relIso2 = -99.;
+	   missingHits1 = -99, missingHits2 = -99;
+	   passConVeto1 = -99, passConVeto2 = -99;
+       }
+
+       // Kinematics of leptons and jets
+       ptlep1 = leptonicV.daughter(0)->pt();
+       ptlep2 = leptonicV.daughter(1)->pt();
+       etalep1 = leptonicV.daughter(0)->eta();
+       etalep2 = leptonicV.daughter(1)->eta();
+       philep1 = leptonicV.daughter(0)->phi();
+       philep2 = leptonicV.daughter(1)->phi();
+       ptjet1 = hadronicV.pt();
+       etajet1 = hadronicV.eta();
+       phijet1 = hadronicV.phi();
+
+       met = metCand.pt();
+       metPhi = metCand.phi();
+
+       deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
+       double drl1j = deltaR(etalep1,philep1,etajet1,phijet1); 
+       double drl2j = deltaR(etalep2,philep2,etajet1,phijet1); 
+       deltaRlepjet = std::min(drl1j,drl2j);
+
+       delPhilepmet = deltaPhi(philep1, metPhi);
+       delPhijetmet = deltaPhi(phijet1, metPhi);
+
+       lep = abs(leptonicV.daughter(0)->pdgId());
+
+       /// FIXME: these should NOT be hardcoded
+       if(massVhad < 50 or massVhad > 110)
+	   reg = -1;
+       if(massVhad > 50 and massVhad < 70)
+	   reg = 0;
+       if(massVhad > 70 and massVhad < 110)
+	   reg = 1;
+   
+       outTree_->Fill();
    }
    else {
-       ptel1 = -99., ptel2 = -99;
-       etaSC1 = -99., etaSC2 = -99.;
-       dEtaIn1 = -99., dEtaIn2 = -99.;
-       dPhiIn1 = -99., dPhiIn2 = -99.;
-       hOverE1 = -99., hOverE2 = -99.;
-       full5x5_sigma1 = -99., full5x5_sigma2 = -99.;
-       ooEmooP1 = -99., ooEmooP2 = -99.;
-       d01 = -99., d02 = -99.;
-       dz1 = -99., dz2 = -99.;
-       relIso1 = -99., relIso2 = -99.;
-       missingHits1 = -99, missingHits2 = -99;
-       passConVeto1 = -99, passConVeto2 = -99;
+       /// If we arrive here, that means we have NOT found a resonance candidate,
+       /// i.e. numCands == 0.
+       outTree_->Fill();
    }
-
-   // Kinematics of leptons and jets
-   ptlep1 = leptonicV.daughter(0)->pt();
-   ptlep2 = leptonicV.daughter(1)->pt();
-   etalep1 = leptonicV.daughter(0)->eta();
-   etalep2 = leptonicV.daughter(1)->eta();
-   philep1 = leptonicV.daughter(0)->phi();
-   philep2 = leptonicV.daughter(1)->phi();
-   ptjet1 = hadronicV.pt();
-   etajet1 = hadronicV.eta();
-   phijet1 = hadronicV.phi();
-
-   met = metCand.pt();
-   metPhi = metCand.phi();
-
-   deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
-   double drl1j = deltaR(etalep1,philep1,etajet1,phijet1); 
-   double drl2j = deltaR(etalep2,philep2,etajet1,phijet1); 
-   deltaRlepjet = std::min(drl1j,drl2j);
-
-   delPhilepmet = deltaPhi(philep1, metPhi);
-   delPhijetmet = deltaPhi(phijet1, metPhi);
-
-   lep = abs(leptonicV.daughter(0)->pdgId());
-
-   /// FIXME: these should NOT be hardcoded
-   if(massVhad < 50 or massVhad > 110)
-     reg = -1;
-   if(massVhad > 50 and massVhad < 70)
-     reg = 0;
-   if(massVhad > 70 and massVhad < 110)
-     reg = 1;
-   
-   outTree_->Fill();
 }
 
 
