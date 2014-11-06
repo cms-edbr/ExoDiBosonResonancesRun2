@@ -107,6 +107,7 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
                                     metSrc = cms.string("genMetTrue"),
+                                    electronIDs = cms.InputTag("cutBasedElectronID-CSA14-PU20bx25-V0-standalone-veto")
                                     )
 
 if option=='GEN':

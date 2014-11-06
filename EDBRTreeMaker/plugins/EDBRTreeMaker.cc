@@ -17,6 +17,8 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -58,6 +60,7 @@ private:
   double candMass;
 
   // Electron ID 
+  double eeDeltaR;
   double ptel1, ptel2;
   double etaSC1, etaSC2;
   double dEtaIn1, dEtaIn2;
@@ -70,6 +73,9 @@ private:
   double relIso1, relIso2;
   int missingHits1, missingHits2;
   int passConVeto1, passConVeto2;
+  int el1passID, el2passID;
+  edm::InputTag electronIdTag_;
+  void setDummyValues();
 
   /// Parameters to steer the treeDumper
   int originalNEvents_;
@@ -95,8 +101,9 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   // Sources
   //hadronicVSrc_ = iConfig.getParameter<std::string>("hadronicVSrc");
   //leptonicVSrc_ = iConfig.getParameter<std::string>("leptonicVSrc");
-  gravitonSrc_ = iConfig.getParameter<std::string>("gravitonSrc");
-  metSrc_= iConfig.getParameter<std::string>("metSrc");
+  gravitonSrc_     = iConfig.getParameter<std::string>("gravitonSrc");
+  metSrc_          = iConfig.getParameter<std::string>("metSrc");
+  electronIdTag_   = iConfig.getParameter<edm::InputTag>("electronIDs");
 
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -117,6 +124,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
 
   /// Basic event quantities
   outTree_->Branch("event"           ,&nevent         ,"event/I"          );
+  outTree_->Branch("nVtx"            ,&nVtx           ,"nVtx/I"           );
   outTree_->Branch("numCands"        ,&numCands       ,"numCands/I"       );
   outTree_->Branch("ptVlep"          ,&ptVlep         ,"ptVlep/D"         );
   outTree_->Branch("ptVhad"          ,&ptVhad         ,"ptVhad/D"         );
@@ -137,6 +145,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
 
   /// Electron ID quantities
+  outTree_->Branch("eeDeltaR"        ,&eeDeltaR       ,"eeDeltaR/D"       );
   outTree_->Branch("ptel1"           ,&ptel1          ,"ptel1/D"          );
   outTree_->Branch("ptel2"           ,&ptel2          ,"ptel2/D"          );
   outTree_->Branch("etaSC1"          ,&etaSC1         ,"etaSC1/D"         );
@@ -161,6 +170,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
   outTree_->Branch("passConVeto2"    ,&passConVeto2   ,"passConVeto2/I"   );
+  outTree_->Branch("el1passID"       ,&el1passID      ,"el1passID/I"      );
+  outTree_->Branch("el2passID"       ,&el2passID      ,"el2passID/I"      );
   
   /// Generic kinematic quantities
   outTree_->Branch("ptlep1"          ,&ptlep1         ,"ptlep1/D"         );
@@ -226,6 +237,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //StringCutObjectSelector<T>
    
+   setDummyValues(); //Initalize variables with dummy values
+   
    if(numCands != 0 ) {
        const reco::Candidate& graviton  = gravitons->at(0);
        //const pat::Jet& hadronicV = hadronicVs->at(0);
@@ -235,16 +248,113 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        const reco::Candidate& metCand = metHandle->at(0);
        
        /// All the quantities which depend on RECO could go here
-       edm::Handle<edm::View<reco::Vertex> > vertices;
        if(not isGen_) {
-	   iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
-	   nVtx = vertices->size();
 	   massVhad = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
+
+           edm::Handle<reco::VertexCollection> vertices;
+           iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
+           if (vertices->empty()) return; // skip the event if no PV found
+	   nVtx = vertices->size();
+           reco::VertexCollection::const_iterator firstGoodVertex = vertices->end();
+           for (reco::VertexCollection::const_iterator vtx = vertices->begin(); vtx != vertices->end(); ++vtx) {
+               // Replace isFake() for miniAOD because it requires tracks and miniAOD vertices don't have tracks:
+               // Vertex.h: bool isFake() const {return (chi2_==0 && ndof_==0 && tracks_.empty());}
+               if (  /*!vtx->isFake() &&*/ 
+                     !(vtx->chi2()==0 && vtx->ndof()==0) 
+	             &&  vtx->ndof()>=4. && vtx->position().Rho()<=2.0
+	             && fabs(vtx->position().Z())<=24.0) {
+                  firstGoodVertex = vtx;
+                  break;
+               }           
+           }
+           if ( firstGoodVertex==vertices->end() ) return; // skip event if there are no good PVs
+
+           //*****************************************************************//
+           //************************* ID for electrons **********************//
+           //*****************************************************************//
+           switch(channel){
+
+              case VZ_CHANNEL:
+                 if(leptonicV.daughter(0)->isElectron() && 
+                    leptonicV.daughter(1)->isElectron()    ) {
+                    const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
+                    const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+                    if (el1->gsfTrack().isNonnull() && 
+                        el2->gsfTrack().isNonnull()    ){
+                        reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
+                        reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
+                        eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
+                        ptel1          = el1->pt();
+                        ptel2          = el2->pt();
+                        etaSC1         = el1->superCluster()->eta();
+                        etaSC2         = el2->superCluster()->eta();
+                        dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
+                        dEtaIn2        = el2->deltaEtaSuperClusterTrackAtVtx();
+                        dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
+                        dPhiIn2        = el2->deltaPhiSuperClusterTrackAtVtx();
+                        hOverE1        = el1->hcalOverEcal();
+                        hOverE2        = el2->hcalOverEcal();
+                        full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
+                        full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
+                        ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
+                                         fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
+                        ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
+                                         fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() ) : 1e9;
+                        double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
+                        double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - 0.5*pfIso2.sumPUPt );
+                        relIso1        = absiso1/el1->pt();
+                        relIso2        = absiso2/el2->pt();
+                        d01            = (-1)*el1->gsfTrack()->dxy(firstGoodVertex->position());   
+                        dz1            = el1->gsfTrack()->dz(firstGoodVertex->position());
+                        missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                        d02            = (-1)*el2->gsfTrack()->dxy(firstGoodVertex->position());  
+                        dz2            = el2->gsfTrack()->dz(firstGoodVertex->position());
+                        missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                        passConVeto1   = el1->passConversionVeto();
+                        passConVeto2   = el2->passConversionVeto();
+                        el1passID      = ( el1->electronID(electronIdTag_.encode())>0.5 );
+                        el2passID      = ( el2->electronID(electronIdTag_.encode())>0.5 );
+                    }
+                 }
+                 break;
+
+              case VW_CHANNEL:
+                 if( leptonicV.daughter(0)->isElectron()||leptonicV.daughter(1)->isElectron() ) {
+                       const pat::Electron *el1 = leptonicV.daughter(0)->isElectron() ? 
+                                                  (pat::Electron*)leptonicV.daughter(0):
+                                                  (pat::Electron*)leptonicV.daughter(1);
+                    if (el1->gsfTrack().isNonnull()){
+                        reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
+                        ptel1          = el1->pt();
+                        etaSC1         = el1->superCluster()->eta();
+                        dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
+                        dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
+                        hOverE1        = el1->hcalOverEcal();
+                        full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
+                        ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
+                                         fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
+                        double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
+                        relIso1        = absiso1/el1->pt();
+                        d01            = (-1)*el1->gsfTrack()->dxy(firstGoodVertex->position());   
+                        dz1            = el1->gsfTrack()->dz(firstGoodVertex->position());
+                        missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+            	        passConVeto1   = el1->passConversionVeto();
+                        el1passID      = ( el1->electronID(electronIdTag_.encode())>0.5 );
+                    }
+                 }
+                 break;
+
+              case VH_CHANNEL: // This channel needs to be implemented 
+                 break;
+           }
+           //*****************************************************************//
+           //********************* close ID for electrons ********************//
+           //*****************************************************************//
        }
        
        if(isGen_) {
-	   nVtx = 0;
 	   massVhad = hadronicV.userFloat("ak8GenJetsPrunedLinks");
+	   nVtx = 0;
        }
 
        /// For the time being, set these to 1
@@ -269,72 +379,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        tau2 = hadronicV.userFloat("tau2");
        tau3 = hadronicV.userFloat("tau3");
        tau21 = hadronicV.userFloat("tau21");
-
-       // ID for electrons
-       /// FIXME: this should be better written, since it checks only for ONE of the daughters to be an electron.
-       /// What for the WW case?
-       if( leptonicV.daughter(0)->isElectron() ) {
-	   const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
-	   const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
-	   ptel1   = el1->pt();
-	   ptel2   = el2->pt();
-	   etaSC1  = el1->superCluster()->eta();
-	   etaSC2  = el2->superCluster()->eta();
-	   dEtaIn1 = el1->deltaEtaSuperClusterTrackAtVtx();
-	   dEtaIn2 = el2->deltaEtaSuperClusterTrackAtVtx();
-	   dPhiIn1 = el1->deltaPhiSuperClusterTrackAtVtx();
-	   dPhiIn2 = el2->deltaPhiSuperClusterTrackAtVtx();
-	   hOverE1 = el1->hcalOverEcal();
-	   hOverE2 = el2->hcalOverEcal();
-	   full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
-	   full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
-	   if( el1->ecalEnergy() == 0 ){
-	       printf("Electron energy is zero!\n");
-	       ooEmooP1 = 1e30;
-	   }else if( !std::isfinite(el1->ecalEnergy())){
-	       printf("Electron energy is not finite!\n");
-	       ooEmooP1 = 1e30;
-	   }else{
-	       ooEmooP1 = fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() );
-	   }
-	   if( el2->ecalEnergy() == 0 ){
-	       printf("Electron energy is zero!\n");
-	       ooEmooP2 = 1e30;
-	   }else if( !std::isfinite(el2->ecalEnergy())){
-	       printf("Electron energy is not finite!\n");
-	       ooEmooP2 = 1e30;
-	   }else{
-	       ooEmooP2 = fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() );
-	   }
-	   d01 = (-1)*el1->gsfTrack()->dxy(math::XYZPoint(0.,0.,0.)); //Distance wrt origin is not correct  
-	   d02 = (-1)*el2->gsfTrack()->dxy(math::XYZPoint(0.,0.,0.)); //Implementation of primary vertex needed! 
-	   dz1 = el1->gsfTrack()->dz(math::XYZPoint(0.,0.,0.));
-	   dz2 = el2->gsfTrack()->dz(math::XYZPoint(0.,0.,0.));
-	   reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
-	   reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
-	   double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
-	   double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - 0.5*pfIso2.sumPUPt );
-	   relIso1 = absiso1/el1->pt();
-	   relIso2 = absiso2/el2->pt();
-	   missingHits1 = el1->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-	   missingHits2 = el2->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-	   passConVeto1 = el1->passConversionVeto();
-	   passConVeto2 = el2->passConversionVeto();
-       }
-       else {
-	   ptel1 = -99., ptel2 = -99;
-	   etaSC1 = -99., etaSC2 = -99.;
-	   dEtaIn1 = -99., dEtaIn2 = -99.;
-	   dPhiIn1 = -99., dPhiIn2 = -99.;
-	   hOverE1 = -99., hOverE2 = -99.;
-	   full5x5_sigma1 = -99., full5x5_sigma2 = -99.;
-	   ooEmooP1 = -99., ooEmooP2 = -99.;
-	   d01 = -99., d02 = -99.;
-	   dz1 = -99., dz2 = -99.;
-	   relIso1 = -99., relIso2 = -99.;
-	   missingHits1 = -99, missingHits2 = -99;
-	   passConVeto1 = -99, passConVeto2 = -99;
-       }
 
        // Kinematics of leptons and jets
        ptlep1 = leptonicV.daughter(0)->pt();
@@ -377,6 +421,22 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 }
 
+void EDBRTreeMaker::setDummyValues() {
+     eeDeltaR       = 1e9;
+     ptel1          = 1e9, ptel2          = 1e9;
+     etaSC1         = 1e9, etaSC2         = 1e9;
+     dEtaIn1        = 1e9, dEtaIn2        = 1e9;
+     dPhiIn1        = 1e9, dPhiIn2        = 1e9;
+     hOverE1        = 1e9, hOverE2        = 1e9;
+     full5x5_sigma1 = 1e9, full5x5_sigma2 = 1e9;
+     ooEmooP1       = 1e9, ooEmooP2       = 1e9;
+     d01            = 1e9, d02            = 1e9;
+     dz1            = 1e9, dz2            = 1e9;
+     relIso1        = 1e9, relIso2        = 1e9;
+     missingHits1   = 1e9, missingHits2   = 1e9;  
+     passConVeto1   = 1e9, passConVeto2   = 1e9;
+     el1passID      = 1e9, el2passID      = 1e9; 
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
