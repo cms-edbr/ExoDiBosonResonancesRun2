@@ -249,8 +249,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        /// All the quantities which depend on RECO could go here
        if(not isGen_) {
-	   massVhad = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
-
            edm::Handle<reco::VertexCollection> vertices;
            iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
            if (vertices->empty()) return; // skip the event if no PV found
@@ -273,7 +271,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            //************************* ID for electrons **********************//
            //*****************************************************************//
            switch(channel){
-
               case VZ_CHANNEL:
                  if(leptonicV.daughter(0)->isElectron() && 
                     leptonicV.daughter(1)->isElectron()    ) {
@@ -317,7 +314,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                  }
                  break;
-
               case VW_CHANNEL:
                  if( leptonicV.daughter(0)->isElectron()||leptonicV.daughter(1)->isElectron() ) {
                        const pat::Electron *el1 = leptonicV.daughter(0)->isElectron() ? 
@@ -343,13 +339,13 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                  }
                  break;
-
               case VH_CHANNEL: // This channel needs to be implemented 
                  break;
            }
            //*****************************************************************//
            //********************* close ID for electrons ********************//
            //*****************************************************************//
+           massVhad     = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
        }
        
        if(isGen_) {
@@ -364,35 +360,35 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        double targetEvents = targetLumiInvPb_*crossSectionPb_;
        lumiWeight = targetEvents/originalNEvents_;
 
-       candMass = graviton.mass();
+       candMass     = graviton.mass();
    
-       ptVlep = leptonicV.pt();
-       ptVhad = hadronicV.pt();
-       yVlep = leptonicV.eta();
-       yVhad = hadronicV.eta();
-       phiVlep = leptonicV.phi();
-       phiVhad = hadronicV.phi();
-       massVlep = leptonicV.mass();
-       mtVlep = leptonicV.mt();
+       ptVlep       = leptonicV.pt();
+       ptVhad       = hadronicV.pt();
+       yVlep        = leptonicV.eta();
+       yVhad        = hadronicV.eta();
+       phiVlep      = leptonicV.phi();
+       phiVhad      = hadronicV.phi();
+       massVlep     = leptonicV.mass();
+       mtVlep       = leptonicV.mt();
    
-       tau1 = hadronicV.userFloat("tau1");
-       tau2 = hadronicV.userFloat("tau2");
-       tau3 = hadronicV.userFloat("tau3");
-       tau21 = hadronicV.userFloat("tau21");
+       tau1         = hadronicV.userFloat("tau1");
+       tau2         = hadronicV.userFloat("tau2");
+       tau3         = hadronicV.userFloat("tau3");
+       tau21        = hadronicV.userFloat("tau21");
 
        // Kinematics of leptons and jets
-       ptlep1 = leptonicV.daughter(0)->pt();
-       ptlep2 = leptonicV.daughter(1)->pt();
-       etalep1 = leptonicV.daughter(0)->eta();
-       etalep2 = leptonicV.daughter(1)->eta();
-       philep1 = leptonicV.daughter(0)->phi();
-       philep2 = leptonicV.daughter(1)->phi();
-       ptjet1 = hadronicV.pt();
-       etajet1 = hadronicV.eta();
-       phijet1 = hadronicV.phi();
+       ptlep1       = leptonicV.daughter(0)->pt();
+       ptlep2       = leptonicV.daughter(1)->pt();
+       etalep1      = leptonicV.daughter(0)->eta();
+       etalep2      = leptonicV.daughter(1)->eta();
+       philep1      = leptonicV.daughter(0)->phi();
+       philep2      = leptonicV.daughter(1)->phi();
+       ptjet1       = hadronicV.pt();
+       etajet1      = hadronicV.eta();
+       phijet1      = hadronicV.phi();
 
-       met = metCand.pt();
-       metPhi = metCand.phi();
+       met          = metCand.pt();
+       metPhi       = metCand.phi();
 
        deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
        double drl1j = deltaR(etalep1,philep1,etajet1,phijet1); 
@@ -402,7 +398,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        delPhilepmet = deltaPhi(philep1, metPhi);
        delPhijetmet = deltaPhi(phijet1, metPhi);
 
-       lep = abs(leptonicV.daughter(0)->pdgId());
+       lep          = abs(leptonicV.daughter(0)->pdgId());
 
        /// FIXME: these should NOT be hardcoded
        if(massVhad < 50 or massVhad > 110)
@@ -418,24 +414,73 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        /// If we arrive here, that means we have NOT found a resonance candidate,
        /// i.e. numCands == 0.
        outTree_->Fill();
+       //return; // skip event if there is no resonance candidate
    }
 }
 
 void EDBRTreeMaker::setDummyValues() {
-     eeDeltaR       = 1e9;
-     ptel1          = 1e9, ptel2          = 1e9;
-     etaSC1         = 1e9, etaSC2         = 1e9;
-     dEtaIn1        = 1e9, dEtaIn2        = 1e9;
-     dPhiIn1        = 1e9, dPhiIn2        = 1e9;
-     hOverE1        = 1e9, hOverE2        = 1e9;
-     full5x5_sigma1 = 1e9, full5x5_sigma2 = 1e9;
-     ooEmooP1       = 1e9, ooEmooP2       = 1e9;
-     d01            = 1e9, d02            = 1e9;
-     dz1            = 1e9, dz2            = 1e9;
-     relIso1        = 1e9, relIso2        = 1e9;
-     missingHits1   = 1e9, missingHits2   = 1e9;  
-     passConVeto1   = 1e9, passConVeto2   = 1e9;
-     el1passID      = 1e9, el2passID      = 1e9; 
+     nVtx           = -1e9;
+     triggerWeight  = -1e9;
+     pileupWeight   = -1e9;
+     lumiWeight     = -1e9;
+     candMass       = -1e9;
+     ptVlep         = -1e9;
+     ptVhad         = -1e9;
+     yVlep          = -1e9;
+     yVhad          = -1e9;
+     phiVlep        = -1e9;
+     phiVhad        = -1e9;
+     massVlep       = -1e9;
+     massVhad       = -1e9;
+     mtVlep         = -1e9;
+     tau1           = -1e9;
+     tau2           = -1e9;
+     tau3           = -1e9;
+     tau21          = -1e9;
+     ptlep1         = -1e9;
+     ptlep2         = -1e9;
+     etalep1        = -1e9;
+     etalep2        = -1e9;
+     philep1        = -1e9;
+     philep2        = -1e9;
+     ptjet1         = -1e9;
+     etajet1        = -1e9;
+     phijet1        = -1e9;
+     met            = -1e9;
+     metPhi         = -1e9;
+     deltaRleplep   = -1e9;
+     deltaRlepjet   = -1e9;
+     delPhilepmet   = -1e9;
+     delPhijetmet   = -1e9;
+     lep            = -1e9;
+     reg            = -1e9;
+     eeDeltaR       = -1e9;
+     ptel1          = -1e9;
+     etaSC1         = -1e9;
+     dEtaIn1        = -1e9;
+     dPhiIn1        = -1e9;
+     hOverE1        = -1e9;
+     full5x5_sigma1 = -1e9;
+     ooEmooP1       = -1e9;
+     d01            = -1e9;
+     dz1            = -1e9;
+     relIso1        = -1e9;
+     missingHits1   = -1e9; 
+     passConVeto1   = -1e9;
+     el1passID      = -1e9;
+     ptel2          = -1e9;
+     etaSC2         = -1e9;
+     dEtaIn2        = -1e9;
+     dPhiIn2        = -1e9;
+     hOverE2        = -1e9;
+     full5x5_sigma2 = -1e9;
+     ooEmooP2       = -1e9;
+     d02            = -1e9;
+     dz2            = -1e9;
+     relIso2        = -1e9;
+     missingHits2   = -1e9; 
+     passConVeto2   = -1e9;
+     el2passID      = -1e9; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
