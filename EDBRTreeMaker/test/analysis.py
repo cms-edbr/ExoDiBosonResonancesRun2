@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-option = 'GEN' # 'GEN' or 'RECO'
-
 #***************************************** Filter Mode **********************************************#
 #                                                                                                    #
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
@@ -14,15 +12,12 @@ filterMode = False # True
 #                                                                                                    #
 #****************************************************************************************************#
 
-WBOSONCUT = "pt > 100.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
-ZBOSONCUT = "pt > 100.0 & 70.0 < mass < 110.0"
-
+option = 'GEN' # 'GEN' or 'RECO'
 ### GEN level studies
 if option == 'GEN':
     process.load("ExoDiBosonResonances.EDBRGenStudies.genMuons_cff")
     process.load("ExoDiBosonResonances.EDBRGenStudies.genElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRGenStudies.genFatJets_cff")
-
 ### RECO level studies
 if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
@@ -56,9 +51,18 @@ if option == 'GEN':
         '(userFloat("ak8GenJetsPrunedLinks") < 110.0)'
 
 
+process.goodOfflinePrimaryVertex = cms.EDFilter("VertexSelector",
+                                       src = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                       cut = cms.string("chi2!=0 && ndof >= 4.0 && abs(z) <= 24.0 && abs(position.Rho) <= 2.0"),
+                                       filter = cms.bool(True)
+                                       )
+
+WBOSONCUT = "pt > 100.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
+ZBOSONCUT = "pt > 100.0 & 70.0 < mass < 110.0"
+
 process.leptonicVSelector = cms.EDFilter("CandViewSelector",
                                        src = cms.InputTag("leptonicV"),
-                                       cut = cms.string( ZBOSONCUT ),
+                                       cut = cms.string( ZBOSONCUT ), #Change in case of WChannel
                                        filter = cms.bool(True)
                                        )
 
@@ -101,20 +105,24 @@ process.jetSequence = cms.Sequence(process.fatJetsSequence +
 process.gravitonSequence = cms.Sequence(process.graviton +
                                         process.gravitonFilter)
 
+### If you're running in signal, you may want to not filter at this level
+### but only later at the tree analysis.
+if filterMode == False:
+    process.goodOfflinePrimaryVertex.filter = False
+    process.leptonicVSelector.filter = False
+    process.leptonicVSelector.cut = ''
+    process.hadronicV.cut = ''
+    process.graviton.cut = ''
+    process.leptonicVFilter.minNumber = 0
+    process.hadronicVFilter.minNumber = 0
+    process.gravitonFilter.minNumber = 0
+
 print "++++++++++ CUTS ++++++++++\n"
 print "Graviton cut = "+str(process.graviton.cut)
 print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
 print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
-
-### If you're running in signal, you may want to not filter at this level
-### but only later at the tree analysis.
-if filterMode == False:
-    process.leptonicVSelector.filter = False
-    process.leptonicVFilter.minNumber = 0
-    process.hadronicVFilter.minNumber = 0
-    process.gravitonFilter.minNumber = 0
-    
+   
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     originalNEvents = cms.int32(1),
                                     crossSectionPb = cms.double(1),
@@ -128,6 +136,7 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     electronIDs = cms.InputTag("cutBasedElectronID-CSA14-PU20bx25-V0-standalone-veto")
                                     )
 
+
 if option=='GEN':
     process.treeDumper.metSrc = 'genMetTrue'
     process.treeDumper.isGen  = True
@@ -136,8 +145,6 @@ if option=='GEN':
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
 process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
-#process.leptonicDecay.src = "prunedGenParticles"
-#process.hadronicDecay.src = "prunedGenParticles"
 
 process.analysis = cms.Path(process.leptonicDecay + 
                             process.hadronicDecay + 
@@ -146,10 +153,15 @@ process.analysis = cms.Path(process.leptonicDecay +
                             process.gravitonSequence +
                             process.treeDumper)
 
+if option=='RECO':
+    process.leptonicDecay.src = "prunedGenParticles"
+    process.hadronicDecay.src = "prunedGenParticles"
+    process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.leptonSequence)
+
 ### Source
 #process.load("ExoDiBosonResonances.EDBRCommon.simulation.DYJetsToLL_HT-600toInf")
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RSGravToZZ_kMpl01_M-1000")
-##process.source.fileNames = ["root://cmsxrootd.fnal.gov//store/user/jruizvar/RSGravToZZ/M1000/RSGravToZZ_kMpl01_M-1000_Tune4C_13TeV-pythia8_MINIAODSIM_PU20bx25_1.root"]
+#process.source.fileNames = ["/store/user/jruizvar/RSGravToZZ/M1000/RSGravToZZ_kMpl01_M-1000_Tune4C_13TeV-pythia8_MINIAODSIM_PU20bx25_1.root"]
 process.source.fileNames = ["file:RSG_ZZ_2L2Q.root"]
 
 process.maxEvents.input = -1
