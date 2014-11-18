@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-option = 'RECO' # 'GEN' or 'RECO'
-filterMode = False
+option = 'GEN' # 'GEN' or 'RECO'
+filterMode = False #False if you want to filter inside the analyzer
 WBOSONCUT = "pt > 100.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
 ZBOSONCUT = "pt > 100.0 & 70.0 < mass < 110.0"
 
@@ -35,7 +35,6 @@ if option == 'RECO':
     #process.Wtoenu.MET  = "slimmedMETs"
     #process.Wtomunu.MET = "slimmedMETs"
 
-process.leptonicV.cut = ZBOSONCUT
 if option == 'RECO':
     process.hadronicV.cut = \
         'pt > 100 &'+\
@@ -48,33 +47,42 @@ if option == 'GEN':
         '(userFloat("ak8GenJetsPrunedLinks") < 110.0)'
 
 
+process.leptonicVSelector = cms.EDFilter("CandViewSelector",
+                                       src = cms.InputTag("leptonicV"),
+                                       cut = cms.string( ZBOSONCUT ),
+                                       filter = cms.bool(True)
+                                       )
+
 process.leptonicVFilter = cms.EDFilter("CandViewCountFilter",
                                        src = cms.InputTag("leptonicV"),
                                        minNumber = cms.uint32(1),
+                                       filter = cms.bool(True)
                                        )
-
 process.hadronicVFilter = cms.EDFilter("CandViewCountFilter",
                                        src = cms.InputTag("hadronicV"),
                                        minNumber = cms.uint32(1),
+                                       filter = cms.bool(True)
                                        )
 
 process.graviton = cms.EDProducer("CandViewCombiner",
-                                  decay = cms.string("leptonicV hadronicV"),
-                                  checkCharge = cms.bool(False),
-                                  cut = cms.string("mass > 180"),
-                                  roles = cms.vstring('leptonicV', 'hadronicV'),
-                                  )
+                                       decay = cms.string("leptonicV hadronicV"),
+                                       checkCharge = cms.bool(False),
+                                       cut = cms.string("mass > 180"),
+                                       roles = cms.vstring('leptonicV', 'hadronicV'),
+                                       )
 
 ### We should add some modules to remove multiple candidates at some point...
 
 process.gravitonFilter =  cms.EDFilter("CandViewCountFilter",
                                        src = cms.InputTag("graviton"),
                                        minNumber = cms.uint32(1),
+                                       filter = cms.bool(True)
                                        )
 
 process.leptonSequence = cms.Sequence(process.muSequence +
                                       process.eleSequence +
                                       process.leptonicVSequence +
+                                      process.leptonicVSelector +
                                       process.leptonicVFilter )
 
 process.jetSequence = cms.Sequence(process.fatJetsSequence +
@@ -86,13 +94,14 @@ process.gravitonSequence = cms.Sequence(process.graviton +
 
 print "++++++++++ CUTS ++++++++++\n"
 print "Graviton cut = "+str(process.graviton.cut)
-print "Leptonic V cut = "+str(process.leptonicV.cut)
+print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
 print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
+    process.leptonicVSelector.filter = False
     process.leptonicVFilter.minNumber = 0
     process.hadronicVFilter.minNumber = 0
     process.gravitonFilter.minNumber = 0
@@ -106,23 +115,20 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     hadronicVSrc = cms.string("hadronicV"),
                                     leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
-                                    metSrc = cms.string("genMetTrue"),
+                                    metSrc = cms.string("slimmedMETs"),
                                     electronIDs = cms.InputTag("cutBasedElectronID-CSA14-PU20bx25-V0-standalone-veto")
                                     )
 
 if option=='GEN':
     process.treeDumper.metSrc = 'genMetTrue'
     process.treeDumper.isGen  = True
-if option=='RECO':
-    process.treeDumper.metSrc = 'slimmedMETs'
-    process.treeDumper.isGen  = False
 
 ### In case you need to select the decay channel at GEN level
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
 process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
-process.leptonicDecay.src = "prunedGenParticles"
-process.hadronicDecay.src = "prunedGenParticles"
+#process.leptonicDecay.src = "prunedGenParticles"
+#process.hadronicDecay.src = "prunedGenParticles"
 
 process.analysis = cms.Path(process.leptonicDecay + 
                             process.hadronicDecay + 
@@ -134,12 +140,13 @@ process.analysis = cms.Path(process.leptonicDecay +
 ### Source
 #process.load("ExoDiBosonResonances.EDBRCommon.simulation.DYJetsToLL_HT-600toInf")
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RSGravToZZ_kMpl01_M-1000")
-process.source.fileNames = ["root://cmsxrootd.fnal.gov//store/user/jruizvar/RSGravToZZ/M1000/RSGravToZZ_kMpl01_M-1000_Tune4C_13TeV-pythia8_MINIAODSIM_PU20bx25_1.root"]
+##process.source.fileNames = ["root://cmsxrootd.fnal.gov//store/user/jruizvar/RSGravToZZ/M1000/RSGravToZZ_kMpl01_M-1000_Tune4C_13TeV-pythia8_MINIAODSIM_PU20bx25_1.root"]
+process.source.fileNames = ["file:RSG_ZZ_2L2Q.root"]
 
-process.maxEvents.input = 10000
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.TFileService = cms.Service("TFileService",
