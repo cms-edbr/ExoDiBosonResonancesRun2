@@ -4,7 +4,16 @@ process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 option = 'GEN' # 'GEN' or 'RECO'
-filterMode = False #False if you want to filter inside the analyzer
+
+#***************************************** Filter Mode **********************************************#
+#                                                                                                    #
+# True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
+# False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
+#                                                                                                    #
+filterMode = False # True                      
+#                                                                                                    #
+#****************************************************************************************************#
+
 WBOSONCUT = "pt > 100.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
 ZBOSONCUT = "pt > 100.0 & 70.0 < mass < 110.0"
 
