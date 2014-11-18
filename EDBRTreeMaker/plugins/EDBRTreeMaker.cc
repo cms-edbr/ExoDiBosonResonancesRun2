@@ -345,6 +345,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            //*****************************************************************//
            //********************* close ID for electrons ********************//
            //*****************************************************************//
+           massVhad     = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
        }
        
        if(isGen_) {
@@ -368,7 +369,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        phiVlep      = leptonicV.phi();
        phiVhad      = hadronicV.phi();
        massVlep     = leptonicV.mass();
-       massVhad     = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
        mtVlep       = leptonicV.mt();
    
        tau1         = hadronicV.userFloat("tau1");
