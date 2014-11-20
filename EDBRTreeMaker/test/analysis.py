@@ -12,7 +12,7 @@ filterMode = False # True
 #                                                                                                    #
 #****************************************************************************************************#
 
-option = 'GEN' # 'GEN' or 'RECO'
+option = 'RECO' # 'GEN' or 'RECO'
 ### GEN level studies
 if option == 'GEN':
     process.load("ExoDiBosonResonances.EDBRGenStudies.genMuons_cff")
@@ -162,14 +162,14 @@ if option=='RECO':
 #process.load("ExoDiBosonResonances.EDBRCommon.simulation.DYJetsToLL_HT-600toInf")
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RSGravToZZ_kMpl01_M-1000")
 #process.source.fileNames = ["/store/user/jruizvar/RSGravToZZ/M1000/RSGravToZZ_kMpl01_M-1000_Tune4C_13TeV-pythia8_MINIAODSIM_PU20bx25_1.root"]
-process.source.fileNames = ["file:RSG_ZZ_2L2Q.root"]
+process.source.fileNames = ["/store/mc/Phys14DR/RSGravToZZ_kMpl01_M-4500_Tune4C_13TeV-pythia8/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/1898E9B3-9C6B-E411-88A4-00266CF327E0.root"]
 
 process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_RSGravToZZ_kMpl01_M-1000.root")
+                                   fileName = cms.string("treeEDBR_RSGravToZZ_kMpl01_M-4500.root")
                                    )
