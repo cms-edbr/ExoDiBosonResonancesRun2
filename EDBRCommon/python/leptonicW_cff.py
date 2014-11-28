@@ -1,27 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
 #Wtomunu = cms.EDProducer("CandViewShallowCloneCombiner",
-#                         decay = cms.string("goodMuons genMetTrue"),
+#                         decay = cms.string("goodMuons slimmedMETs"),
 #                         checkCharge = cms.bool(False),
 #                         cut = cms.string("mt > 50 & pt > 80")
 #                         )
 
 #Wtoenu = cms.EDProducer("CandViewCombiner",
-#                        decay = cms.string("goodElectrons genMetTrue"),
+#                        decay = cms.string("goodElectrons slimmedMETs"),
 #                        checkCharge = cms.bool(False),
 #                        cut = cms.string("mt > 50 & pt > 80")
 #                        )
 
 Wtomunu = cms.EDProducer("EDBRWLeptonicProducer",
                          leptons = cms.InputTag("goodMuons"),
-                         MET = cms.InputTag("genMetTrue"),
+                         MET = cms.InputTag("slimmedMETs"),
                          cut = cms.string("")
                          )
 
 
 Wtoenu = cms.EDProducer("EDBRWLeptonicProducer",
                         leptons = cms.InputTag("goodElectrons"),
-                        MET = cms.InputTag("genMetTrue"),
+                        MET = cms.InputTag("slimmedMETs"),
                         cut = cms.string("")
                         )
 
