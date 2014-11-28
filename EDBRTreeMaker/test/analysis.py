@@ -154,8 +154,6 @@ process.analysis = cms.Path(process.leptonicDecay +
                             process.treeDumper)
 
 if option=='RECO':
-    process.leptonicDecay.src = "prunedGenParticles"
-    process.hadronicDecay.src = "prunedGenParticles"
     process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.leptonSequence)
 
 ### Source
