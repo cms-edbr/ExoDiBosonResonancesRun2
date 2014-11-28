@@ -373,10 +373,10 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        massVlep     = leptonicV.mass();
        mtVlep       = leptonicV.mt();
    
-       tau1         = hadronicV.userFloat("tau1");
-       tau2         = hadronicV.userFloat("tau2");
-       tau3         = hadronicV.userFloat("tau3");
-       tau21        = hadronicV.userFloat("tau21");
+       tau1         = hadronicV.userFloat("NjettinessAK8:tau1");
+       tau2         = hadronicV.userFloat("NjettinessAK8:tau2");
+       tau3         = hadronicV.userFloat("NjettinessAK8:tau3");
+       tau21        = tau2/tau1;
 
        // Kinematics of leptons and jets
        ptlep1       = leptonicV.daughter(0)->pt();
