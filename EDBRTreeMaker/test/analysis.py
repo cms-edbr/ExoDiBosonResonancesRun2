@@ -109,6 +109,8 @@ process.gravitonSequence = cms.Sequence(process.graviton +
 ### but only later at the tree analysis.
 if filterMode == False:
     process.goodOfflinePrimaryVertex.filter = False
+    process.Ztomumu.cut = ''
+    process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
     process.leptonicVSelector.cut = ''
     process.hadronicV.cut = ''
