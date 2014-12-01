@@ -51,6 +51,7 @@ private:
   double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad;
   double met, metPhi, mtVlep;
   double tau1, tau2, tau3, tau21;
+  double massjet1;
   double ptlep1, ptlep2, ptjet1;
   double etalep1, etalep2, etajet1;
   double philep1, philep2, phijet1;
@@ -183,6 +184,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   outTree_->Branch("philep1"         ,&philep1        ,"philep1/D"        );
   outTree_->Branch("philep2"         ,&philep2        ,"philep2/D"        );
   outTree_->Branch("phijet1"         ,&phijet1        ,"phijet1/D"        );
+  outTree_->Branch("massjet1"        ,&massjet1       ,"massjet1/D"       );
   outTree_->Branch("met"             ,&met            ,"met/D"            );
   outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
 
@@ -386,6 +388,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        ptjet1       = hadronicV.pt();
        etajet1      = hadronicV.eta();
        phijet1      = hadronicV.phi();
+       massjet1     = hadronicV.mass();
 
        met          = metCand.pt();
        metPhi       = metCand.phi();
@@ -446,6 +449,7 @@ void EDBRTreeMaker::setDummyValues() {
      ptjet1         = -1e9;
      etajet1        = -1e9;
      phijet1        = -1e9;
+     massjet1       = -1e9;
      met            = -1e9;
      metPhi         = -1e9;
      deltaRleplep   = -1e9;

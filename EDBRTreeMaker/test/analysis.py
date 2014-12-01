@@ -109,6 +109,8 @@ process.gravitonSequence = cms.Sequence(process.graviton +
 ### but only later at the tree analysis.
 if filterMode == False:
     process.goodOfflinePrimaryVertex.filter = False
+    process.Ztomumu.cut = ''
+    process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
     process.leptonicVSelector.cut = ''
     process.hadronicV.cut = ''
@@ -154,8 +156,6 @@ process.analysis = cms.Path(process.leptonicDecay +
                             process.treeDumper)
 
 if option=='RECO':
-    process.leptonicDecay.src = "prunedGenParticles"
-    process.hadronicDecay.src = "prunedGenParticles"
     process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.leptonSequence)
 
 ### Source
