@@ -22,8 +22,8 @@ void signalFit()
   RooDataSet muds("muds","muds",RooArgSet(candMass,numCands,lep,lumiWeight),RooFit::Cut(muCh),RooFit::WeightVar(lumiWeight),RooFit::Import(*t0));
   RooRealVar mean("mean","mean of the Crystal Ball",4000.,100.,7100.);
   RooRealVar sigma("sigma","Crystal Ball sigma",100.,10.,1000.);
-  RooRealVar alphaL("alphaL","alpha left",  1..,  0.,10.);
-  RooRealVar alphaR("alphaR","alpha right",-1..,-10., 0.);
+  RooRealVar alphaL("alphaL","alpha left",  1.,  0.,10.);
+  RooRealVar alphaR("alphaR","alpha right",-1.,-10., 0.);
   RooRealVar nL("nL","n left", 3.,0.,10.);
   RooRealVar nR("nR","n right",3.,0.,10.);
   // Build Crystal Ball for the left tail
