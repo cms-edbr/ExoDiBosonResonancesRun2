@@ -147,7 +147,7 @@ TaggingEfficiencyStudy::analyze(const edm::Event& iEvent, const edm::EventSetup&
      histoDenominator->Fill(boson.pt());
    if(foundBoson && prunedMass > 70.0 && prunedMass < 110.0)
      histoPrunedMass->Fill(boson.pt());
-   if(foundBoson && prunedMass 70.0 && prunedMass < 110.0 && tau21 < 0.5)
+   if(foundBoson && prunedMass > 70.0 && prunedMass < 110.0 && tau21 < 0.5)
      histoPrunedMassAndTau->Fill(boson.pt());
    }
 }
