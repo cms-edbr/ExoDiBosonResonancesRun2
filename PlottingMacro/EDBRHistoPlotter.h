@@ -416,7 +416,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
 
   if (debug_) {
     printf("After scaling, sum of backgrounds = %g\n", sumMC->Integral());
-    printf("Sum of data is still %g\n", sumDATA->Integral());
+    printf("Sum of data is still %g\n", sumDataIntegral);
   }
 
 

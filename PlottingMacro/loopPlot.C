@@ -30,7 +30,7 @@ void loopPlot(){
   if(wantElectrons) flavour=11; if(wantMuons) flavour=13; if(wantElectrons and wantMuons) flavour=0;
   
   /// Luminosity value in fb^-1
-  double lumiValue = 10.0; 
+  double lumiValue = 3.0; 
   /// Should we scale the histograms to data?
   bool scaleToData = false;
   // Should we scale only wjets to make total MC = DATA?
@@ -71,7 +71,7 @@ void loopPlot(){
   const int nMC=3;//set to zero if you don't want to plot
   std::string mcLabels[nMC]={"DYJetsToLL_HT-600toInf",
 			     "DYJetsToLL_HT-400to600",
-			     "DYJetsToLL_HT-200to400"};
+			     "DYJetsToLL_HT-100to400"};
 
   double kFactorsMC_array[nMC] = {1, 1, 1};
   
@@ -91,7 +91,7 @@ void loopPlot(){
   /// Setup names of MC signal files for trees.
   const int nMCSig=1;//set to zero if you don't want to plot
   std::string mcLabelsSig[nMCSig]={"RSGravToZZ_kMpl01_M-1000",};
-  double kFactorsSig_array[nMCSig] = {5E-4};
+  double kFactorsSig_array[nMCSig] = {1};
 
   std::vector<double> kFactorsMCSig;
   for (int index=0; index<nMCSig; index++)
@@ -270,7 +270,7 @@ void loopPlot(){
 						 kFactorsMC,kFactorsMCSig);
   std::cout<<"Set output dir"<<std::endl;
   plotter->setOutDir(outputDir);
-  plotter->setDebug(false);
+  plotter->setDebug(true);
 
   //colors are assigned in the same order of mcLabels
     // For ZZ
