@@ -5,10 +5,10 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 #***************************************** Filter Mode **********************************************#
 #                                                                                                    #
-# True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
+# True : Events are filtered before the analyzer. TTree is filled with good values only              #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = False # True                      
+filterMode = True # True                      
 #                                                                                                    #
 #****************************************************************************************************#
 
@@ -34,6 +34,9 @@ configNevents = {"DYJetsToLL_HT-100to200_PHYS14" : 4054159,
 usedXsec = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
 
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'PHYS14_25_V2::All'
+
 option = 'RECO' # 'GEN' or 'RECO'
 ### GEN level studies
 if option == 'GEN':
@@ -45,7 +48,7 @@ if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
-
+    
 ### Hadronic and leptonic boson.
 ### Naturally, you should choose the one channel you need
 #process.load("ExoDiBosonResonances.EDBRCommon.leptonicW_cff")
@@ -120,7 +123,18 @@ process.leptonSequence = cms.Sequence(process.muSequence +
                                       process.leptonicVSelector +
                                       process.leptonicVFilter )
 
-process.jetSequence = cms.Sequence(process.fatJetsSequence +
+### Adding softdrop manually
+process.load("ExoDiBosonResonances.EDBRJets.redoSubstructure_cff")
+process.load("ExoDiBosonResonances.EDBRJets.redoPatJets_cff")
+process.goodJets.src = cms.InputTag("selectedPatJetsAK8")
+
+#process.load('Configuration.StandardSequences.Services_cff')
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+#process.GlobalTag.globaltag = 'PHYS14_25_V2'
+
+process.jetSequence = cms.Sequence(process.substructureSequence +
+                                   process.redoPatJets + 
+                                   process.fatJetsSequence +
                                    process.hadronicV +
                                    process.hadronicVFilter)
 
@@ -141,11 +155,16 @@ if filterMode == False:
     process.hadronicVFilter.minNumber = 0
     process.gravitonFilter.minNumber = 0
 
+process.hadronicV.cut = str("pt > 100")
+
 print "++++++++++ CUTS ++++++++++\n"
 print "Graviton cut = "+str(process.graviton.cut)
 print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
 print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
+print "Running over SAMPLE: "+SAMPLE
+print "Number of events: "+str(usedNevents)
+print "Cross sect. (pb): "+str(usedXsec)
    
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     originalNEvents = cms.int32(usedNevents),
@@ -170,8 +189,8 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
 process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
 
-process.analysis = cms.Path(process.leptonicDecay + 
-                            process.hadronicDecay + 
+process.analysis = cms.Path(#process.leptonicDecay + 
+                            #process.hadronicDecay + 
                             process.leptonSequence +
                             process.jetSequence +
                             process.gravitonSequence +
@@ -182,6 +201,8 @@ if option=='RECO':
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation."+SAMPLE)
+#process.load("ExoDiBosonResonances.EDBRCommon.simulation.RSGravToZZ_kMpl01_M-2000_PHYS14")
+#process.source.fileNames = ["/store/user/jruizvar/RSGravToZZ/M1000/RSGravToZZ_kMpl01_M-1000_Tune4C_13TeV-pythia8_MINIAODSIM_PU20bx25_1.root"]
 #process.source.fileNames = ["/store/mc/Phys14DR/RSGravToZZ_kMpl01_M-4500_Tune4C_13TeV-pythia8/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/1898E9B3-9C6B-E411-88A4-00266CF327E0.root"]
 
 process.maxEvents.input = -1
@@ -193,3 +214,10 @@ process.MessageLogger.cerr.FwkReport.limit = 99999999
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("treeEDBR_"+SAMPLE+".root")
                                    )
+
+# Other statements
+#process.patJetsAK8.addJetCorrFactors = False                                                                             
+#process.patJetsAK8.jetCorrFactorsSource = cms.VInputTag()
+
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'PHYS14_25_V2', '')
