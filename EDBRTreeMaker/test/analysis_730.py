@@ -19,7 +19,7 @@ SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
 #SAMPLE="DYJetsToLL_HT-600toInf_PHYS14"
 
 configXsecs = {"DYJetsToLL_HT-100to200_PHYS14" : 194.3,
-               "DYJetsToLL_HT-200to400_PHYS14" : 53.24,
+               "DYJetsToLL_HT-200to400_PHYS14" : 52.24,
                "DYJetsToLL_HT-400to600_PHYS14" : 6.546,
                "DYJetsToLL_HT-600toInf_PHYS14" : 2.179,
                "RSGravToZZ_kMpl01_M-2000_PHYS14" : 1,
