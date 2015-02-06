@@ -1,11 +1,37 @@
 // 
-// Usage: root -b -q 'plotLimit.C("CombineEHP.root")'
+// Usage: root -b -q 'plotLimit.C("EHP")'
+//        root -b -q 'plotLimit.C("ELP")'
+//        root -b -q 'plotLimit.C("MHP")'
+//        root -b -q 'plotLimit.C("MLP")'
 //
-// Run in ROOT 6 (TTreeReader not available in ROOT 5) 
 
-void plotLimit(const char *file)
+void plotLimit(std::string key)
 {
-  TFile *f = TFile::Open(file);
+  std::map<std::string, std::string> inputFile;
+  inputFile["EHP"]="combineEHP.root";
+  inputFile["ELP"]="combineELP.root";
+  inputFile["MHP"]="combineMHP.root";
+  inputFile["MLP"]="combineMLP.root";
+
+  std::map<std::string, std::string> outFile;
+  outFile["EHP"]="limitEHP.png";
+  outFile["ELP"]="limitELP.png";
+  outFile["MHP"]="limitMHP.png";
+  outFile["MLP"]="limitMLP.png";
+
+  std::map<std::string, std::string> legTitle;
+  legTitle["EHP"]="electron channel high purity";
+  legTitle["ELP"]="electron channel low purity";
+  legTitle["MHP"]="muon channel high purity";
+  legTitle["MLP"]="muon channel low purity";
+
+  std::map<std::string, std::string> axisTitle;
+  axisTitle["EHP"]="ee";
+  axisTitle["ELP"]="ee";
+  axisTitle["MHP"]="#mu#mu";
+  axisTitle["MLP"]="#mu#mu";
+ 
+  TFile *f = TFile::Open(inputFile[key].c_str());
   TTreeReader myReader("limit", f);
   TTreeReaderValue<Double_t> limit(myReader, "limit");
   vector<Double_t> y0, y1, y2, y3, y4;
@@ -41,7 +67,12 @@ void plotLimit(const char *file)
   gr2->SetFillStyle(1001);
   gr1->SetFillColor(3);
   gr2->SetFillColor(5);
-  gr2->SetTitle("CMS Preliminary   #sqrt{s} = 13 TeV    #int L dt = 3 fb^{-1};  M_{ZZ} [GeV]; #sigma_{95%} #times BR(G #rightarrow ZZ #rightarrow eej ) [fb]");
+  gr2->GetYaxis()->SetTitleOffset(1.2);
+  gr2->SetMinimum(1.4);
+  gr2->SetMaximum(500);
+  gr2->SetTitle(Form("CMS Preliminary   #sqrt{s} = 13 TeV    #int L dt = 3 fb^{-1};M_{ZZ} [GeV];\
+                     #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [fb]",
+                     axisTitle[key].c_str() ));
 
   TCanvas *c1 = new TCanvas("c1","c1",700,700);
   c1->cd();
@@ -52,12 +83,12 @@ void plotLimit(const char *file)
   gr1->Draw("same3");
   gr0->Draw("sameCP");
 
-  TLegend *leg = new TLegend(0.45,0.65,0.88,0.88);
-  leg->SetHeader("electron channel high purity");
+  TLegend *leg = new TLegend(0.45,0.68,0.9,0.9);
+  leg->SetHeader(legTitle[key].c_str());
   leg->AddEntry(gr0,"expected 95% C.L. upper limit","lp");
   leg->AddEntry(gr1,"expected #pm 1#sigma","f");
   leg->AddEntry(gr2,"expected #pm 2#sigma","f");
   leg->Draw();
 
-  c1->Print("ehpLimit.png");
+  c1->Print(outFile[key].c_str());
 }

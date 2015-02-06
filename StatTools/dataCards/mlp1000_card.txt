@@ -1,0 +1,21 @@
+# Simple counting experiment, with one signal and one background
+# Simplified version of the WZ trilpeton analysis for 20/fb
+imax 1  number of channels
+jmax 1  number of backgrounds
+kmax 2  number of systematics
+------------
+# we have just one channel, in which we observe 85 events
+bin bin1
+observation 10
+------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
+bin                bin1    bin1
+process            RSG     SMDY
+process            0       1
+rate               0.093   29 
+------------
+CMS_lumi                lnN     1.03   1.03
+CMS_eff_RSG             lnN     1.01    -
