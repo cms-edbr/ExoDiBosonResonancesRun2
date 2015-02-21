@@ -1,0 +1,18 @@
+imax 1  number of channels
+jmax 1  number of processes minus 1
+kmax *
+------------------------------------------------------------------------------
+shapes         mc_signal     MLP      workSpaces/wspace_MLP4000.root    myws:sig_pdf
+shapes         bkg_mass      MLP      workSpaces/wspace_MLP4000.root    myws:bkg_pdf
+shapes         data_obs      MLP      workSpaces/wspace_MLP4000.root    myws:data 
+------------------------------------------------------------------------------
+bin            MLP       
+observation    -1.0      
+------------------------------------------------------------------------------
+bin            MLP           MLP       
+process        mc_signal     bkg_mass  
+process        0             1         
+rate           0.063374      0.057608  
+------------------------------------------------------------------------------
+lumi    lnN    1.03          1.03      
+eff_sig lnN    1.01          -         
