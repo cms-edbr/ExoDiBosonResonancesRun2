@@ -46,7 +46,7 @@ def addElectronIDs(process):
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
     
     # Do not forget to add the egmGsfElectronIDSequence to the path,
-    process.eleSequence = cms.Sequence(process.egmGsfElectronIDSequence+process.isolatedElectrons+process.goodElectrons)
+    process.eleSequence = cms.Sequence(process.egmGsfElectronIDSequence+process.goodElectrons)
 
     return process
 #
