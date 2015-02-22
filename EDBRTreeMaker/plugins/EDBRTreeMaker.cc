@@ -318,8 +318,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const Ptr<pat::Electron> el2Ptr(electrons, 1 );
                         edm::Handle<edm::ValueMap<bool> >  id_decisions;
                         iEvent.getByToken(electronIdToken_,id_decisions);
-                        el1passID      = (*id_decisions)[ el1Ptr  ];
-                        el2passID      = (*id_decisions)[ el2Ptr  ];
+                        el1passID      = (*id_decisions)[ el1Ptr ];
+                        el2passID      = (*id_decisions)[ el2Ptr ];
                     }
                  }
                  break;
