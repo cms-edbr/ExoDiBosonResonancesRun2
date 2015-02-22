@@ -68,9 +68,9 @@ void plotLimit(std::string key)
   gr1->SetFillColor(3);
   gr2->SetFillColor(5);
   gr2->GetYaxis()->SetTitleOffset(1.2);
-  gr2->SetMinimum(1.4);
-  gr2->SetMaximum(500);
-  gr2->SetTitle(Form("CMS Preliminary   #sqrt{s} = 13 TeV    #int L dt = 3 fb^{-1};M_{ZZ} [GeV];\
+  gr2->SetMinimum(1.0);
+  gr2->SetMaximum(800);
+  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 3 fb^{-1};M_{ZZ} [GeV];\
                      #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [fb]",
                      axisTitle[key].c_str() ));
 
@@ -89,6 +89,10 @@ void plotLimit(std::string key)
   leg->AddEntry(gr1,"expected #pm 1#sigma","f");
   leg->AddEntry(gr2,"expected #pm 2#sigma","f");
   leg->Draw();
+  TLegendEntry *header = (TLegendEntry*)leg->GetListOfPrimitives()->First();
+  header->SetTextAlign(22);
+  header->SetTextColor(2);
+  header->SetTextSize(.04);
 
   c1->Print(outFile[key].c_str());
 }
