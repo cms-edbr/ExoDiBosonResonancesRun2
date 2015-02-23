@@ -135,7 +135,7 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
                                     metSrc = cms.string("slimmedMETs"),
-                                    electronIDs = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-medium")
+                                    electronIDs = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51-miniAOD")
                                     )
 
 
