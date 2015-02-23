@@ -14,6 +14,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -75,7 +76,7 @@ private:
   int missingHits1, missingHits2;
   int passConVeto1, passConVeto2;
   int el1passID, el2passID;
-  edm::InputTag electronIdTag_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > electronIdToken_;
   void setDummyValues();
 
   /// Parameters to steer the treeDumper
@@ -91,8 +92,8 @@ private:
 //
 // constructors and destructor
 //
-EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
-
+EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
+  electronIdToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronIDs")))
 {
   originalNEvents_ = iConfig.getParameter<int>("originalNEvents");
   crossSectionPb_  = iConfig.getParameter<double>("crossSectionPb");
@@ -104,7 +105,6 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig)
   //leptonicVSrc_ = iConfig.getParameter<std::string>("leptonicVSrc");
   gravitonSrc_     = iConfig.getParameter<std::string>("gravitonSrc");
   metSrc_          = iConfig.getParameter<std::string>("metSrc");
-  electronIdTag_   = iConfig.getParameter<edm::InputTag>("electronIDs");
 
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -311,8 +311,15 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
                         passConVeto1   = el1->passConversionVeto();
                         passConVeto2   = el2->passConversionVeto();
-                        el1passID      = ( el1->electronID(electronIdTag_.encode())>0.5 );
-                        el2passID      = ( el2->electronID(electronIdTag_.encode())>0.5 );
+                        //Retrieve electron IDs
+                        edm::Handle<edm::View<pat::Electron> > electrons;
+                        iEvent.getByLabel("slimmedElectrons", electrons);
+                        const Ptr<pat::Electron> el1Ptr(electrons, 0 );
+                        const Ptr<pat::Electron> el2Ptr(electrons, 1 );
+                        edm::Handle<edm::ValueMap<bool> >  id_decisions;
+                        iEvent.getByToken(electronIdToken_,id_decisions);
+                        el1passID      = (*id_decisions)[ el1Ptr ];
+                        el2passID      = (*id_decisions)[ el2Ptr ];
                     }
                  }
                  break;
@@ -337,7 +344,13 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         dz1            = el1->gsfTrack()->dz(firstGoodVertex->position());
                         missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
             	        passConVeto1   = el1->passConversionVeto();
-                        el1passID      = ( el1->electronID(electronIdTag_.encode())>0.5 );
+                        //Retrieve electron IDs
+                        edm::Handle<edm::View<pat::Electron> > electrons;
+                        iEvent.getByLabel("slimmedElectrons", electrons);
+                        const Ptr<pat::Electron> el1Ptr(electrons,  0 );
+                        edm::Handle<edm::ValueMap<bool> >  id_decisions;
+                        iEvent.getByToken(electronIdToken_,id_decisions);
+                        el1passID      = (*id_decisions)[ el1Ptr ];
                     }
                  }
                  break;

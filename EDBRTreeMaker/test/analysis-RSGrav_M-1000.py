@@ -8,7 +8,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = False # True                      
+filterMode = True                      
 #                                                                                                    #
 #****************************************************************************************************#
 
@@ -135,7 +135,7 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
                                     metSrc = cms.string("slimmedMETs"),
-                                    electronIDs = cms.InputTag("cutBasedElectronID-CSA14-PU20bx25-V0-standalone-veto")
+                                    electronIDs = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-medium")
                                     )
 
 
@@ -156,11 +156,14 @@ process.analysis = cms.Path(process.leptonicDecay +
                             process.treeDumper)
 
 if option=='RECO':
+    from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
     process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.leptonSequence)
+    process = addElectronIDs(process)
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RSGravToZZ_kMpl01_M-1000_PHYS14")
 #process.source.fileNames = ["/store/mc/Phys14DR/RSGravToZZ_kMpl01_M-4500_Tune4C_13TeV-pythia8/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/1898E9B3-9C6B-E411-88A4-00266CF327E0.root"]
+
 
 process.maxEvents.input = -1
 
