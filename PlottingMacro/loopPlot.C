@@ -45,7 +45,7 @@ void loopPlot(){
   bool isSignalStackOnBkg = false;
 
   /// Path to wherever the files with the trees are. 
-  std::string pathToTrees="../EDBRCommon/";
+  std::string pathToTrees="../EDBRTreeMaker/test/";
 
   /// Path to wherever you want to put the histograms (figures) in.
   std::string outputDir = "./plots_test_Run2";
@@ -92,9 +92,10 @@ void loopPlot(){
     }
 
   /// Setup names of MC signal files for trees.
-  const int nMCSig=1;//set to zero if you don't want to plot
-  std::string mcLabelsSig[nMCSig]={"RSGravToZZ_kMpl01_M-1000",};
-  double kFactorsSig_array[nMCSig] = {1};
+  const int nMCSig=2;//set to zero if you don't want to plot
+  std::string mcLabelsSig[nMCSig]={"RSGravToZZ_kMpl01_M-1000",
+                                   "RSGravToZZ_kMpl01_M-2000"};
+  double kFactorsSig_array[nMCSig] = {10,100};
 
   std::vector<double> kFactorsMCSig;
   for (int index=0; index<nMCSig; index++)
