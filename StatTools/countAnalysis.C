@@ -9,28 +9,28 @@
 //
 //                             category  central   lower    upper
 //
-//        .x shapeAnalysis.C(   "EHP",    1000,     800,    1200  )
-//        .x shapeAnalysis.C(   "ELP",    1000,     800,    1200  )
-//        .x shapeAnalysis.C(   "MHP",    1000,     800,    1200  )
-//        .x shapeAnalysis.C(   "MLP",    1000,     800,    1200  )
+//        .x countAnalysis.C(   "EHP",    1000,     800,    1200  )
+//        .x countAnalysis.C(   "ELP",    1000,     800,    1200  )
+//        .x countAnalysis.C(   "MHP",    1000,     800,    1200  )
+//        .x countAnalysis.C(   "MLP",    1000,     800,    1200  )
 //
-//        .x shapeAnalysis.C(   "EHP",    2000,    1700,    2300  )
-//        .x shapeAnalysis.C(   "ELP",    2000,    1700,    2300  )
-//        .x shapeAnalysis.C(   "MHP",    2000,    1700,    2300  )
-//        .x shapeAnalysis.C(   "MLP",    2000,    1700,    2300  )
+//        .x countAnalysis.C(   "EHP",    2000,    1700,    2300  )
+//        .x countAnalysis.C(   "ELP",    2000,    1700,    2300  )
+//        .x countAnalysis.C(   "MHP",    2000,    1700,    2300  )
+//        .x countAnalysis.C(   "MLP",    2000,    1700,    2300  )
 //
-//        .x shapeAnalysis.C(   "EHP",    3000,    2400,    3500  )
-//        .x shapeAnalysis.C(   "ELP",    3000,    2400,    3500  )
-//        .x shapeAnalysis.C(   "MHP",    3000,    2400,    3500  )
-//        .x shapeAnalysis.C(   "MLP",    3000,    2400,    3500  )
+//        .x countAnalysis.C(   "EHP",    3000,    2400,    3500  )
+//        .x countAnalysis.C(   "ELP",    3000,    2400,    3500  )
+//        .x countAnalysis.C(   "MHP",    3000,    2400,    3500  )
+//        .x countAnalysis.C(   "MLP",    3000,    2400,    3500  )
 //
-//        .x shapeAnalysis.C(   "EHP",    4000,    3200,    4800  )
-//        .x shapeAnalysis.C(   "ELP",    4000,    3200,    4800  )
-//        .x shapeAnalysis.C(   "MHP",    4000,    3200,    4800  )
-//        .x shapeAnalysis.C(   "MLP",    4000,    3200,    4800  )
+//        .x countAnalysis.C(   "EHP",    4000,    3200,    4800  )
+//        .x countAnalysis.C(   "ELP",    4000,    3200,    4800  )
+//        .x countAnalysis.C(   "MHP",    4000,    3200,    4800  )
+//        .x countAnalysis.C(   "MLP",    4000,    3200,    4800  )
 //
 
-void shapeAnalysis(std::string key, Int_t mass, Double_t low, Double_t up)
+void countAnalysis(std::string key, Int_t mass, Double_t low, Double_t up)
 {
 
   // Silent RooFit
@@ -72,14 +72,6 @@ void shapeAnalysis(std::string key, Int_t mass, Double_t low, Double_t up)
   RooRealVar p1("p1","parameter 1",  0., -1.,   1.);
   RooGenericPdf bkg_pdf("bkg_pdf","leveled exponential PDF","exp(-candMass/(p0+p1*candMass))",RooArgSet(candMass,p0,p1));
   bkg_pdf.fitTo(bkgds, RooFit::PrintLevel(-1));
-  p0.setConstant(true);
-  p1.setConstant(true);
-//  RooPlot *plot = candMass.frame();
-//  bkgds.plotOn(plot);
-//  bkg_pdf.plotOn(plot);
-//  bkg_pdf.paramOn(plot);
-//  plot->Draw();
-//  cout << "chi2: " << plot->chiSquare(2) << endl; 
 
   // Double Crystall ball
   RooRealVar mean("mean","mean of the Crystal Ball",mass,700.,4800.);
@@ -90,18 +82,11 @@ void shapeAnalysis(std::string key, Int_t mass, Double_t low, Double_t up)
   RooRealVar nR("nR","n right", 1., 0.1,  5.);
   RooDoubleCrystalBall sig_pdf("sig_pdf","Double Crystall Ball",candMass,mean,sigma,alphaL,nL,alphaR,nR);
   sig_pdf.fitTo(sigds, RooFit::PrintLevel(-1), RooFit::Range(low,up));
-  mean.setConstant(true);
-  sigma.setConstant(true);
-  alphaL.setConstant(true);
-  alphaR.setConstant(true);
-  nL.setConstant(true);
-  nR.setConstant(true);
-//  RooPlot *plot = candMass.frame(low,up);
-//  sigds.plotOn(plot);
-//  sig_pdf.plotOn(plot);
-//  sig_pdf.paramOn(plot);
-//  plot->Draw();
-//  cout << "chi2: " << plot->chiSquare(6) << endl; 
+
+  // Integrate PDFs in signal window
+  candMass.setRange("signal",low,up);
+  RooAbsReal* bkg_pdf_r = bkg_pdf.createIntegral(candMass,RooFit::NormSet(candMass),RooFit::Range("signal"));
+  RooAbsReal* sig_pdf_r = sig_pdf.createIntegral(candMass,RooFit::NormSet(candMass),RooFit::Range("signal"));
 
   // Number of generated signal events
   std::map<Int_t, Int_t> nEvents;
@@ -113,44 +98,29 @@ void shapeAnalysis(std::string key, Int_t mass, Double_t low, Double_t up)
   Double_t sel_eff = (Double_t)sigds.numEntries()/nEvents[mass];
   Double_t sig_xs_fb = 1.;         // signal cross section in fb
   Double_t target_lumi_fbInv = 3.; // target luminosity in fb^-1
-  // Signal yield  
-  float sigYield = target_lumi_fbInv * sel_eff * sig_xs_fb;
+  // Signal yield inside signal window  
+  float sigYield = sig_pdf_r->getVal() * target_lumi_fbInv * sel_eff * sig_xs_fb;
 
-  // background yield (assuming dataset is correctly weighted)
-  float bkgYield = bkgds.sumEntries();
-
-  // Generate 10 events of pseudo-data
-  RooDataSet *data = bkg_pdf.generate(candMass,10);
-  data->SetName("data");
-
-  // create workspace
-  RooWorkspace *w = new RooWorkspace("myws","workspace") ;
-  w->import(*data);
-  w->import(bkg_pdf);
-  w->import(sig_pdf);
-  w->writeToFile(Form("workSpaces/wspace_%s%d.root",key.c_str(),mass));
+  // background yield inside signal window
+  float bkgYield = bkg_pdf_r->getVal() * bkgds.sumEntries();
 
   // create datacard
-  const char *outFile = Form("dataCards/%s%d_shape_card.txt",key.c_str(),mass);
+  const char *outFile = Form("dataCards/%s%d_card.txt",key.c_str(),mass);
   std::ofstream ofs;
   ofs.open(outFile, std::ofstream::out);
 
-  ofs << Form("imax 1  number of channels\n"       );
+  ofs << Form("imax 1  number of channels\n"         );
   ofs << Form("jmax 1  number of processes minus 1\n");
-  ofs << Form("kmax *\n");
-  ofs << Form("-----------------------------------------------------------------------------------\n");
-  ofs << Form("shapes         %-10s    %-5s    workSpaces/wspace_%s%d.root    %-10s\n", "mc_signal", key.c_str(), key.c_str(),mass, "myws:sig_pdf");
-  ofs << Form("shapes         %-10s    %-5s    workSpaces/wspace_%s%d.root    %-10s\n", "bkg_mass",  key.c_str(), key.c_str(),mass, "myws:bkg_pdf");
-  ofs << Form("shapes         %-10s    %-5s    workSpaces/wspace_%s%d.root    %-10s\n", "data_obs",  key.c_str(), key.c_str(),mass, "myws:data"   );
-  ofs << Form("-----------------------------------------------------------------------------------\n");
+  ofs << Form("kmax 2  number of systematics\n"      );
+  ofs << Form("------------------------------------------------------------------------------\n");
   ofs << Form("bin            %-10s\n", key.c_str());
-  ofs << Form("observation    %-10s\n",      "-1.0");
-  ofs << Form("-----------------------------------------------------------------------------------\n");
+  ofs << Form("observation    %-10s\n",    "10"    );
+  ofs << Form("------------------------------------------------------------------------------\n");
   ofs << Form("bin            %-10s    %-10s\n", key.c_str(), key.c_str());
   ofs << Form("process        %-10s    %-10s\n", "mc_signal",  "bkg_mass");
   ofs << Form("process        %-10s    %-10s\n",         "0",         "1");
   ofs << Form("rate           %-10f    %-10f\n",    sigYield,    bkgYield);
-  ofs << Form("-----------------------------------------------------------------------------------\n");
+  ofs << Form("------------------------------------------------------------------------------\n");
   ofs << Form("lumi    lnN    %-10s    %-10s\n", "1.03", "1.03");
   ofs << Form("eff_sig lnN    %-10s    %-10s\n", "1.01",  "-"  );
 
