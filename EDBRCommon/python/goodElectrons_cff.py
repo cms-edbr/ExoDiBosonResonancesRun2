@@ -40,6 +40,7 @@ def addElectronIDs(process):
     process.load('RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff')
     setupVIDSelection(process.egmGsfElectronIDs,process.heepElectronID_HEEPV51_miniAOD)   
 
+    process.goodElectrons.src = "slimmedElectrons"
     process.eleSequence = cms.Sequence(process.egmGsfElectronIDSequence+process.goodElectrons)
 
     return process

@@ -31,13 +31,6 @@ if option == 'RECO':
 process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 
-# Updates
-if option == 'RECO':
-    process.goodMuons.src = "slimmedMuons"
-    process.goodElectrons.src = "slimmedElectrons"
-    process.goodJets.src = "slimmedJetsAK8"
-    #process.Wtoenu.MET  = "slimmedMETs"
-    #process.Wtomunu.MET = "slimmedMETs"
 
 if option == 'RECO':
     process.hadronicV.cut = \

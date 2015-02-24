@@ -1,0 +1,14 @@
+imax 1  number of channels
+jmax 1  number of processes minus 1
+kmax 2  number of systematics
+------------------------------------------------------------------------------
+bin            ELP       
+observation    10        
+------------------------------------------------------------------------------
+bin            ELP           ELP       
+process        mc_signal     bkg_mass  
+process        0             1         
+rate           0.141233      0.390664  
+------------------------------------------------------------------------------
+lumi    lnN    1.03          1.03      
+eff_sig lnN    1.01          -         

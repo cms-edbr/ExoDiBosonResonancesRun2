@@ -8,7 +8,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = False # True                      
+filterMode = True                      
 #                                                                                                    #
 #****************************************************************************************************#
 
@@ -53,13 +53,6 @@ if option == 'RECO':
 process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 
-# Updates
-if option == 'RECO':
-    process.goodMuons.src = "slimmedMuons"
-    process.goodElectrons.src = "slimmedElectrons"
-    process.goodJets.src = "slimmedJetsAK8"
-    #process.Wtoenu.MET  = "slimmedMETs"
-    #process.Wtomunu.MET = "slimmedMETs"
 
 if option == 'RECO':
     process.hadronicV.cut = \
@@ -157,7 +150,7 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
                                     metSrc = cms.string("slimmedMETs"),
-                                    electronIDs = cms.InputTag("cutBasedElectronID-CSA14-PU20bx25-V0-standalone-veto")
+                                    electronIDs = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51-miniAOD")
                                     )
 
 
@@ -178,7 +171,9 @@ process.analysis = cms.Path(process.leptonicDecay +
                             process.treeDumper)
 
 if option=='RECO':
+    from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
     process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.leptonSequence)
+    process = addElectronIDs(process)
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation."+SAMPLE)
