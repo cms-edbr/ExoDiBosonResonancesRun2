@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
+# Delivers "L1GtStableParametersRcd" record in the EventSetup
+process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
+
 #***************************************** Filter Mode **********************************************#
 #                                                                                                    #
 # True : Events are filtered before the analyzer. TTree is filled with good values only              #
@@ -169,7 +172,10 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
                                     metSrc = cms.string("slimmedMETs"),
-                                    electronIDs = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51-miniAOD")
+                                    electronIDs = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51-miniAOD"),
+                                    hltToken = cms.InputTag("TriggerResults","","HLT"),
+                                    elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_*","HLT_Ele95_*"), 
+                                    muPaths = cms.vstring("HLT_Mu30_TkMu11_v*","HLT_Mu40_v*","HLT_IsoMu24_*IterTrk02_v*") 
                                     )
 
 
