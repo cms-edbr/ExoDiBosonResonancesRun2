@@ -14,6 +14,7 @@ process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
 filterMode = True # True                      
 #                                                                                                    #
 #****************************************************************************************************#
+## Happy comment
 
 SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
 #SAMPLE="DYJetsToLL_HT-100to200_PHYS14"
