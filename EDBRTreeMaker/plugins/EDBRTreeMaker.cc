@@ -3,30 +3,36 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "EDBRChannels.h"
-#include "TTree.h"
+#include "TAxis.h"
+#include "TEfficiency.h"
 #include "TFile.h"
+#include "TH1.h"
+#include "TString.h"
+#include "TTree.h"
 
 //
 // class declaration
@@ -42,8 +48,12 @@ private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
+
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
+  edm::Service<TFileService> fs;
   TTree* outTree_;
 
   int nevent, run, ls;
@@ -87,13 +97,26 @@ private:
   bool isGen_;
   //std::string hadronicVSrc_, leptonicVSrc_;
   std::string gravitonSrc_, metSrc_;
+
+  //High Level Trigger
+  HLTConfigProvider hltConfig;
+  edm::EDGetTokenT<edm::TriggerResults> hltToken_;
+  std::vector<std::string> elPaths_;
+  std::vector<std::string> muPaths_;
+  std::vector<std::string> elPaths;
+  std::vector<std::string> muPaths;
+  TEfficiency *eleff, *mueff;
+  TH1I *elframe, *muframe;
 };
 
 //
 // constructors and destructor
 //
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
-  electronIdToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronIDs")))
+  electronIdToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronIDs"))),
+  hltToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltToken"))),
+  elPaths_(iConfig.getParameter<std::vector<std::string>>("elPaths")),
+  muPaths_(iConfig.getParameter<std::vector<std::string>>("muPaths"))
 {
   originalNEvents_ = iConfig.getParameter<int>("originalNEvents");
   crossSectionPb_  = iConfig.getParameter<double>("crossSectionPb");
@@ -120,7 +143,6 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   }
   
   //now do what ever initialization is needed
-  edm::Service<TFileService> fs;
   outTree_ = fs->make<TTree>("EDBRCandidates","EDBR Candidates");
 
   /// Basic event quantities
@@ -424,6 +446,23 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(massVhad > 70 and massVhad < 110)
 	   reg = 1;
    
+       // ------ analize trigger results ----------//
+       edm::Handle<TriggerResults> trigRes;
+       iEvent.getByToken(hltToken_, trigRes);
+       if( lep<12 and el1passID and el2passID ){
+          for (size_t i=0; i<elPaths.size(); i++){
+              const unsigned int path_index = hltConfig.triggerIndex(elPaths[i]);
+              bool path_bit = trigRes->accept(path_index);
+              eleff->Fill( path_bit, i );
+          }
+       }
+       if( lep>12 ){
+          for (size_t i=0; i<muPaths.size(); i++){
+              const unsigned int path_index = hltConfig.triggerIndex(muPaths[i]);
+              bool path_bit = trigRes->accept(path_index);
+              mueff->Fill( path_bit, i );
+          }
+       }
        outTree_->Fill();
    }
    else {
@@ -501,14 +540,50 @@ void EDBRTreeMaker::setDummyValues() {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-EDBRTreeMaker::beginJob()
+void EDBRTreeMaker::beginJob()
+{
+}
+
+void EDBRTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+   bool changed;
+   if ( !hltConfig.init(iRun, iSetup, "HLT", changed) ) {
+     edm::LogError("HltAnalysis") << "Initialization of HLTConfigProvider failed!!";
+     return;
+   }
+
+   for (size_t i = 0; i < elPaths_.size(); i++) {
+      std::vector<std::string> foundPaths = hltConfig.matched( hltConfig.triggerNames(), elPaths_[i] );
+      while ( !foundPaths.empty() ){
+         elPaths.push_back( foundPaths.back() );
+         foundPaths.pop_back();
+      }
+   }
+   for (size_t i = 0; i < muPaths_.size(); i++) {
+      std::vector<std::string> foundPaths = hltConfig.matched( hltConfig.triggerNames(), muPaths_[i] );
+      while ( !foundPaths.empty() ){
+         muPaths.push_back( foundPaths.back() );
+         foundPaths.pop_back();
+      }
+   }
+   Int_t elbins = elPaths.size();
+   Int_t mubins = muPaths.size();
+   elframe = fs->make<TH1I>("elframe",";;( pass ID and HLT ) / pass ID", elbins, 0, elbins);
+   muframe = fs->make<TH1I>("muframe",";;( pass ID and HLT ) / pass ID", mubins, 0, mubins);
+   eleff = fs->make<TEfficiency>("eleff","", elbins, 0, elbins);
+   mueff = fs->make<TEfficiency>("mueff","", mubins, 0, mubins);
+   TAxis *elaxis = elframe->GetXaxis();   
+   TAxis *muaxis = muframe->GetXaxis();   
+   for (size_t i=0; i < elPaths.size(); i++) elaxis->SetBinLabel( i+1, elPaths[i].c_str() );
+   for (size_t i=0; i < muPaths.size(); i++) muaxis->SetBinLabel( i+1, muPaths[i].c_str() );
+}
+
+void EDBRTreeMaker::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-EDBRTreeMaker::endJob() {
+void EDBRTreeMaker::endJob() {
   std::cout << "EDBRTreeMaker endJob()..." << std::endl;
 }
 
