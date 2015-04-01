@@ -12,7 +12,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -52,24 +54,45 @@ private:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
   
-  // ----------member data ---------------------------
+
+//******************************************************************
+//************************* MEMBER DATA ****************************
+//******************************************************************
   edm::Service<TFileService> fs;
   TTree* outTree_;
 
+  //------------------------ GENERAL ----------------------------------------------
   int nevent, run, ls;
   int nVtx;
   int numCands;
-  double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad;
-  double met, metPhi, mtVlep;
-  double tau1, tau2, tau3, tau21;
-  double massjet1;
-  double ptlep1, ptlep2, ptjet1;
-  double etalep1, etalep2, etajet1;
-  double philep1, philep2, phijet1;
   double triggerWeight, lumiWeight, pileupWeight;
   int channel, lep, reg;
-  double deltaRleplep, deltaRlepjet, delPhilepmet, delPhijetmet;
+
+  //------------------------ V quantities ------------------------------------------
+  double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep;
+
+  //------------------------- MET ---------------------------------------------------
+  double met, metPhi;
+
+  //-----------------------MET FROM GRAVITON ----------------------------------------
+  double metpt, metphi;
+
+  //---------------------- JETS ------------------------------------------------------
+  double tau1, tau2, tau3, tau21;
+  double massjet1, ptjet1, etajet1, phijet1;
+  int numjets;
+
+  //-------------------- LEPTONS -----------------------------------------------------
+  double ptlep1, ptlep2;
+  double etalep1, etalep2;
+  double philep1, philep2;
+
+  //--------------------DELTAS ------------------------------------------------------- 
+  double deltaRleplep, deltaRlepjet, delPhilepmet, delPhijetmet, deltaphijetmet;
+
+  //-------------------CANDIDATES MASS -----------------------------------------------
   double candMass;
+  double candTMass; // transverse mass
 
   // Electron ID 
   double eeDeltaR;
@@ -135,6 +158,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
     channel=VW_CHANNEL;
   else if(EDBRChannel_ == "VH_CHANNEL")
     channel=VH_CHANNEL;
+  else if(EDBRChannel_ == "VZnu_CHANNEL")
+    channel=VZnu_CHANNEL;
   else {
     cms::Exception ex("InvalidConfiguration");
     ex << "Unknown channel " << EDBRChannel_  
@@ -166,6 +191,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("region"          ,&reg            ,"region/I"         );
   outTree_->Branch("channel"         ,&channel        ,"channel/I"        );
   outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
+  outTree_->Branch("candTMass"       ,&candTMass      ,"candTMass/D"      );
 
   /// Electron ID quantities
   outTree_->Branch("eeDeltaR"        ,&eeDeltaR       ,"eeDeltaR/D"       );
@@ -197,6 +223,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("el2passID"       ,&el2passID      ,"el2passID/I"      );
   
   /// Generic kinematic quantities
+  outTree_->Branch("numjets"         ,&numjets        ,"numjets/I"        );
   outTree_->Branch("ptlep1"          ,&ptlep1         ,"ptlep1/D"         );
   outTree_->Branch("ptlep2"          ,&ptlep2         ,"ptlep2/D"         );
   outTree_->Branch("ptjet1"          ,&ptjet1         ,"ptjet1/D"         );
@@ -209,6 +236,9 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("massjet1"        ,&massjet1       ,"massjet1/D"       );
   outTree_->Branch("met"             ,&met            ,"met/D"            );
   outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
+  //new
+  outTree_->Branch("metphi"          ,&metphi         ,"metphi/D"         );
+  outTree_->Branch("metpt"           ,&metpt          ,"metpt/D"          );
 
   /// Other quantities
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
@@ -218,6 +248,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("delPhilepmet"    ,&delPhilepmet   ,"delPhilepmet/D"   );
   outTree_->Branch("deltaRlepjet"    ,&deltaRlepjet   ,"deltaRlepjet/D"   );
   outTree_->Branch("delPhijetmet"    ,&delPhijetmet   ,"delPhijetmet/D"   );
+  // new
+  outTree_->Branch("deltaphijetmet"    ,&deltaphijetmet   ,"deltaphijetmet/D"   );
 }
 
 
@@ -267,7 +299,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        const reco::Candidate& graviton  = gravitons->at(0);
        //const pat::Jet& hadronicV = hadronicVs->at(0);
        //const reco::Candidate& leptonicV = leptonicVs->at(0);
-       const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
        const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
        const reco::Candidate& metCand = metHandle->at(0);
        
@@ -289,13 +320,62 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   break;
                }           
            }
+
+           // number of jets
+           edm::Handle<std::vector<pat::Jet>> jets;
+           iEvent.getByLabel("slimmedJetsAK8", jets);
+           numjets = jets->size();
+
+
            if ( firstGoodVertex==vertices->end() ) return; // skip event if there are no good PVs
 
            //*****************************************************************//
            //************************* ID for electrons **********************//
            //*****************************************************************//
+
+           //we put the definitions inside the channel
            switch(channel){
               case VZ_CHANNEL:
+                 {const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
+                 //**************DEFINITIONS *********************************** 
+                 // candidate
+                 candMass  = graviton.mass();
+                 // leptons
+                 ptVlep = leptonicV.pt();
+                 yVlep  = leptonicV.eta();
+                 phiVlep = leptonicV.phi();
+                 massVlep = leptonicV.mass();
+                 mtVlep       = leptonicV.mt();
+                 ptlep1 = leptonicV.daughter(0)->pt();
+                 ptlep2 = leptonicV.daughter(1)->pt();
+                 etalep1 = leptonicV.daughter(0)->eta();
+                 etalep2 = leptonicV.daughter(1)->eta();
+                 philep1 = leptonicV.daughter(0)->phi();
+                 philep2 = leptonicV.daughter(1)->phi();
+                 lep = abs(leptonicV.daughter(0)->pdgId());
+                 //met
+                 met = metCand.pt();
+                 metPhi = metCand.phi();
+                 // hadrons
+                 ptVhad = hadronicV.pt();
+                 yVhad  = hadronicV.eta();
+                 phiVhad = hadronicV.phi();
+                 tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
+                 tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
+                 tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
+                 tau21 = tau2/tau1;
+                 ptjet1 = hadronicV.pt();
+                 etajet1 = hadronicV.eta();
+                 phijet1 = hadronicV.phi();
+                 massjet1 = hadronicV.mass();
+                 // deltas
+                 deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
+                 double drl1j = deltaR(etalep1,philep1,etajet1,phijet1);
+                 double drl2j = deltaR(etalep2,philep2,etajet1,phijet1);
+                 deltaRlepjet = std::min(drl1j,drl2j);
+                 delPhilepmet = deltaPhi(philep1, metPhi);
+                 delPhijetmet = deltaPhi(phijet1, metPhi);
+                 //********************************************************                
                  if(leptonicV.daughter(0)->isElectron() && 
                     leptonicV.daughter(1)->isElectron()    ) {
                     const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
@@ -344,9 +424,49 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         el2passID      = (*id_decisions)[ el2Ptr ];
                     }
                  }
-                 break;
+                 break;}
               case VW_CHANNEL:
-                 if( leptonicV.daughter(0)->isElectron()||leptonicV.daughter(1)->isElectron() ) {
+                 {const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
+                   //*****************DEFINITIONS *************************************
+                   //candidate
+                   candMass  = graviton.mass();
+                   //leptons
+                   ptVlep = leptonicV.pt();
+                   yVlep  = leptonicV.eta();
+                   phiVlep = leptonicV.phi();
+                   massVlep = leptonicV.mass();
+                   mtVlep  = leptonicV.mt();
+                   ptlep1 = leptonicV.daughter(0)->pt();
+                   ptlep2 = leptonicV.daughter(1)->pt();
+                   etalep1 = leptonicV.daughter(0)->eta();
+                   etalep2 = leptonicV.daughter(1)->eta();
+                   philep1 = leptonicV.daughter(0)->phi();
+                   philep2 = leptonicV.daughter(1)->phi();
+                   lep = abs(leptonicV.daughter(0)->pdgId());
+                   //met
+                   met = metCand.pt();
+                   metPhi = metCand.phi();  
+                   //hadrons
+                   ptVhad = hadronicV.pt();
+                   yVhad  = hadronicV.eta();
+                   phiVhad = hadronicV.phi();
+                   tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
+                   tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
+                   tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
+                   tau21 = tau2/tau1;
+                   ptjet1 = hadronicV.pt();
+                   etajet1 = hadronicV.eta();
+                   phijet1 = hadronicV.phi();
+                   massjet1 = hadronicV.mass();
+                   //deltas
+                   deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
+                   double drl1j = deltaR(etalep1,philep1,etajet1,phijet1);
+                   double drl2j = deltaR(etalep2,philep2,etajet1,phijet1);
+                   deltaRlepjet = std::min(drl1j,drl2j);
+                   delPhilepmet = deltaPhi(philep1, metPhi);
+                   delPhijetmet = deltaPhi(phijet1, metPhi);
+                   //******************************************************               
+                    if( leptonicV.daughter(0)->isElectron()||leptonicV.daughter(1)->isElectron() ) {
                        const pat::Electron *el1 = leptonicV.daughter(0)->isElectron() ? 
                                                   (pat::Electron*)leptonicV.daughter(0):
                                                   (pat::Electron*)leptonicV.daughter(1);
@@ -375,7 +495,30 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         el1passID      = (*id_decisions)[ el1Ptr ];
                     }
                  }
-                 break;
+                 break;}
+              case VZnu_CHANNEL:
+                       { const pat::MET& goodMET =dynamic_cast<const pat::MET&> (*graviton.daughter("goodMET"));
+                       //*************** DEFINITIONS ***************************************** 
+                       //hadrons
+                       ptVhad = hadronicV.pt();
+                       yVhad  = hadronicV.eta();
+                       phiVhad = hadronicV.phi();
+                       tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
+                       tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
+                       tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
+                       tau21 = tau2/tau1;
+                       ptjet1 = hadronicV.pt();
+                       etajet1 = hadronicV.eta();
+                       phijet1 = hadronicV.phi();
+                       massjet1 = hadronicV.mass();                       
+                       // MET FROM GRAVITON
+                       metpt = goodMET.pt();
+                       metphi = goodMET.phi();
+                       // delta Phi between jet and met(from graviton) 
+                       deltaphijetmet = deltaPhi(phijet1, metphi);
+                       // transverse candidate mass for JET + MET
+                       candTMass    = sqrt(abs(2*ptjet1*metpt*(1-cos(deltaphijetmet))));                     
+                 break;} // we have to put braces to avoid crosses initialization error
               case VH_CHANNEL: // This channel needs to be implemented 
                  break;
            }
@@ -397,46 +540,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        double targetEvents = targetLumiInvPb_*crossSectionPb_;
        lumiWeight = targetEvents/originalNEvents_;
 
-       candMass     = graviton.mass();
-   
-       ptVlep       = leptonicV.pt();
-       ptVhad       = hadronicV.pt();
-       yVlep        = leptonicV.eta();
-       yVhad        = hadronicV.eta();
-       phiVlep      = leptonicV.phi();
-       phiVhad      = hadronicV.phi();
-       massVlep     = leptonicV.mass();
-       mtVlep       = leptonicV.mt();
-   
-       tau1         = hadronicV.userFloat("NjettinessAK8:tau1");
-       tau2         = hadronicV.userFloat("NjettinessAK8:tau2");
-       tau3         = hadronicV.userFloat("NjettinessAK8:tau3");
-       tau21        = tau2/tau1;
 
-       // Kinematics of leptons and jets
-       ptlep1       = leptonicV.daughter(0)->pt();
-       ptlep2       = leptonicV.daughter(1)->pt();
-       etalep1      = leptonicV.daughter(0)->eta();
-       etalep2      = leptonicV.daughter(1)->eta();
-       philep1      = leptonicV.daughter(0)->phi();
-       philep2      = leptonicV.daughter(1)->phi();
-       ptjet1       = hadronicV.pt();
-       etajet1      = hadronicV.eta();
-       phijet1      = hadronicV.phi();
-       massjet1     = hadronicV.mass();
-
-       met          = metCand.pt();
-       metPhi       = metCand.phi();
-
-       deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
-       double drl1j = deltaR(etalep1,philep1,etajet1,phijet1); 
-       double drl2j = deltaR(etalep2,philep2,etajet1,phijet1); 
-       deltaRlepjet = std::min(drl1j,drl2j);
-
-       delPhilepmet = deltaPhi(philep1, metPhi);
-       delPhijetmet = deltaPhi(phijet1, metPhi);
-
-       lep          = abs(leptonicV.daughter(0)->pdgId());
 
        /// FIXME: these should NOT be hardcoded
        if(massVhad < 50 or massVhad > 110)
@@ -498,16 +602,20 @@ void EDBRTreeMaker::setDummyValues() {
      etalep2        = -1e9;
      philep1        = -1e9;
      philep2        = -1e9;
+     numjets        = -1e9; 
      ptjet1         = -1e9;
      etajet1        = -1e9;
      phijet1        = -1e9;
      massjet1       = -1e9;
      met            = -1e9;
      metPhi         = -1e9;
+     metpt          = -1e9;
+     metphi         = -1e9;
      deltaRleplep   = -1e9;
      deltaRlepjet   = -1e9;
      delPhilepmet   = -1e9;
      delPhijetmet   = -1e9;
+     deltaphijetmet = -1e9; 
      lep            = -1e9;
      reg            = -1e9;
      eeDeltaR       = -1e9;
