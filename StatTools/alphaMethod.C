@@ -105,13 +105,13 @@ void alphaMethod(std::string key)
   //                                                       //     
   //*******************************************************//
 
-  RooDataSet full_data("full_data","full_data",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::Cut(selectedCategory),RooFit::WeightVar(lumiWeight),RooFit::Import(*treeData));
-  RooDataSet data_ns("data_ns","data_ns",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::Cut(nomselec),RooFit::WeightVar(lumiWeight),RooFit::Import(*treeData));
+  RooDataSet fullDat("fullDat","fullDat",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::Cut(selectedCategory),RooFit::WeightVar(lumiWeight),RooFit::Import(*treeData));
+  RooDataSet nsDat("nsDat","nsDat",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::Cut(nomselec),RooFit::WeightVar(lumiWeight),RooFit::Import(*treeData));
   RooRealVar p0("p0","parameter 0",500., 1. , 1.e3);
   RooRealVar p1("p1","parameter 1",  0.,-1. ,   1.);
   RooExpTailPdf expo("expo","fit bkg in signal region", candMass,p0,p1);
-  expo.fitTo(data_ns, RooFit::Range(600.,2600.));
-  RooDataSet* pseudoData = expo.generate(RooArgSet(candMass),data_ns,expectedEvents,false,true,true);
+  expo.fitTo(nsDat, RooFit::Range(600.,2600.));
+  RooDataSet* pseudoData = expo.generate(RooArgSet(candMass),nsDat,expectedEvents,false,true,true);
 
   RooPlot* frame1 = candMass.frame(RooFit::Title("CMS Preliminary   #sqrt{s} = 13 TeV   #int L dt = 1 fb^{-1}") );
   const Double_t boundaries[12]={600,640,680,740,800,900,1000,1200,1400,1600,2000,2600};
@@ -134,7 +134,7 @@ void alphaMethod(std::string key)
   cout << endl << "***************************************************************" << endl << endl;
 
   cout << endl << "***************************************************************" << endl << endl;
-  cout << "Real number of events in signal region = " << full_data.sumEntries() - sbDat.sumEntries() << endl;
+  cout << "Real number of events in signal region = " << fullDat.sumEntries() - sbDat.sumEntries() << endl;
   cout << endl << "***************************************************************" << endl << endl;
 
 }
