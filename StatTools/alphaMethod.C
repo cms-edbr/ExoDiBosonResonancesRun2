@@ -80,7 +80,6 @@ void alphaMethod(std::string key)
    // Sideband selection
   RooDataSet sbBkg("sbBkg","sbBkg",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::Cut(sideband),RooFit::WeightVar(lumiWeight),RooFit::Import(*treeMC));
 
-  // Simultaneous Fit and alpha ratio 
   RooRealVar s0("s0","slope of the exp0",500.,1.,1.e3);
   RooRealVar s1("s1","slope of the exp1",500.,1.,1.e3);
   RooRealVar s2("s2","slope of the exp2",500.,1.,1.e3);
