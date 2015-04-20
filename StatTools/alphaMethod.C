@@ -66,7 +66,7 @@ void alphaMethod(std::string key)
   RooErfExpPdf mj_pdf("mj_pdf","fiting mj spectrum",massVhad,c,offset,width);
   RooRealVar integral("integral","number of events",1,0.1,1.e4);
   RooExtendPdf mj_pdf_ext("mj_pdf_ext","extended p.d.f", mj_pdf, integral);
-  mj_pdf_ext.fitTo(sbDat, RooFit::Extended(kTRUE), RooFit::Range("sidebandRegion"));
+  mj_pdf_ext.fitTo(sbDat, RooFit::Extended(kTRUE), RooFit::Range("sidebandRegion"), RooFit::SumW2Error(kFALSE));
 
   // Extrapolate PDF to signal window 
   RooAbsReal* n_signalRegion = mj_pdf.createIntegral(massVhad,RooFit::NormSet(massVhad),RooFit::Range("signalRegion"));
@@ -92,32 +92,31 @@ void alphaMethod(std::string key)
   RooDataSet nsBkg("nsBkg",  "nsBkg", RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::Cut(nomselec),RooFit::WeightVar(lumiWeight),RooFit::Import(*treeMC));
   RooDataSet sbBkg("sbBkg",  "sbBkg", RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::Cut(sideband),RooFit::WeightVar(lumiWeight),RooFit::Import(*treeMC));
 
-  // Combine Nominal + Sideband MC  
-  RooCategory region("region","region");
-  region.defineType("nsMC");            //signal region monte carlo
-  region.defineType("sbMC");            //sideband region monte carlo
-  RooDataSet combBkg("combBkg","combBkg",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::WeightVar(lumiWeight),RooFit::Index(region),RooFit::Import("nsMC",nsBkg),RooFit::Import("sbMC",sbBkg));
-
   // Declare PDFs (3 levelled-exponentials) 
   RooRealVar s0("s0","slope of the exp0",500.,1.,1.e3);
   RooRealVar s1("s1","slope of the exp1",500.,1.,1.e3);
   RooRealVar s2("s2","slope of the exp2",500.,1.,1.e3);
-  RooRealVar a0("a0","parameter of exp0",0.1,-1.,1.);
-  RooRealVar a1("a1","parameter of exp1",0.1,-1.,1.);
-  RooRealVar a2("a2","parameter of exp2",0.1,-1.,1.);
+  RooRealVar a0("a0","parameter of exp0",0.1 ,0.,1.);
+  RooRealVar a1("a1","parameter of exp1",0.1 ,0.,1.);
+  RooRealVar a2("a2","parameter of exp2",0.1 ,0.,1.);
   RooExpTailPdf       nsBkg_pdf("  nsBkg_pdf", "fit bkg  in nominal  region", candMass,s0,a0);
   RooExpTailPdf       sbBkg_pdf("  sbBkg_pdf", "fit bkg  in sideband region", candMass,s1,a1);
   RooExpTailPdf       sbDat_pdf("  sbDat_pdf", "fit data in sideband region", candMass,s2,a2);
   RooAlpha4ExpTailPdf alpha_pdf("  alpha_pdf", "alpha ratio",                 candMass,s0,a0,s1,a1);
   RooProdPdf           M_ZZ_pdf("   M_ZZ_pdf", "M_ZZ_pdf",                    alpha_pdf, sbDat_pdf);
 
-  // Simultaneous Fit of MC sample in signal and sideband region 
-  RooSimultaneous combBkg_pdf("combBkg_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf),region); 
+  sbDat_pdf.fitTo(sbData);
+  // nsBkg_pdf.fitTo(nsBkg);
+  // sbBkg_pdf.fitTo(sbBkg);
+
+  // Perform a simultaneous fit  
+  RooCategory region("region","region");
+  region.defineType("nsMC");
+  region.defineType("sbMC");
+  RooDataSet combBkg("combBkg","combBkg",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),RooFit::WeightVar(lumiWeight),RooFit::Index(region),RooFit::Import("nsMC",nsBkg),RooFit::Import("sbMC",sbBkg));
+  RooSimultaneous combBkg_pdf("combBkg_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf), region); 
   combBkg_pdf.fitTo(combBkg);
   
-  // Fit PseudoData in sideband region 
-  sbDat_pdf.fitTo(sbData);
-
   // Add normalization to M_ZZ_pdf
   RooExtendPdf M_ZZ_pdf_renormalized("M_ZZ_pdf_renormalized","Extended p.d.f", M_ZZ_pdf, numberEvents);
   Double_t expectedEvents       = ((RooRealVar*)(*M_ZZ_pdf_renormalized.getParameters(RooArgSet(candMass))).find("numberEvents"))->getVal();
