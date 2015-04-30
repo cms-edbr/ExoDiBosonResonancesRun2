@@ -14,10 +14,10 @@ void plotLimit(std::string key)
   inputFile["MLP"]="combineMLP.root";
 
   std::map<std::string, std::string> outFile;
-  outFile["EHP"]="limitEHP.png";
-  outFile["ELP"]="limitELP.png";
-  outFile["MHP"]="limitMHP.png";
-  outFile["MLP"]="limitMLP.png";
+  outFile["EHP"]="limitEHP.pdf";
+  outFile["ELP"]="limitELP.pdf";
+  outFile["MHP"]="limitMHP.pdf";
+  outFile["MLP"]="limitMLP.pdf";
 
   std::map<std::string, std::string> legTitle;
   legTitle["EHP"]="electron channel high purity";
@@ -68,9 +68,9 @@ void plotLimit(std::string key)
   gr1->SetFillColor(3);
   gr2->SetFillColor(5);
   gr2->GetYaxis()->SetTitleOffset(1.2);
-  gr2->SetMinimum(1.0);
-  gr2->SetMaximum(800);
-  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 3 fb^{-1};M_{ZZ} [GeV];\
+  gr2->SetMinimum(4.);
+  gr2->SetMaximum(2.e3);
+  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 1 fb^{-1};M_{ZZ} [GeV];\
                      #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [fb]",
                      axisTitle[key].c_str() ));
 

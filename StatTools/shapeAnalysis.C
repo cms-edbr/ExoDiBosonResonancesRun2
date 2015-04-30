@@ -73,7 +73,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooRealVar offset("offset","offset of the erf",1.,0.,10.);
   RooRealVar width("width","width of the erf",1.,0.,10.);
   RooRealVar yieldSideband("yieldSideband","Zjets normalization in sideband region", 1, 0.1, 1.e4);
-  RooRealVar ZZ_bkg_norm("ZZ_bkg_norm",    "Zjets normalization in signal region",   1, 0.1, 1.e4);
+  RooRealVar ZZ_bkg_eig_norm("ZZ_bkg_eig_norm",    "Zjets normalization in signal region",   1, 0.1, 1.e4);
   RooErfExpPdf mj_pdf("mj_pdf","fiting mj spectrum",massVhad,c,offset,width);
   RooExtendPdf mj_pdf_ext("mj_pdf_ext","extended p.d.f", mj_pdf, yieldSideband);
   mj_pdf_ext.fitTo(sbObs, Extended(kTRUE), Minimizer("Minuit"), Range("sidebandRegion"), PrintLevel(-1));
@@ -84,9 +84,9 @@ void shapeAnalysis(std::string key, Int_t mass)
   Double_t scale = n_signalRegion->getVal()/n_contrlRegion->getVal();
   Double_t bkgYield       = yieldSideband.getVal()   * scale; // scale yield in sideband to get yield in signal region
   Double_t bkgYield_error = yieldSideband.getError() * scale;
-  ZZ_bkg_norm.setVal(   bkgYield );
-  ZZ_bkg_norm.setError( bkgYield_error );
-  ZZ_bkg_norm.setConstant(true);
+  ZZ_bkg_eig_norm.setVal(   bkgYield );
+  ZZ_bkg_eig_norm.setError( bkgYield_error );
+  ZZ_bkg_eig_norm.setConstant(true);
 
   //*******************************************************//
   //                                                       //     
@@ -202,7 +202,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooWorkspace *w = new RooWorkspace("ZZ_13TeV","workspace") ;
   w->import(ZZ_sig);
   w->import(ZZ_bkg);
-  w->import(ZZ_bkg_norm);
+  w->import(ZZ_bkg_eig_norm);
   
   // diagonalization
   PdfDiagonalizer diago("eig", w, *fitres);
