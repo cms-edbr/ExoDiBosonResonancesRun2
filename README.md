@@ -2,10 +2,11 @@ Instructions to setup the ExoDiBosonResonances code
 ========
 
 ```
-cmsrel CMSSW_7_2_1_patch1
-cd CMSSW_7_2_1_patch1/src
+cmsrel CMSSW_7_2_5
+cd CMSSW_7_2_5/src
 cmsenv
 git cms-init # This will allow you to checkout packages in official CMSSW.
+git cms-merge-topic Sam-Harper:HEEPID72X  # HEEP Electron Identification
 git clone -b Phys14 git@github.com:cms-edbr/ExoDiBosonResonancesRun2.git ExoDiBosonResonances
 scram b -j 9
 ```

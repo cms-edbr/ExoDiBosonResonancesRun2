@@ -1,5 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
+from RecoJets.Configuration.RecoGenJets_cff import ak8GenJets
+from RecoJets.JetProducers.SubJetParameters_cfi import SubJetParameters
+
+ak8GenJetsPruned = ak8GenJets.clone(
+	SubJetParameters,
+	usePruning = cms.bool(True),
+	useExplicitGhosts = cms.bool(True),
+	writeCompound = cms.bool(True),
+	jetCollInstanceName=cms.string("SubJets")
+	)
+
+ak8GenJetsPrunedLinks = cms.EDProducer("RecoJetDeltaRValueMapProducer",
+					       src = cms.InputTag("ak8GenJets"),
+					       matched = cms.InputTag("ak8GenJetsPruned"),
+					       distMax = cms.double(0.8),
+					       value = cms.string('mass')
+					       )
+
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets as patJets
 
 goodJets = patJets.clone(
@@ -41,4 +60,4 @@ jetsWithTau = cms.EDProducer("EDBRNJettinessAdder",
                              cone = cms.double(0.8)
                              )
 
-fatJetsSequence = cms.Sequence(goodJets + cleanJets + jetsWithTau)
+fatJetsSequence = cms.Sequence(genParticlesForJets + ak8GenJetsPruned + ak8GenJetsPrunedLinks + goodJets + cleanJets + jetsWithTau)
