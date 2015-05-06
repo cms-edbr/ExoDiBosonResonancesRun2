@@ -65,7 +65,7 @@ public:
       cout << "======> Mismatch in size of input MC Sig arrays !!! " << fileNamesMCSig.size() << "  " << kFactorsSig_.size() << endl;
     }
 
-    printf("Target lumi is %g pb-1\n", targetLumi);
+    printf("Target lumi is %g fb-1\n", targetLumi);
     std::cout << "k factors for MC backgrounds are: " << std::endl;
     int myKindex = 0;
     for (std::vector<double>::iterator it = kFactorsMC_.begin(); it != kFactorsMC_.end(); ++it) {
@@ -416,7 +416,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
 
   if (debug_) {
     printf("After scaling, sum of backgrounds = %g\n", sumMC->Integral());
-    printf("Sum of data is still %g\n", sumDATA->Integral());
+    printf("Sum of data is still %g\n", sumDataIntegral);
   }
 
 

@@ -3,6 +3,7 @@
 
 enum edbr_channel_t {VZ_CHANNEL = 1,
 		     VW_CHANNEL = 2,
-		     VH_CHANNEL = 3};
+		     VH_CHANNEL = 3,
+                     VZnu_CHANNEL = 4};
 		     
 #endif

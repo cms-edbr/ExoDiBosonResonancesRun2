@@ -1,0 +1,33 @@
+Combination of EHP=CMS_ZZ_4000_EHP_13TeV.txt  ELP=CMS_ZZ_4000_ELP_13TeV.txt  MHP=CMS_ZZ_4000_MHP_13TeV.txt  MLP=CMS_ZZ_4000_MLP_13TeV.txt
+imax 4 number of bins
+jmax 1 number of processes minus 1
+kmax 11 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes *         EHP       workSpaces/CMS_ZZ_4000_EHP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  EHP       workSpaces/CMS_ZZ_4000_EHP_13TeV.root ZZ_13TeV:data_obs
+shapes *         ELP       workSpaces/CMS_ZZ_4000_ELP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  ELP       workSpaces/CMS_ZZ_4000_ELP_13TeV.root ZZ_13TeV:data_obs
+shapes *         MHP       workSpaces/CMS_ZZ_4000_MHP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  MHP       workSpaces/CMS_ZZ_4000_MHP_13TeV.root ZZ_13TeV:data_obs
+shapes *         MLP       workSpaces/CMS_ZZ_4000_MLP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  MLP       workSpaces/CMS_ZZ_4000_MLP_13TeV.root ZZ_13TeV:data_obs
+----------------------------------------------------------------------------------------------------------------------------------
+bin          EHP    ELP    MHP    MLP  
+observation  -1.0   -1.0   -1.0   -1.0 
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                            EHP         EHP         ELP         ELP         MHP         MHP         MLP         MLP       
+process                                        ZZ_sig      ZZ_bkg_eig  ZZ_sig      ZZ_bkg_eig  ZZ_sig      ZZ_bkg_eig  ZZ_sig      ZZ_bkg_eig
+process                                        0           1           0           1           0           1           0           1         
+rate                                           0.1528      1.0000      0.0591      1.0000      0.0888      1.0000      0.0346      1.0000    
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_eff_vtag_tau21_sf_13TeV   lnN              1.15        1.15        1.15        1.15        1.15        1.15        1.15        1.15      
+CMS_pu_13TeV            lnN                    1.03        1.03        1.03        1.03        1.03        1.03        1.03        1.03      
+CMS_res_j_13TeV         lnN                    1.04        1.04        1.04        1.04        1.04        1.04        1.04        1.04      
+CMS_scale_j_13TeV       lnN                    1.12        1.12        1.12        1.12        1.12        1.12        1.12        1.12      
+lumi_13TeV              lnN                    1.026       1.026       1.026       1.026       1.026       1.026       1.026       1.026     
+eig_eig5      param  0 1
+eig_eig4      param  0 1
+eig_eig3      param  0 1
+eig_eig2      param  0 1
+eig_eig1      param  0 1
+eig_eig0      param  0 1

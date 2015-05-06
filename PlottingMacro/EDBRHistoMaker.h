@@ -54,6 +54,7 @@ class EDBRHistoMaker {
    
    // Declaration of leaf types
    Int_t           event;
+   Int_t           nVtx;
    Double_t        ptVlep;
    Double_t        ptVhad;
    Double_t        yVlep;
@@ -92,6 +93,7 @@ class EDBRHistoMaker {
 
    // List of branches
    TBranch        *b_event;   //!
+   TBranch        *b_nVtx;   //!
    TBranch        *b_ptVlep;   //!
    TBranch        *b_ptVhad;   //!
    TBranch        *b_yVlep;   //!
@@ -236,6 +238,7 @@ void EDBRHistoMaker::Init(TTree *tree)
   fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("event", &event, &b_event);
+   fChain->SetBranchAddress("nVtx",  &nVtx,  &b_nVtx);
    fChain->SetBranchAddress("ptVlep", &ptVlep, &b_ptVlep);
    fChain->SetBranchAddress("ptVhad", &ptVhad, &b_ptVhad);
    fChain->SetBranchAddress("yVlep", &yVlep, &b_yVlep);
@@ -541,7 +544,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
     // Single / Double jet ...) 
 
     // Remember: bool eventPassesCut(double ptZ_threshold, double ptlep1_threshold );
-    if(eventPassesCut(200, 20)){
+ //   if(eventPassesCut(200, 20)){
       
       // In case we need particular events
       //if(candMass>2400.0)
@@ -556,6 +559,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       double ptLoverJ      = ptlep1/ptjet1;
       */
       
+      (theHistograms["nVtx"])->Fill(nVtx,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["ptlep1"])->Fill(ptlep1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["ptlep2"])->Fill(ptlep2,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["ptjet1"])->Fill(ptjet1,actualWeight);//printf("line number %i\n",__LINE__);
@@ -580,7 +584,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["lep"])->Fill(lep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["region"])->Fill(region,actualWeight);//printf("line number %i\n",__LINE__);
       
-      }//end if eventPassesCut
+//      }//end if eventPassesCut
     
   }//end loop over entries
   

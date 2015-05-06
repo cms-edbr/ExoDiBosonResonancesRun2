@@ -24,9 +24,4 @@ cleanJets.checkOverlaps.taus = cms.PSet()
 cleanJets.checkOverlaps.tkIsoElectrons = cms.PSet()
 cleanJets.finalCut = "pt > 20 & abs(eta) < 2.4"
 
-jetsWithTau = cms.EDProducer("EDBRNJettinessAdder",
-                             src = cms.InputTag("cleanJets"),
-                             cone = cms.double(0.8)
-                             )
-
-fatJetsSequence = cms.Sequence(goodJets + cleanJets + jetsWithTau)
+fatJetsSequence = cms.Sequence(goodJets + cleanJets)

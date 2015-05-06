@@ -30,7 +30,9 @@ void loopPlot(){
   if(wantElectrons) flavour=11; if(wantMuons) flavour=13; if(wantElectrons and wantMuons) flavour=0;
   
   /// Luminosity value in fb^-1
-  double lumiValue = 10.0; 
+  /// Scale histograms (line 403 EDBRHistoPloter.h) 
+  /// Use lumiValue = 1. if actualWeights (lines 562-585 EDBRHistoMaker.h) were consistently defined in the EDBRTreeMaker 
+  double lumiValue = 1.; 
   /// Should we scale the histograms to data?
   bool scaleToData = false;
   // Should we scale only wjets to make total MC = DATA?
@@ -43,7 +45,7 @@ void loopPlot(){
   bool isSignalStackOnBkg = false;
 
   /// Path to wherever the files with the trees are. 
-  std::string pathToTrees="../EDBRCommon/";
+  std::string pathToTrees="../EDBRTreeMaker/test/";
 
   /// Path to wherever you want to put the histograms (figures) in.
   std::string outputDir = "./plots_test_Run2";
@@ -68,12 +70,13 @@ void loopPlot(){
 
   /// Setup names of MC files for trees.
 
-  const int nMC=3;//set to zero if you don't want to plot
+  const int nMC=4;//set to zero if you don't want to plot
   std::string mcLabels[nMC]={"DYJetsToLL_HT-600toInf",
 			     "DYJetsToLL_HT-400to600",
-			     "DYJetsToLL_HT-200to400"};
+			     "DYJetsToLL_HT-200to400",
+			     "DYJetsToLL_HT-100to200"};
 
-  double kFactorsMC_array[nMC] = {1, 1, 1};
+  double kFactorsMC_array[nMC] = {1, 1, 1, 1};
   
   std::vector<std::string> fMC;
   for(int ii=0;ii<nMC;ii++){
@@ -89,9 +92,10 @@ void loopPlot(){
     }
 
   /// Setup names of MC signal files for trees.
-  const int nMCSig=1;//set to zero if you don't want to plot
-  std::string mcLabelsSig[nMCSig]={"RSGravToZZ_kMpl01_M-1000",};
-  double kFactorsSig_array[nMCSig] = {5E-4};
+  const int nMCSig=2;//set to zero if you don't want to plot
+  std::string mcLabelsSig[nMCSig]={"RSGravToZZ_kMpl01_M-1000",
+                                   "RSGravToZZ_kMpl01_M-2000"};
+  double kFactorsSig_array[nMCSig] = {10,100};
 
   std::vector<double> kFactorsMCSig;
   for (int index=0; index<nMCSig; index++)
@@ -270,15 +274,16 @@ void loopPlot(){
 						 kFactorsMC,kFactorsMCSig);
   std::cout<<"Set output dir"<<std::endl;
   plotter->setOutDir(outputDir);
-  plotter->setDebug(false);
+  plotter->setDebug(true);
 
   //colors are assigned in the same order of mcLabels
     // For ZZ
-  ////// {DYJetsToLL_HT-200to400,DYJetsToLL_HT-200to400,DYJetsToLL_HT-600toInf}
+  ////// {DYJetsToLL_HT-100to200,DYJetsToLL_HT-200to400,DYJetsToLL_HT-200to400,DYJetsToLL_HT-600toInf}
   std::vector<int> fColorsMC;
-  fColorsMC.push_back(kBlue-3);
-  fColorsMC.push_back(kBlue-6);
-  fColorsMC.push_back(kBlue-9);
+  fColorsMC.push_back(kAzure+1);
+  fColorsMC.push_back(kAzure+2);
+  fColorsMC.push_back(kAzure+3);
+  fColorsMC.push_back(kAzure+4);
   //fColorsMC.push_back(kRed+3);
   //fColorsMC.push_back(kRed);
   //fColorsMC.push_back(kRed-4);
