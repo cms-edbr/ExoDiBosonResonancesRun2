@@ -1,0 +1,26 @@
+imax 1
+jmax *
+kmax *
+-----------------------------------------------------------------------------------
+shapes            *                  MLP      workSpaces/CMS_ZZ_1000_MLP_13TeV.root    ZZ_13TeV:$PROCESS
+shapes            data_obs           MLP      workSpaces/CMS_ZZ_1000_MLP_13TeV.root    ZZ_13TeV:data_obs
+-----------------------------------------------------------------------------------
+bin               MLP
+observation       -1.0
+-----------------------------------------------------------------------------------
+bin               MLP                MLP
+process           ZZ_sig             ZZ_bkg_eig
+process           0                  1
+rate              0.027630           1
+-----------------------------------------------------------------------------------
+lumi_13TeV                     lnN       1.026         1.026
+CMS_eff_vtag_tau21_sf_13TeV    lnN       1.15          1.15
+CMS_scale_j_13TeV              lnN       1.12          1.12
+CMS_res_j_13TeV                lnN       1.04          1.04
+CMS_pu_13TeV                   lnN       1.03          1.03
+eig_eig0                     param       0             1
+eig_eig1                     param       0             1
+eig_eig2                     param       0             1
+eig_eig3                     param       0             1
+eig_eig4                     param       0             1
+eig_eig5                     param       0             1

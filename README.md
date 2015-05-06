@@ -2,8 +2,8 @@ Instructions to setup the ExoDiBosonResonances code
 ========
 
 ```
-cmsrel CMSSW_7_2_4
-cd CMSSW_7_2_4/src
+cmsrel CMSSW_7_2_5
+cd CMSSW_7_2_5/src
 cmsenv
 git cms-init # This will allow you to checkout packages in official CMSSW.
 git cms-merge-topic Sam-Harper:HEEPID72X  # HEEP Electron Identification

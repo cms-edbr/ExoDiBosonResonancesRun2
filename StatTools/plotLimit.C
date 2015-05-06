@@ -3,6 +3,7 @@
 //        root -b -q 'plotLimit.C("ELP")'
 //        root -b -q 'plotLimit.C("MHP")'
 //        root -b -q 'plotLimit.C("MLP")'
+//        root -b -q 'plotLimit.C("ALL")'
 //
 
 void plotLimit(std::string key)
@@ -12,24 +13,28 @@ void plotLimit(std::string key)
   inputFile["ELP"]="combineELP.root";
   inputFile["MHP"]="combineMHP.root";
   inputFile["MLP"]="combineMLP.root";
+  inputFile["ALL"]="combineALL.root";
 
   std::map<std::string, std::string> outFile;
-  outFile["EHP"]="limitEHP.png";
-  outFile["ELP"]="limitELP.png";
-  outFile["MHP"]="limitMHP.png";
-  outFile["MLP"]="limitMLP.png";
+  outFile["EHP"]="limitEHP.pdf";
+  outFile["ELP"]="limitELP.pdf";
+  outFile["MHP"]="limitMHP.pdf";
+  outFile["MLP"]="limitMLP.pdf";
+  outFile["ALL"]="limitALL.pdf";
 
   std::map<std::string, std::string> legTitle;
   legTitle["EHP"]="electron channel high purity";
   legTitle["ELP"]="electron channel low purity";
   legTitle["MHP"]="muon channel high purity";
   legTitle["MLP"]="muon channel low purity";
+  legTitle["ALL"]="Combination of channels";
 
   std::map<std::string, std::string> axisTitle;
   axisTitle["EHP"]="ee";
   axisTitle["ELP"]="ee";
   axisTitle["MHP"]="#mu#mu";
   axisTitle["MLP"]="#mu#mu";
+  axisTitle["ALL"]="ll";
  
   TFile *f = TFile::Open(inputFile[key].c_str());
   TTreeReader myReader("limit", f);
@@ -68,9 +73,9 @@ void plotLimit(std::string key)
   gr1->SetFillColor(3);
   gr2->SetFillColor(5);
   gr2->GetYaxis()->SetTitleOffset(1.2);
-  gr2->SetMinimum(1.0);
-  gr2->SetMaximum(800);
-  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 3 fb^{-1};M_{ZZ} [GeV];\
+  gr2->SetMinimum(2.);
+  gr2->SetMaximum(5.e3);
+  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 1 fb^{-1};M_{ZZ} [GeV];\
                      #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [fb]",
                      axisTitle[key].c_str() ));
 
