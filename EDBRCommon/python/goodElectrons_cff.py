@@ -22,23 +22,17 @@ eleSequence = cms.Sequence(isolatedElectrons+goodElectrons)
 #
 # START ELECTRON ID SECTION
 #
-# Set up everything that is needed to compute electron IDs and
-# add the ValueMaps with ID decisions into the event data stream
-#
 
-# Load tools and function definitions
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
- 
+
 def addElectronIDs(process):
    
-    process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
-    process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
-    
-    from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
     
-    process.load('RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff')
-    setupVIDSelection(process.egmGsfElectronIDs,process.heepElectronID_HEEPV51_miniAOD)   
+    my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff']
+    for idmod in my_id_modules:
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
     process.goodElectrons.src = "slimmedElectrons"
     process.eleSequence = cms.Sequence(process.egmGsfElectronIDSequence+process.goodElectrons)
