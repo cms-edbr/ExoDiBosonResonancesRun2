@@ -28,6 +28,8 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+
 #include "EDBRChannels.h"
 #include "TAxis.h"
 #include "TEfficiency.h"
@@ -108,8 +110,9 @@ private:
   double relIso1, relIso2;
   int missingHits1, missingHits2;
   int passConVeto1, passConVeto2;
-  int el1passID, el2passID;
+  int elpassID1, elpassID2;
   edm::EDGetTokenT<edm::ValueMap<bool> > electronIdToken_;
+
   void setDummyValues();
 
   /// Parameters to steer the treeDumper
@@ -219,8 +222,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
   outTree_->Branch("passConVeto2"    ,&passConVeto2   ,"passConVeto2/I"   );
-  outTree_->Branch("el1passID"       ,&el1passID      ,"el1passID/I"      );
-  outTree_->Branch("el2passID"       ,&el2passID      ,"el2passID/I"      );
+  outTree_->Branch("elpassID1"       ,&elpassID1      ,"elpassID1/I"      );
+  outTree_->Branch("elpassID2"       ,&elpassID2      ,"elpassID2/I"      );
   
   /// Generic kinematic quantities
   outTree_->Branch("numjets"         ,&numjets        ,"numjets/I"        );
@@ -332,6 +335,13 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            //*****************************************************************//
            //************************* ID for electrons **********************//
            //*****************************************************************//
+   
+           // Effective area constants
+           EffectiveAreas _effectiveAreas( edm::FileInPath("EgammaAnalysis/ElectronTools/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath()  );
+           // The rho
+           edm::Handle< double > rhoHandle;
+           iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
+           float rho = (float)(*rhoHandle);
 
            //we put the definitions inside the channel
            switch(channel){
@@ -401,8 +411,11 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                          fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
                         ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
                                          fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() ) : 1e9;
-                        double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
-                        double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - 0.5*pfIso2.sumPUPt );
+                        // Compute the combined isolation with effective area correction
+                        double     eA1 = _effectiveAreas.getEffectiveArea( etaSC1 );
+                        double     eA2 = _effectiveAreas.getEffectiveArea( etaSC2 );
+                        double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
+                        double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
                         relIso1        = absiso1/el1->pt();
                         relIso2        = absiso2/el2->pt();
                         d01            = (-1)*el1->gsfTrack()->dxy(firstGoodVertex->position());   
@@ -420,8 +433,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const Ptr<pat::Electron> el2Ptr(electrons, 1 );
                         edm::Handle<edm::ValueMap<bool> >  id_decisions;
                         iEvent.getByToken(electronIdToken_,id_decisions);
-                        el1passID      = (*id_decisions)[ el1Ptr ];
-                        el2passID      = (*id_decisions)[ el2Ptr ];
+                        elpassID1      = (*id_decisions)[ el1Ptr ];
+                        elpassID2      = (*id_decisions)[ el2Ptr ];
                     }
                  }
                  break;}
@@ -492,7 +505,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const Ptr<pat::Electron> el1Ptr(electrons,  0 );
                         edm::Handle<edm::ValueMap<bool> >  id_decisions;
                         iEvent.getByToken(electronIdToken_,id_decisions);
-                        el1passID      = (*id_decisions)[ el1Ptr ];
+                        elpassID1      = (*id_decisions)[ el1Ptr ];
                     }
                  }
                  break;}
@@ -553,7 +566,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        // ------ analize trigger results ----------//
        edm::Handle<TriggerResults> trigRes;
        iEvent.getByToken(hltToken_, trigRes);
-       if( lep<12 and el1passID and el2passID ){
+       if( lep<12 and elpassID1 and elpassID2 ){
           for (size_t i=0; i<elPaths.size(); i++){
               const unsigned int path_index = hltConfig.triggerIndex(elPaths[i]);
               bool path_bit = trigRes->accept(path_index);
@@ -631,7 +644,7 @@ void EDBRTreeMaker::setDummyValues() {
      relIso1        = -1e9;
      missingHits1   = -1e9; 
      passConVeto1   = -1e9;
-     el1passID      = -1e9;
+     elpassID1      = -1e9;
      ptel2          = -1e9;
      etaSC2         = -1e9;
      dEtaIn2        = -1e9;
@@ -644,7 +657,7 @@ void EDBRTreeMaker::setDummyValues() {
      relIso2        = -1e9;
      missingHits2   = -1e9; 
      passConVeto2   = -1e9;
-     el2passID      = -1e9; 
+     elpassID2      = -1e9; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
