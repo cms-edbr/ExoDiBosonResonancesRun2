@@ -6,7 +6,7 @@ cmsrel CMSSW_7_4_1_patch1
 cd CMSSW_7_4_1_patch1/src
 cmsenv
 git cms-init # This will allow you to checkout packages in official CMSSW.
-git cms-merge-topic krav:egm_id_74X_v0 # Recommented Electron Identification
+git cms-merge-topic ikrav:egm_id_74X_v0 # Recommended Electron Identification
 git clone -b Analysis74X git@github.com:cms-edbr/ExoDiBosonResonancesRun2.git ExoDiBosonResonances
 scram b -j 9
 ```
