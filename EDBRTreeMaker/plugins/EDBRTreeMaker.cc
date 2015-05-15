@@ -98,20 +98,22 @@ private:
 
   // Electron ID 
   double eeDeltaR;
-  double ptel1, ptel2;
-  double etaSC1, etaSC2;
-  double dEtaIn1, dEtaIn2;
-  double dPhiIn1, dPhiIn2;
-  double hOverE1, hOverE2;
+  double ptel1,          ptel2;
+  double etaSC1,         etaSC2;
+  double dEtaIn1,        dEtaIn2;
+  double dPhiIn1,        dPhiIn2;
+  double hOverE1,        hOverE2;
   double full5x5_sigma1, full5x5_sigma2;
-  double ooEmooP1, ooEmooP2;
-  double d01, d02;
-  double dz1, dz2;
-  double relIso1, relIso2;
-  int missingHits1, missingHits2;
-  int passConVeto1, passConVeto2;
-  int elpassID1, elpassID2;
-  edm::EDGetTokenT<edm::ValueMap<bool> > electronIdToken_;
+  double ooEmooP1,       ooEmooP2;
+  double d01,            d02;
+  double dz1,            dz2;
+  double relIso1,        relIso2;
+  int    missingHits1,   missingHits2;
+  int    passConVeto1,   passConVeto2;
+  int    eltightID1,     eltightID2;
+  int    elmediumID1,    elmediumID2;
+  edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
 
   void setDummyValues();
 
@@ -139,7 +141,8 @@ private:
 // constructors and destructor
 //
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
-  electronIdToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronIDs"))),
+  elmediumIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elmediumID"))),
+  eltightIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eltightID"))),
   hltToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltToken"))),
   elPaths_(iConfig.getParameter<std::vector<std::string>>("elPaths")),
   muPaths_(iConfig.getParameter<std::vector<std::string>>("muPaths"))
@@ -222,8 +225,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
   outTree_->Branch("passConVeto2"    ,&passConVeto2   ,"passConVeto2/I"   );
-  outTree_->Branch("elpassID1"       ,&elpassID1      ,"elpassID1/I"      );
-  outTree_->Branch("elpassID2"       ,&elpassID2      ,"elpassID2/I"      );
+  outTree_->Branch("elmediumID1"     ,&elmediumID1    ,"elmediumID1/I"    );
+  outTree_->Branch("elmediumID2"     ,&elmediumID2    ,"elmediumID2/I"    );
+  outTree_->Branch("eltightID1"      ,&eltightID1     ,"eltightID1/I"     );
+  outTree_->Branch("eltightID2"      ,&eltightID2     ,"eltightID2/I"     );
   
   /// Generic kinematic quantities
   outTree_->Branch("numjets"         ,&numjets        ,"numjets/I"        );
@@ -431,10 +436,14 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         iEvent.getByLabel("slimmedElectrons", electrons);
                         const Ptr<pat::Electron> el1Ptr(electrons, 0 );
                         const Ptr<pat::Electron> el2Ptr(electrons, 1 );
-                        edm::Handle<edm::ValueMap<bool> >  id_decisions;
-                        iEvent.getByToken(electronIdToken_,id_decisions);
-                        elpassID1      = (*id_decisions)[ el1Ptr ];
-                        elpassID2      = (*id_decisions)[ el2Ptr ];
+                        edm::Handle<edm::ValueMap<bool> >  elmediumID_handle;
+                        edm::Handle<edm::ValueMap<bool> >  eltightID_handle;
+                        iEvent.getByToken(eltightIDToken_,elmediumID_handle);
+                        iEvent.getByToken(eltightIDToken_,eltightID_handle);
+                        elmediumID1    = (*elmediumID_handle)[ el1Ptr ];
+                        elmediumID2    = (*elmediumID_handle)[ el2Ptr ];
+                        eltightID1     = (*eltightID_handle)[  el1Ptr ];
+                        eltightID2     = (*eltightID_handle)[  el2Ptr ];
                     }
                  }
                  break;}
@@ -503,9 +512,9 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         edm::Handle<edm::View<pat::Electron> > electrons;
                         iEvent.getByLabel("slimmedElectrons", electrons);
                         const Ptr<pat::Electron> el1Ptr(electrons,  0 );
-                        edm::Handle<edm::ValueMap<bool> >  id_decisions;
-                        iEvent.getByToken(electronIdToken_,id_decisions);
-                        elpassID1      = (*id_decisions)[ el1Ptr ];
+                        edm::Handle<edm::ValueMap<bool> >  eltightID_handle;
+                        iEvent.getByToken(eltightIDToken_, eltightID_handle);
+                        eltightID1     = (*eltightID_handle)[ el1Ptr ];
                     }
                  }
                  break;}
@@ -566,7 +575,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        // ------ analize trigger results ----------//
        edm::Handle<TriggerResults> trigRes;
        iEvent.getByToken(hltToken_, trigRes);
-       if( lep<12 and elpassID1 and elpassID2 ){
+       if( lep<12 and eltightID1 and eltightID2 ){
           for (size_t i=0; i<elPaths.size(); i++){
               const unsigned int path_index = hltConfig.triggerIndex(elPaths[i]);
               bool path_bit = trigRes->accept(path_index);
@@ -644,7 +653,8 @@ void EDBRTreeMaker::setDummyValues() {
      relIso1        = -1e9;
      missingHits1   = -1e9; 
      passConVeto1   = -1e9;
-     elpassID1      = -1e9;
+     elmediumID1    = -1e9;
+     eltightID1     = -1e9;
      ptel2          = -1e9;
      etaSC2         = -1e9;
      dEtaIn2        = -1e9;
@@ -657,7 +667,8 @@ void EDBRTreeMaker::setDummyValues() {
      relIso2        = -1e9;
      missingHits2   = -1e9; 
      passConVeto2   = -1e9;
-     elpassID2      = -1e9; 
+     elmediumID2    = -1e9; 
+     eltightID2     = -1e9; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
