@@ -438,7 +438,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const Ptr<pat::Electron> el2Ptr(electrons, 1 );
                         edm::Handle<edm::ValueMap<bool> >  elmediumID_handle;
                         edm::Handle<edm::ValueMap<bool> >  eltightID_handle;
-                        iEvent.getByToken(eltightIDToken_,elmediumID_handle);
+                        iEvent.getByToken(elmediumIDToken_,elmediumID_handle);
                         iEvent.getByToken(eltightIDToken_,eltightID_handle);
                         elmediumID1    = (*elmediumID_handle)[ el1Ptr ];
                         elmediumID2    = (*elmediumID_handle)[ el2Ptr ];
