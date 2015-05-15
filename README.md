@@ -2,8 +2,8 @@ Instructions to setup the ExoDiBosonResonances code
 ========
 
 ```
-cmsrel CMSSW_7_4_1_patch1
-cd CMSSW_7_4_1_patch1/src
+cmsrel CMSSW_7_4_2
+cd CMSSW_7_4_2/src
 cmsenv
 git cms-init # This will allow you to checkout packages in official CMSSW.
 git cms-merge-topic ikrav:egm_id_74X_v0 # Recommended Electron Identification
