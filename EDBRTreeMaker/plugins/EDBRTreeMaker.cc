@@ -108,12 +108,15 @@ private:
   double d01,            d02;
   double dz1,            dz2;
   double relIso1,        relIso2;
+  double miniIso1,       miniIso2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
+  int    elheepID1,      elheepID2;
   int    eltightID1,     eltightID2;
   int    elmediumID1,    elmediumID2;
-  edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > elheepIDToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
 
   void setDummyValues();
 
@@ -141,8 +144,9 @@ private:
 // constructors and destructor
 //
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
-  elmediumIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elmediumID"))),
+  elheepIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elheepID"))),
   eltightIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eltightID"))),
+  elmediumIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elmediumID"))),
   hltToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltToken"))),
   elPaths_(iConfig.getParameter<std::vector<std::string>>("elPaths")),
   muPaths_(iConfig.getParameter<std::vector<std::string>>("muPaths"))
@@ -229,6 +233,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("elmediumID2"     ,&elmediumID2    ,"elmediumID2/I"    );
   outTree_->Branch("eltightID1"      ,&eltightID1     ,"eltightID1/I"     );
   outTree_->Branch("eltightID2"      ,&eltightID2     ,"eltightID2/I"     );
+  outTree_->Branch("elheepID1"       ,&elheepID1      ,"elheepID1/I"      );
+  outTree_->Branch("elheepID2"       ,&elheepID2      ,"elheepID2/I"      );
   
   /// Generic kinematic quantities
   outTree_->Branch("numjets"         ,&numjets        ,"numjets/I"        );
@@ -243,10 +249,12 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("phijet1"         ,&phijet1        ,"phijet1/D"        );
   outTree_->Branch("massjet1"        ,&massjet1       ,"massjet1/D"       );
   outTree_->Branch("met"             ,&met            ,"met/D"            );
-  outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
-  //new
-  outTree_->Branch("metphi"          ,&metphi         ,"metphi/D"         );
   outTree_->Branch("metpt"           ,&metpt          ,"metpt/D"          );
+  outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
+
+  // mini isolation for leptons
+  outTree_->Branch("miniIso1"        ,&miniIso1       ,"miniIso1/D"       );
+  outTree_->Branch("miniIso2"        ,&miniIso2       ,"miniIso2/D"       );
 
   /// Other quantities
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
@@ -256,23 +264,11 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("delPhilepmet"    ,&delPhilepmet   ,"delPhilepmet/D"   );
   outTree_->Branch("deltaRlepjet"    ,&deltaRlepjet   ,"deltaRlepjet/D"   );
   outTree_->Branch("delPhijetmet"    ,&delPhijetmet   ,"delPhijetmet/D"   );
-  // new
-  outTree_->Branch("deltaphijetmet"    ,&deltaphijetmet   ,"deltaphijetmet/D"   );
+  outTree_->Branch("deltaphijetmet"  ,&deltaphijetmet ,"deltaphijetmet/D" );
 }
 
 
-EDBRTreeMaker::~EDBRTreeMaker()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
+EDBRTreeMaker::~EDBRTreeMaker() {}
 
 // ------------ method called for each event  ------------
 void
@@ -284,23 +280,21 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    run    = iEvent.eventAuxiliary().run();
    ls     = iEvent.eventAuxiliary().luminosityBlock();
 
-   //edm::Handle<edm::View<pat::Jet> > hadronicVs;
+   //Handle<View<pat::Jet> > hadronicVs;
    //iEvent.getByLabel(hadronicVSrc_.c_str(), hadronicVs);
    
-   //edm::Handle<edm::View<reco::Candidate> > leptonicVs;
+   //Handle<View<reco::Candidate> > leptonicVs;
    //iEvent.getByLabel(leptonicVSrc_.c_str(), leptonicVs);
    
-   edm::Handle<edm::View<reco::Candidate> > gravitons;
+   Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
 
-   edm::Handle<edm::View<reco::Candidate> > metHandle;
+   Handle<View<reco::Candidate> > metHandle;
    iEvent.getByLabel(metSrc_.c_str(), metHandle);
    
    /// How should we choose the correct graviton candidate?
    numCands = gravitons->size();
 
-   //StringCutObjectSelector<T>
-   
    setDummyValues(); //Initalize variables with dummy values
    
    if(numCands != 0 ) {
@@ -312,7 +306,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        /// All the quantities which depend on RECO could go here
        if(not isGen_) {
-           edm::Handle<reco::VertexCollection> vertices;
+           Handle<reco::VertexCollection> vertices;
            iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
            if (vertices->empty()) return; // skip the event if no PV found
 	   nVtx = vertices->size();
@@ -330,10 +324,9 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            }
 
            // number of jets
-           edm::Handle<std::vector<pat::Jet>> jets;
+           Handle<std::vector<pat::Jet>> jets;
            iEvent.getByLabel("slimmedJetsAK8", jets);
            numjets = jets->size();
-
 
            if ( firstGoodVertex==vertices->end() ) return; // skip event if there are no good PVs
 
@@ -342,113 +335,122 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            //*****************************************************************//
    
            // Effective area constants
-           EffectiveAreas _effectiveAreas( edm::FileInPath("EgammaAnalysis/ElectronTools/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath()  );
+           EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath()  );
            // The rho
-           edm::Handle< double > rhoHandle;
+           Handle< double > rhoHandle;
            iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
            float rho = (float)(*rhoHandle);
 
            //we put the definitions inside the channel
            switch(channel){
-              case VZ_CHANNEL:
-                 {const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
-                 //**************DEFINITIONS *********************************** 
-                 // candidate
-                 candMass  = graviton.mass();
-                 // leptons
-                 ptVlep = leptonicV.pt();
-                 yVlep  = leptonicV.eta();
-                 phiVlep = leptonicV.phi();
-                 massVlep = leptonicV.mass();
-                 mtVlep       = leptonicV.mt();
-                 ptlep1 = leptonicV.daughter(0)->pt();
-                 ptlep2 = leptonicV.daughter(1)->pt();
-                 etalep1 = leptonicV.daughter(0)->eta();
-                 etalep2 = leptonicV.daughter(1)->eta();
-                 philep1 = leptonicV.daughter(0)->phi();
-                 philep2 = leptonicV.daughter(1)->phi();
-                 lep = abs(leptonicV.daughter(0)->pdgId());
-                 //met
-                 met = metCand.pt();
-                 metPhi = metCand.phi();
-                 // hadrons
-                 ptVhad = hadronicV.pt();
-                 yVhad  = hadronicV.eta();
-                 phiVhad = hadronicV.phi();
-                 tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
-                 tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
-                 tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
-                 tau21 = tau2/tau1;
-                 ptjet1 = hadronicV.pt();
-                 etajet1 = hadronicV.eta();
-                 phijet1 = hadronicV.phi();
-                 massjet1 = hadronicV.mass();
-                 // deltas
-                 deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
-                 double drl1j = deltaR(etalep1,philep1,etajet1,phijet1);
-                 double drl2j = deltaR(etalep2,philep2,etajet1,phijet1);
-                 deltaRlepjet = std::min(drl1j,drl2j);
-                 delPhilepmet = deltaPhi(philep1, metPhi);
-                 delPhijetmet = deltaPhi(phijet1, metPhi);
-                 //********************************************************                
-                 if(leptonicV.daughter(0)->isElectron() && 
-                    leptonicV.daughter(1)->isElectron()    ) {
-                    const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
-                    const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
-                    if (el1->gsfTrack().isNonnull() && 
-                        el2->gsfTrack().isNonnull()    ){
-                        reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
-                        reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
-                        eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
-                        ptel1          = el1->pt();
-                        ptel2          = el2->pt();
-                        etaSC1         = el1->superCluster()->eta();
-                        etaSC2         = el2->superCluster()->eta();
-                        dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
-                        dEtaIn2        = el2->deltaEtaSuperClusterTrackAtVtx();
-                        dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
-                        dPhiIn2        = el2->deltaPhiSuperClusterTrackAtVtx();
-                        hOverE1        = el1->hcalOverEcal();
-                        hOverE2        = el2->hcalOverEcal();
-                        full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
-                        full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
-                        ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
-                                         fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
-                        ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
-                                         fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() ) : 1e9;
-                        // Compute the combined isolation with effective area correction
-                        double     eA1 = _effectiveAreas.getEffectiveArea( etaSC1 );
-                        double     eA2 = _effectiveAreas.getEffectiveArea( etaSC2 );
-                        double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
-                        double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
-                        relIso1        = absiso1/el1->pt();
-                        relIso2        = absiso2/el2->pt();
-                        d01            = (-1)*el1->gsfTrack()->dxy(firstGoodVertex->position());   
-                        dz1            = el1->gsfTrack()->dz(firstGoodVertex->position());
-                        missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-                        d02            = (-1)*el2->gsfTrack()->dxy(firstGoodVertex->position());  
-                        dz2            = el2->gsfTrack()->dz(firstGoodVertex->position());
-                        missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-                        passConVeto1   = el1->passConversionVeto();
-                        passConVeto2   = el2->passConversionVeto();
-                        //Retrieve electron IDs
-                        edm::Handle<edm::View<pat::Electron> > electrons;
-                        iEvent.getByLabel("slimmedElectrons", electrons);
-                        const Ptr<pat::Electron> el1Ptr(electrons, 0 );
-                        const Ptr<pat::Electron> el2Ptr(electrons, 1 );
-                        edm::Handle<edm::ValueMap<bool> >  elmediumID_handle;
-                        edm::Handle<edm::ValueMap<bool> >  eltightID_handle;
-                        iEvent.getByToken(elmediumIDToken_,elmediumID_handle);
-                        iEvent.getByToken(eltightIDToken_,eltightID_handle);
-                        elmediumID1    = (*elmediumID_handle)[ el1Ptr ];
-                        elmediumID2    = (*elmediumID_handle)[ el2Ptr ];
-                        eltightID1     = (*eltightID_handle)[  el1Ptr ];
-                        eltightID2     = (*eltightID_handle)[  el2Ptr ];
-                    }
-                 }
-                 break;}
-              case VW_CHANNEL:
-                 {const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
+               case VZ_CHANNEL:{
+                   const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
+                   //**************DEFINITIONS *********************************** 
+                   // candidate
+                   candMass  = graviton.mass();
+                   // leptons
+                   ptVlep = leptonicV.pt();
+                   yVlep  = leptonicV.eta();
+                   phiVlep = leptonicV.phi();
+                   massVlep = leptonicV.mass();
+                   mtVlep       = leptonicV.mt();
+                   ptlep1 = leptonicV.daughter(0)->pt();
+                   ptlep2 = leptonicV.daughter(1)->pt();
+                   etalep1 = leptonicV.daughter(0)->eta();
+                   etalep2 = leptonicV.daughter(1)->eta();
+                   philep1 = leptonicV.daughter(0)->phi();
+                   philep2 = leptonicV.daughter(1)->phi();
+                   lep = abs(leptonicV.daughter(0)->pdgId());
+                   // mini isolation
+                   Handle<std::vector<double> > miniIso_h;
+                   iEvent.getByLabel(InputTag("miniIsolation","miniIsolationLeptons"), miniIso_h);
+                   miniIso1       = (double)(*miniIso_h)[0];
+                   miniIso2       = (double)(*miniIso_h)[1];
+                   //met
+                   met = metCand.pt();
+                   metPhi = metCand.phi();
+                   // hadrons
+                   ptVhad = hadronicV.pt();
+                   yVhad  = hadronicV.eta();
+                   phiVhad = hadronicV.phi();
+                   tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
+                   tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
+                   tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
+                   tau21 = tau2/tau1;
+                   ptjet1 = hadronicV.pt();
+                   etajet1 = hadronicV.eta();
+                   phijet1 = hadronicV.phi();
+                   massjet1 = hadronicV.mass();
+                   // deltas
+                   deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
+                   double drl1j = deltaR(etalep1,philep1,etajet1,phijet1);
+                   double drl2j = deltaR(etalep2,philep2,etajet1,phijet1);
+                   deltaRlepjet = std::min(drl1j,drl2j);
+                   delPhilepmet = deltaPhi(philep1, metPhi);
+                   delPhijetmet = deltaPhi(phijet1, metPhi);
+                   //********************************************************                
+                   if(leptonicV.daughter(0)->isElectron() && 
+                      leptonicV.daughter(1)->isElectron()    ) {
+                      const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
+                      const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+                      if (el1->gsfTrack().isNonnull() && 
+                          el2->gsfTrack().isNonnull()    ){
+                          reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
+                          reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
+                          eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
+                          ptel1          = el1->pt();
+                          ptel2          = el2->pt();
+                          etaSC1         = el1->superCluster()->eta();
+                          etaSC2         = el2->superCluster()->eta();
+                          dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
+                          dEtaIn2        = el2->deltaEtaSuperClusterTrackAtVtx();
+                          dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
+                          dPhiIn2        = el2->deltaPhiSuperClusterTrackAtVtx();
+                          hOverE1        = el1->hcalOverEcal();
+                          hOverE2        = el2->hcalOverEcal();
+                          full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
+                          full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
+                          ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
+                                           fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
+                          ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
+                                           fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() ) : 1e9;
+                          // Compute the combined isolation with effective area correction
+                          double     eA1 = _effectiveAreas.getEffectiveArea( etaSC1 );
+                          double     eA2 = _effectiveAreas.getEffectiveArea( etaSC2 );
+                          double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
+                          double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
+                          relIso1        = absiso1/el1->pt();
+                          relIso2        = absiso2/el2->pt();
+                          d01            = (-1)*el1->gsfTrack()->dxy(firstGoodVertex->position());   
+                          dz1            = el1->gsfTrack()->dz(firstGoodVertex->position());
+                          missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                          d02            = (-1)*el2->gsfTrack()->dxy(firstGoodVertex->position());  
+                          dz2            = el2->gsfTrack()->dz(firstGoodVertex->position());
+                          missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                          passConVeto1   = el1->passConversionVeto();
+                          passConVeto2   = el2->passConversionVeto();
+                          //Retrieve electron IDs
+                          Handle<View<pat::Electron> > electrons;
+                          iEvent.getByLabel("slimmedElectrons", electrons);
+                          const Ptr<pat::Electron> el1Ptr(electrons, 0 );
+                          const Ptr<pat::Electron> el2Ptr(electrons, 1 );
+                          Handle<ValueMap<bool> >  elmediumID_handle;
+                          Handle<ValueMap<bool> >  eltightID_handle;
+                          Handle<ValueMap<bool> >  elheepID_handle;
+                          iEvent.getByToken(elmediumIDToken_, elmediumID_handle);
+                          iEvent.getByToken(eltightIDToken_,  eltightID_handle);
+                          iEvent.getByToken(elheepIDToken_,   elheepID_handle);
+                          elmediumID1   = (*elmediumID_handle)[ el1Ptr ];
+                          elmediumID2   = (*elmediumID_handle)[ el2Ptr ];
+                          eltightID1    = (*eltightID_handle)[  el1Ptr ];
+                          eltightID2    = (*eltightID_handle)[  el2Ptr ];
+                          elheepID1     = (*elheepID_handle)[   el1Ptr ];
+                          elheepID2     = (*elheepID_handle)[   el2Ptr ];
+                      }
+                   }
+                   break;}
+               case VW_CHANNEL:{
+                   const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
                    //*****************DEFINITIONS *************************************
                    //candidate
                    candMass  = graviton.mass();
@@ -459,11 +461,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    massVlep = leptonicV.mass();
                    mtVlep  = leptonicV.mt();
                    ptlep1 = leptonicV.daughter(0)->pt();
-                   ptlep2 = leptonicV.daughter(1)->pt();
                    etalep1 = leptonicV.daughter(0)->eta();
-                   etalep2 = leptonicV.daughter(1)->eta();
                    philep1 = leptonicV.daughter(0)->phi();
-                   philep2 = leptonicV.daughter(1)->phi();
                    lep = abs(leptonicV.daughter(0)->pdgId());
                    //met
                    met = metCand.pt();
@@ -487,63 +486,35 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    deltaRlepjet = std::min(drl1j,drl2j);
                    delPhilepmet = deltaPhi(philep1, metPhi);
                    delPhijetmet = deltaPhi(phijet1, metPhi);
-                   //******************************************************               
-                    if( leptonicV.daughter(0)->isElectron()||leptonicV.daughter(1)->isElectron() ) {
-                       const pat::Electron *el1 = leptonicV.daughter(0)->isElectron() ? 
-                                                  (pat::Electron*)leptonicV.daughter(0):
-                                                  (pat::Electron*)leptonicV.daughter(1);
-                    if (el1->gsfTrack().isNonnull()){
-                        reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
-                        ptel1          = el1->pt();
-                        etaSC1         = el1->superCluster()->eta();
-                        dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
-                        dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
-                        hOverE1        = el1->hcalOverEcal();
-                        full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
-                        ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
-                                         fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
-                        double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
-                        relIso1        = absiso1/el1->pt();
-                        d01            = (-1)*el1->gsfTrack()->dxy(firstGoodVertex->position());   
-                        dz1            = el1->gsfTrack()->dz(firstGoodVertex->position());
-                        missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-            	        passConVeto1   = el1->passConversionVeto();
-                        //Retrieve electron IDs
-                        edm::Handle<edm::View<pat::Electron> > electrons;
-                        iEvent.getByLabel("slimmedElectrons", electrons);
-                        const Ptr<pat::Electron> el1Ptr(electrons,  0 );
-                        edm::Handle<edm::ValueMap<bool> >  eltightID_handle;
-                        iEvent.getByToken(eltightIDToken_, eltightID_handle);
-                        eltightID1     = (*eltightID_handle)[ el1Ptr ];
-                    }
-                 }
-                 break;}
-              case VZnu_CHANNEL:
-                       { const pat::MET& goodMET =dynamic_cast<const pat::MET&> (*graviton.daughter("goodMET"));
-                       //*************** DEFINITIONS ***************************************** 
-                       //hadrons
-                       ptVhad = hadronicV.pt();
-                       yVhad  = hadronicV.eta();
-                       phiVhad = hadronicV.phi();
-                       tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
-                       tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
-                       tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
-                       tau21 = tau2/tau1;
-                       ptjet1 = hadronicV.pt();
-                       etajet1 = hadronicV.eta();
-                       phijet1 = hadronicV.phi();
-                       massjet1 = hadronicV.mass();                       
-                       // MET FROM GRAVITON
-                       metpt = goodMET.pt();
-                       metphi = goodMET.phi();
-                       // delta Phi between jet and met(from graviton) 
-                       deltaphijetmet = deltaPhi(phijet1, metphi);
-                       // transverse candidate mass for JET + MET
-                       candTMass    = sqrt(abs(2*ptjet1*metpt*(1-cos(deltaphijetmet))));                     
-                 break;} // we have to put braces to avoid crosses initialization error
-              case VH_CHANNEL: // This channel needs to be implemented 
-                 break;
-           }
+                   break;}
+               case VZnu_CHANNEL:{
+                   const pat::MET& goodMET =dynamic_cast<const pat::MET&> (*graviton.daughter("goodMET"));
+                   //*************** DEFINITIONS ***************************************** 
+                   //hadrons
+                   ptVhad = hadronicV.pt();
+                   yVhad  = hadronicV.eta();
+                   phiVhad = hadronicV.phi();
+                   tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
+                   tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
+                   tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
+                   tau21 = tau2/tau1;
+                   ptjet1 = hadronicV.pt();
+                   etajet1 = hadronicV.eta();
+                   phijet1 = hadronicV.phi();
+                   massjet1 = hadronicV.mass();                       
+                   // MET FROM GRAVITON
+                   metpt = goodMET.pt();
+                   metphi = goodMET.phi();
+                   // delta Phi between jet and met(from graviton) 
+                   deltaphijetmet = deltaPhi(phijet1, metphi);
+                   // transverse candidate mass for JET + MET
+                   candTMass    = sqrt(abs(2*ptjet1*metpt*(1-cos(deltaphijetmet))));                     
+                   break;}
+               case VH_CHANNEL: // This channel needs to be implemented 
+                   break;
+
+           }// close switch
+
            //*****************************************************************//
            //********************* close ID for electrons ********************//
            //*****************************************************************//
@@ -562,8 +533,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        double targetEvents = targetLumiInvPb_*crossSectionPb_;
        lumiWeight = targetEvents/originalNEvents_;
 
-
-
        /// FIXME: these should NOT be hardcoded
        if(massVhad < 50 or massVhad > 110)
 	   reg = -1;
@@ -573,9 +542,9 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   reg = 1;
    
        // ------ analize trigger results ----------//
-       edm::Handle<TriggerResults> trigRes;
+       Handle<TriggerResults> trigRes;
        iEvent.getByToken(hltToken_, trigRes);
-       if( lep<12 and eltightID1 and eltightID2 ){
+       if( lep<12 and eltightID1 and elmediumID2 ){
           for (size_t i=0; i<elPaths.size(); i++){
               const unsigned int path_index = hltConfig.triggerIndex(elPaths[i]);
               bool path_bit = trigRes->accept(path_index);
@@ -624,6 +593,8 @@ void EDBRTreeMaker::setDummyValues() {
      etalep2        = -1e9;
      philep1        = -1e9;
      philep2        = -1e9;
+     miniIso1       = -1e9;
+     miniIso2       = -1e9;
      numjets        = -1e9; 
      ptjet1         = -1e9;
      etajet1        = -1e9;
@@ -655,6 +626,7 @@ void EDBRTreeMaker::setDummyValues() {
      passConVeto1   = -1e9;
      elmediumID1    = -1e9;
      eltightID1     = -1e9;
+     elheepID1      = -1e9;
      ptel2          = -1e9;
      etaSC2         = -1e9;
      dEtaIn2        = -1e9;
@@ -669,6 +641,7 @@ void EDBRTreeMaker::setDummyValues() {
      passConVeto2   = -1e9;
      elmediumID2    = -1e9; 
      eltightID2     = -1e9; 
+     elheepID2      = -1e9; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
