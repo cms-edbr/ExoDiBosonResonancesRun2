@@ -6,7 +6,7 @@ isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04
 
 goodMuons = cms.EDFilter("PATMuonSelector",
                              src = cms.InputTag("slimmedMuons"),
-                             cut = cms.string("pt > 50 && abs(eta) < 2.4 " 
+                             cut = cms.string("pt > 40 && abs(eta) < 2.4 " 
                                               "&& isGlobalMuon && isPFMuon "
                                               "&& numberOfMatchedStations() > 1 "
                                               "&& dB() < 0.2 "
