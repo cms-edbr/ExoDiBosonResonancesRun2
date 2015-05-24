@@ -29,9 +29,10 @@ VZ_JetMET  = False
 # choose the sample                                                                     
 
 #SAMPLE="RSGravToZZ_kMpl01_M-1000_PHYS14" 
-SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
+#SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
 #SAMPLE="RSGravToZZ_kMpl01_M-3000_PHYS14"
 #SAMPLE="RSGravToZZ_kMpl01_M-4000_PHYS14"
+SAMPLE="RSGravToZZ_kMpl01_M-4500_PHYS14"
 ##SAMPLE="DYJetsToLL_HT-100to200_PHYS14"
 #SAMPLE="DYJetsToLL_HT-200to400_PHYS14"
 #SAMPLE="DYJetsToLL_HT-400to600_PHYS14"
@@ -49,6 +50,7 @@ configXsecs = {  "RSGravToZZ_kMpl01_M-1000_PHYS14": 1.202,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 0.02284,
                  "RSGravToZZ_kMpl01_M-3000_PHYS14": 0.001454,
                  "RSGravToZZ_kMpl01_M-4000_PHYS14": 0.0001357,
+                 "RSGravToZZ_kMpl01_M-4500_PHYS14": 0.0001357,
                  "ZJetsToNuNu_HT-100to200_PHYS14" : 372.6,
                  "ZJetsToNuNu_HT-200to400_PHYS14" : 100.8,
                  "ZJetsToNuNu_HT-400to600_PHYS14" : 11.99,
@@ -67,6 +69,7 @@ configNevents = {"RSGravToZZ_kMpl01_M-1000_PHYS14": 30000,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 29744,
                  "RSGravToZZ_kMpl01_M-3000_PHYS14": 29209,
                  "RSGravToZZ_kMpl01_M-4000_PHYS14": 30000,
+                 "RSGravToZZ_kMpl01_M-4500_PHYS14": 195818,
                  "ZJetsToNuNu_HT-100to200_PHYS14" : 4986424,
                  "ZJetsToNuNu_HT-200to400_PHYS14" : 4546470,
                  "ZJetsToNuNu_HT-400to600_PHYS14" : 4433784,
