@@ -203,6 +203,16 @@ CHANNEL = "VZ_CHANNEL"
 if VZ_JetMET == True : 
    CHANNEL = "VZnu_CHANNEL"  
    
+process.miniIsolation = cms.EDProducer("miniPFIsolationProducer",
+                                    r_iso_min = cms.double(0.05),
+                                    r_iso_max = cms.double(0.2),
+                                    kt_scale  = cms.double(10.),
+                                    charged_only = cms.bool(False),
+                                    electrons = cms.InputTag("goodElectrons"),
+                                    muons = cms.InputTag("goodMuons"),
+                                    pfCands = cms.InputTag("packedPFCandidates"),
+                                  )
+
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     originalNEvents = cms.int32(usedNevents),
                                     crossSectionPb = cms.double(usedXsec),
@@ -213,6 +223,7 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     metSrc = cms.string("slimmedMETs"),
                                     elmediumID = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
                                     eltightID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
+                                    elheepID   = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
                                     hltToken = cms.InputTag("TriggerResults","","HLT"),
                                     elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_*","HLT_Ele95_*"), 
                                     muPaths = cms.vstring("HLT_Mu30_TkMu11_v*","HLT_Mu40_v*","HLT_IsoMu24_*IterTrk02_v*") 
@@ -232,6 +243,7 @@ process.analysis = cms.Path(process.leptonSequence    +
                             process.metSequence       + 
                             process.jetSequence       +
                             process.gravitonSequence  +
+                            process.miniIsolation     +
                             process.treeDumper)
 
 

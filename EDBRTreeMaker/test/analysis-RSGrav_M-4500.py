@@ -28,9 +28,12 @@ VZ_JetMET  = False
 #*********************************** THE SAMPLES *****************************************************#
 # choose the sample                                                                     
 
-SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
 #SAMPLE="RSGravToZZ_kMpl01_M-1000_PHYS14" 
-#SAMPLE="DYJetsToLL_HT-100to200_PHYS14"
+#SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
+#SAMPLE="RSGravToZZ_kMpl01_M-3000_PHYS14"
+#SAMPLE="RSGravToZZ_kMpl01_M-4000_PHYS14"
+SAMPLE="RSGravToZZ_kMpl01_M-4500_PHYS14"
+##SAMPLE="DYJetsToLL_HT-100to200_PHYS14"
 #SAMPLE="DYJetsToLL_HT-200to400_PHYS14"
 #SAMPLE="DYJetsToLL_HT-400to600_PHYS14"
 #SAMPLE="DYJetsToLL_HT-600toInf_PHYS14"
@@ -43,42 +46,43 @@ SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
 #SAMPLE="WJetsToLNu_HT-400to600_PHYS14"
 #SAMPLE="WJetsToLNu_HT-600toInf_PHYS14"
 
-configXsecs = {"ZJetsToNuNu_HT-100to200_PHYS14" :372.6,
-               "ZJetsToNuNu_HT-200to400_PHYS14" :100.8,
-               "ZJetsToNuNu_HT-400to600_PHYS14" :11.99 ,
-               "ZJetsToNuNu_HT-600toInf_PHYS14" :4.113,
-               "WJetsToLNu_HT-100to200_PHYS14"  :1817.0,
-               "WJetsToLNu_HT-200to400_PHYS14"  :471.6,
-               "WJetsToLNu_HT-400to600_PHYS14"  :55.61,
-               "WJetsToLNu_HT-600toInf_PHYS14"  :18.81,
-               "DYJetsToLL_HT-100to200_PHYS14" : 194.3,
-               "DYJetsToLL_HT-200to400_PHYS14" : 52.24,
-               "DYJetsToLL_HT-400to600_PHYS14" : 6.546,
-               "DYJetsToLL_HT-600toInf_PHYS14" : 2.179,
+configXsecs = {  "RSGravToZZ_kMpl01_M-1000_PHYS14": 1.202,
+                 "RSGravToZZ_kMpl01_M-2000_PHYS14": 0.02284,
+                 "RSGravToZZ_kMpl01_M-3000_PHYS14": 0.001454,
+                 "RSGravToZZ_kMpl01_M-4000_PHYS14": 0.0001357,
+                 "RSGravToZZ_kMpl01_M-4500_PHYS14": 0.0001357,
+                 "ZJetsToNuNu_HT-100to200_PHYS14" : 372.6,
+                 "ZJetsToNuNu_HT-200to400_PHYS14" : 100.8,
+                 "ZJetsToNuNu_HT-400to600_PHYS14" : 11.99,
+                 "ZJetsToNuNu_HT-600toInf_PHYS14" : 4.113,
+                 "WJetsToLNu_HT-100to200_PHYS14"  : 1817.0,
+                 "WJetsToLNu_HT-200to400_PHYS14"  : 471.6,
+                 "WJetsToLNu_HT-400to600_PHYS14"  : 55.61,
+                 "WJetsToLNu_HT-600toInf_PHYS14"  : 18.81,
+                 "DYJetsToLL_HT-100to200_PHYS14"  : 194.3,
+                 "DYJetsToLL_HT-200to400_PHYS14"  : 52.24,
+                 "DYJetsToLL_HT-400to600_PHYS14"  : 6.546,
+                 "DYJetsToLL_HT-600toInf_PHYS14"  : 2.179,
               }
 
-configNevents = {"ZJetsToNuNu_HT-100to200_PHYS14" :4986424,
-                 "ZJetsToNuNu_HT-200to400_PHYS14" :4546470,
-                 "ZJetsToNuNu_HT-400to600_PHYS14" :4433784,
-                 "ZJetsToNuNu_HT-600toInf_PHYS14" :4463806,
-                 "WJetsToLNu_HT-100to200_PHYS14"  :5262265,
-                 "WJetsToLNu_HT-200to400_PHYS14"  :4936077,
-                 "WJetsToLNu_HT-400to600_PHYS14"  :4640594,
-                 "WJetsToLNu_HT-600toInf_PHYS14"  :4581841,
-                 "DYJetsToLL_HT-100to200_PHYS14" : 4054159,
-                 "DYJetsToLL_HT-200to400_PHYS14" : 4666496,
-                 "DYJetsToLL_HT-400to600_PHYS14" : 4931372,
-                 "DYJetsToLL_HT-600toInf_PHYS14" : 4493574,
+configNevents = {"RSGravToZZ_kMpl01_M-1000_PHYS14": 30000,
+                 "RSGravToZZ_kMpl01_M-2000_PHYS14": 29744,
+                 "RSGravToZZ_kMpl01_M-3000_PHYS14": 29209,
+                 "RSGravToZZ_kMpl01_M-4000_PHYS14": 30000,
+                 "RSGravToZZ_kMpl01_M-4500_PHYS14": 195818,
+                 "ZJetsToNuNu_HT-100to200_PHYS14" : 4986424,
+                 "ZJetsToNuNu_HT-200to400_PHYS14" : 4546470,
+                 "ZJetsToNuNu_HT-400to600_PHYS14" : 4433784,
+                 "ZJetsToNuNu_HT-600toInf_PHYS14" : 4463806,
+                 "WJetsToLNu_HT-100to200_PHYS14"  : 5262265,
+                 "WJetsToLNu_HT-200to400_PHYS14"  : 4936077,
+                 "WJetsToLNu_HT-400to600_PHYS14"  : 4640594,
+                 "WJetsToLNu_HT-600toInf_PHYS14"  : 4581841,
+                 "DYJetsToLL_HT-100to200_PHYS14"  : 4054159,
+                 "DYJetsToLL_HT-200to400_PHYS14"  : 4666496,
+                 "DYJetsToLL_HT-400to600_PHYS14"  : 4931372,
+                 "DYJetsToLL_HT-600toInf_PHYS14"  : 4493574,
                 }
-
-if VZ_JetMET == True :
-#We multiply by 10 the cross section for the RSGravToZZ_kMpl01_M-1000_PHYS14
-   configXsecs.update({"RSGravToZZ_kMpl01_M-1000_PHYS14" : 10})
-   configNevents.update({"RSGravToZZ_kMpl01_M-1000_PHYS14" :30000})
-
-if VZ_semileptonic == True :
-   configXsecs.update({"RSGravToZZ_kMpl01_M-2000_PHYS14" : 1})
-   configNevents.update({"RSGravToZZ_kMpl01_M-2000_PHYS14" : 1})
 
 usedXsec = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
@@ -201,19 +205,28 @@ print "\n++++++++++++++++++++++++++"
 CHANNEL = "VZ_CHANNEL"
 if VZ_JetMET == True : 
    CHANNEL = "VZnu_CHANNEL"  
-   
+
+process.miniIsolation = cms.EDProducer("miniPFIsolationProducer",
+                                    r_iso_min = cms.double(0.05),
+                                    r_iso_max = cms.double(0.2),
+                                    kt_scale  = cms.double(10.),
+                                    charged_only = cms.bool(False),
+                                    electrons = cms.InputTag("goodElectrons"),
+                                    muons = cms.InputTag("goodMuons"),
+                                    pfCands = cms.InputTag("packedPFCandidates"),
+                                  )
+
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     originalNEvents = cms.int32(usedNevents),
                                     crossSectionPb = cms.double(usedXsec),
-                                    targetLumiInvPb = cms.double(3000.0),
+                                    targetLumiInvPb = cms.double(1000.0),
                                     EDBRChannel = cms.string(CHANNEL),
                                     isGen = cms.bool(False),
-#                                    hadronicVSrc = cms.string("hadronicV"),
-#                                    leptonicVSrc = cms.string("leptonicV"),
                                     gravitonSrc = cms.string("graviton"),
                                     metSrc = cms.string("slimmedMETs"),
                                     elmediumID = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
                                     eltightID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
+                                    elheepID   = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
                                     hltToken = cms.InputTag("TriggerResults","","HLT"),
                                     elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_*","HLT_Ele95_*"), 
                                     muPaths = cms.vstring("HLT_Mu30_TkMu11_v*","HLT_Mu40_v*","HLT_IsoMu24_*IterTrk02_v*") 
@@ -233,6 +246,7 @@ process.analysis = cms.Path(process.leptonSequence    +
                             process.metSequence       + 
                             process.jetSequence       +
                             process.gravitonSequence  +
+                            process.miniIsolation     +
                             process.treeDumper)
 
 
