@@ -173,6 +173,7 @@ process.leptonSequence = cms.Sequence(process.muSequence +
 
 if VZ_semileptonic == True :
    process.leptonSequence.replace(process.eleSequence, process.eleSequence + process.leptonicVSequence + process.leptonicVSelector + process.leptonicVFilter)
+   process.analysis.remove(process.metSequence)
 
 process.jetSequence = cms.Sequence(process.fatJetsSequence +
                                    process.hadronicV +
