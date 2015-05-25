@@ -173,7 +173,6 @@ process.leptonSequence = cms.Sequence(process.muSequence +
 
 if VZ_semileptonic == True :
    process.leptonSequence.replace(process.eleSequence, process.eleSequence + process.leptonicVSequence + process.leptonicVSelector + process.leptonicVFilter)
-   process.analysis.remove(process.metSequence)
 
 process.jetSequence = cms.Sequence(process.fatJetsSequence +
                                    process.hadronicV +
@@ -253,6 +252,7 @@ process.analysis = cms.Path(process.leptonSequence    +
 
 if VZ_semileptonic == True :
    process.analysis.replace(process.leptonSequence, process.leptonicDecay + process.hadronicDecay + process.leptonSequence)
+   process.analysis.remove(process.metSequence)
 
 if option=='RECO':
     from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
