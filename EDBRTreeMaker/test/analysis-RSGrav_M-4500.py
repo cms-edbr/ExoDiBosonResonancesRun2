@@ -252,6 +252,7 @@ process.analysis = cms.Path(process.leptonSequence    +
 
 if VZ_semileptonic == True :
    process.analysis.replace(process.leptonSequence, process.leptonicDecay + process.hadronicDecay + process.leptonSequence)
+   process.analysis.remove(process.metSequence)
 
 if option=='RECO':
     from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
