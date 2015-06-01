@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -25,6 +26,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "ExoDiBosonResonances/EDBRLeptons/interface/TrackerMuonSelector.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -81,13 +84,15 @@ private:
 
   //---------------------- JETS ------------------------------------------------------
   double tau1, tau2, tau3, tau21;
-  double massjet1, ptjet1, etajet1, phijet1;
+  double massjet1, softjet1, prunedjet1;
+  double ptjet1, etajet1, phijet1;
   int numjets;
 
   //-------------------- LEPTONS -----------------------------------------------------
-  double ptlep1, ptlep2;
-  double etalep1, etalep2;
-  double philep1, philep2;
+  double ptlep1,   ptlep2;
+  double etalep1,  etalep2;
+  double philep1,  philep2;
+  double miniIso1, miniIso2;
 
   //--------------------DELTAS ------------------------------------------------------- 
   double deltaRleplep, deltaRlepjet, delPhilepmet, delPhijetmet, deltaphijetmet;
@@ -95,6 +100,10 @@ private:
   //-------------------CANDIDATES MASS -----------------------------------------------
   double candMass;
   double candTMass; // transverse mass
+
+  // Muon ID 
+  int    mutrackerID1,   mutrackerID2;
+  int    mutightID1,     mutightID2;
 
   // Electron ID 
   double eeDeltaR;
@@ -108,7 +117,6 @@ private:
   double d01,            d02;
   double dz1,            dz2;
   double relIso1,        relIso2;
-  double miniIso1,       miniIso2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
   int    elheepID1,      elheepID2;
@@ -203,6 +211,12 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
   outTree_->Branch("candTMass"       ,&candTMass      ,"candTMass/D"      );
 
+  /// Muon ID quantities ID quantities
+  outTree_->Branch("mutrackerID1"    ,&mutrackerID1   ,"mutrackerID1/I"   );
+  outTree_->Branch("mutrackerID2"    ,&mutrackerID2   ,"mutrackerID2/I"   );
+  outTree_->Branch("mutightID1"      ,&mutightID1     ,"mutightID1/I"     );
+  outTree_->Branch("mutightID2"      ,&mutightID2     ,"mutightID2/I"     );
+
   /// Electron ID quantities
   outTree_->Branch("eeDeltaR"        ,&eeDeltaR       ,"eeDeltaR/D"       );
   outTree_->Branch("ptel1"           ,&ptel1          ,"ptel1/D"          );
@@ -235,6 +249,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("eltightID2"      ,&eltightID2     ,"eltightID2/I"     );
   outTree_->Branch("elheepID1"       ,&elheepID1      ,"elheepID1/I"      );
   outTree_->Branch("elheepID2"       ,&elheepID2      ,"elheepID2/I"      );
+
+  // mini isolation for leptons
+  outTree_->Branch("miniIso1"        ,&miniIso1       ,"miniIso1/D"       );
+  outTree_->Branch("miniIso2"        ,&miniIso2       ,"miniIso2/D"       );
   
   /// Generic kinematic quantities
   outTree_->Branch("numjets"         ,&numjets        ,"numjets/I"        );
@@ -248,13 +266,11 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("philep2"         ,&philep2        ,"philep2/D"        );
   outTree_->Branch("phijet1"         ,&phijet1        ,"phijet1/D"        );
   outTree_->Branch("massjet1"        ,&massjet1       ,"massjet1/D"       );
+  outTree_->Branch("softjet1"        ,&softjet1       ,"softjet1/D"       );
+  outTree_->Branch("prunedjet1"      ,&prunedjet1     ,"prunedjet1/D"     );
   outTree_->Branch("met"             ,&met            ,"met/D"            );
   outTree_->Branch("metpt"           ,&metpt          ,"metpt/D"          );
   outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
-
-  // mini isolation for leptons
-  outTree_->Branch("miniIso1"        ,&miniIso1       ,"miniIso1/D"       );
-  outTree_->Branch("miniIso2"        ,&miniIso2       ,"miniIso2/D"       );
 
   /// Other quantities
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
@@ -280,12 +296,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    run    = iEvent.eventAuxiliary().run();
    ls     = iEvent.eventAuxiliary().luminosityBlock();
 
-   //Handle<View<pat::Jet> > hadronicVs;
-   //iEvent.getByLabel(hadronicVSrc_.c_str(), hadronicVs);
-   
-   //Handle<View<reco::Candidate> > leptonicVs;
-   //iEvent.getByLabel(leptonicVSrc_.c_str(), leptonicVs);
-   
    Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
 
@@ -299,13 +309,16 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    if(numCands != 0 ) {
        const reco::Candidate& graviton  = gravitons->at(0);
-       //const pat::Jet& hadronicV = hadronicVs->at(0);
-       //const reco::Candidate& leptonicV = leptonicVs->at(0);
        const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
        const reco::Candidate& metCand = metHandle->at(0);
        
        /// All the quantities which depend on RECO could go here
        if(not isGen_) {
+           // number of jets
+           Handle<std::vector<pat::Jet>> jets;
+           iEvent.getByLabel("slimmedJetsAK8", jets);
+           numjets = jets->size();
+
            Handle<reco::VertexCollection> vertices;
            iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
            if (vertices->empty()) return; // skip the event if no PV found
@@ -323,17 +336,10 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                }           
            }
 
-           // number of jets
-           Handle<std::vector<pat::Jet>> jets;
-           iEvent.getByLabel("slimmedJetsAK8", jets);
-           numjets = jets->size();
-
            if ( firstGoodVertex==vertices->end() ) return; // skip event if there are no good PVs
+           const reco::Vertex& vertex = dynamic_cast<const reco::Vertex&>(*firstGoodVertex);
 
-           //*****************************************************************//
-           //************************* ID for electrons **********************//
-           //*****************************************************************//
-   
+  
            // Effective area constants
            EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath()  );
            // The rho
@@ -349,38 +355,40 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    // candidate
                    candMass  = graviton.mass();
                    // leptons
-                   ptVlep = leptonicV.pt();
-                   yVlep  = leptonicV.eta();
-                   phiVlep = leptonicV.phi();
+                   ptVlep   = leptonicV.pt();
+                   yVlep    = leptonicV.eta();
+                   phiVlep  = leptonicV.phi();
                    massVlep = leptonicV.mass();
-                   mtVlep       = leptonicV.mt();
-                   ptlep1 = leptonicV.daughter(0)->pt();
-                   ptlep2 = leptonicV.daughter(1)->pt();
-                   etalep1 = leptonicV.daughter(0)->eta();
-                   etalep2 = leptonicV.daughter(1)->eta();
-                   philep1 = leptonicV.daughter(0)->phi();
-                   philep2 = leptonicV.daughter(1)->phi();
-                   lep = abs(leptonicV.daughter(0)->pdgId());
+                   mtVlep   = leptonicV.mt();
+                   ptlep1   = leptonicV.daughter(0)->pt();
+                   ptlep2   = leptonicV.daughter(1)->pt();
+                   etalep1  = leptonicV.daughter(0)->eta();
+                   etalep2  = leptonicV.daughter(1)->eta();
+                   philep1  = leptonicV.daughter(0)->phi();
+                   philep2  = leptonicV.daughter(1)->phi();
+                   lep  = abs(leptonicV.daughter(0)->pdgId());
                    // mini isolation
                    Handle<std::vector<double> > miniIso_h;
                    iEvent.getByLabel(InputTag("miniIsolation","miniIsolationLeptons"), miniIso_h);
-                   miniIso1       = (double)(*miniIso_h)[0];
-                   miniIso2       = (double)(*miniIso_h)[1];
+                   miniIso1 = (*miniIso_h)[0];
+                   miniIso2 = (*miniIso_h)[1];
                    //met
                    met = metCand.pt();
                    metPhi = metCand.phi();
                    // hadrons
-                   ptVhad = hadronicV.pt();
-                   yVhad  = hadronicV.eta();
-                   phiVhad = hadronicV.phi();
-                   tau1 = hadronicV.userFloat("NjettinessAK8:tau1");
-                   tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
-                   tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
-                   tau21 = tau2/tau1;
-                   ptjet1 = hadronicV.pt();
-                   etajet1 = hadronicV.eta();
-                   phijet1 = hadronicV.phi();
-                   massjet1 = hadronicV.mass();
+                   ptVhad       = hadronicV.pt();
+                   yVhad        = hadronicV.eta();
+                   phiVhad      = hadronicV.phi();
+                   tau1         = hadronicV.userFloat("NjettinessAK8:tau1");
+                   tau2         = hadronicV.userFloat("NjettinessAK8:tau2");
+                   tau3         = hadronicV.userFloat("NjettinessAK8:tau3");
+                   tau21        = tau2/tau1;
+                   ptjet1       = hadronicV.pt();
+                   etajet1      = hadronicV.eta();
+                   phijet1      = hadronicV.phi();
+                   massjet1     = hadronicV.mass();
+                   softjet1     = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
+                   prunedjet1   = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
                    // deltas
                    deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
                    double drl1j = deltaR(etalep1,philep1,etajet1,phijet1);
@@ -388,7 +396,28 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    deltaRlepjet = std::min(drl1j,drl2j);
                    delPhilepmet = deltaPhi(philep1, metPhi);
                    delPhijetmet = deltaPhi(phijet1, metPhi);
-                   //********************************************************                
+                   //*****************************************************************//
+                   //************************* ID for muons **************************//
+                   //*****************************************************************//
+                   if(leptonicV.daughter(0)->isMuon() && 
+                      leptonicV.daughter(1)->isMuon()    ) {
+                      const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
+                      const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
+                      reco::MuonPFIsolation pfIso1 = mu1->pfIsolationR03();
+                      reco::MuonPFIsolation pfIso2 = mu2->pfIsolationR03();
+                      // isolation with delta beta correction
+                      double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
+                      double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - 0.5*pfIso2.sumPUPt );
+                      relIso1        = absiso1/mu1->pt();
+                      relIso2        = absiso2/mu2->pt();
+                      mutrackerID1   = (int)hptm::isTrackerMuon(*mu1,vertex);
+                      mutrackerID2   = (int)hptm::isTrackerMuon(*mu2,vertex);
+                      mutightID1     = (int)muon::isTightMuon(  *mu1,vertex);
+                      mutightID2     = (int)muon::isTightMuon(  *mu2,vertex);
+                   }
+                   //*****************************************************************//
+                   //************************* ID for electrons **********************//
+                   //*****************************************************************//
                    if(leptonicV.daughter(0)->isElectron() && 
                       leptonicV.daughter(1)->isElectron()    ) {
                       const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
@@ -414,7 +443,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                            fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
                           ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
                                            fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() ) : 1e9;
-                          // Compute the combined isolation with effective area correction
+                          // isolation with effective area correction
                           double     eA1 = _effectiveAreas.getEffectiveArea( etaSC1 );
                           double     eA2 = _effectiveAreas.getEffectiveArea( etaSC2 );
                           double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
@@ -515,14 +544,12 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
            }// close switch
 
-           //*****************************************************************//
-           //********************* close ID for electrons ********************//
-           //*****************************************************************//
-           massVhad     = hadronicV.userFloat("ak8PFJetsCHSPrunedLinks");
-       }
+           massVhad     = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
+
+       }// close not isGen
        
        if(isGen_) {
-	   massVhad = hadronicV.userFloat("ak8GenJetsPrunedLinks");
+	   massVhad = hadronicV.userFloat("ak8GenJetsSoftDropMass");
 	   nVtx = 0;
        }
 
@@ -551,7 +578,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               eleff->Fill( path_bit, i );
           }
        }
-       if( lep>12 ){
+       if( lep>12 and mutrackerID1 and mutrackerID2 ){
           for (size_t i=0; i<muPaths.size(); i++){
               const unsigned int path_index = hltConfig.triggerIndex(muPaths[i]);
               bool path_bit = trigRes->accept(path_index);
@@ -600,6 +627,8 @@ void EDBRTreeMaker::setDummyValues() {
      etajet1        = -1e9;
      phijet1        = -1e9;
      massjet1       = -1e9;
+     softjet1       = -1e9;
+     prunedjet1     = -1e9;
      met            = -1e9;
      metPhi         = -1e9;
      metpt          = -1e9;
@@ -642,6 +671,10 @@ void EDBRTreeMaker::setDummyValues() {
      elmediumID2    = -1e9; 
      eltightID2     = -1e9; 
      elheepID2      = -1e9; 
+     mutrackerID1   = -1e9;
+     mutrackerID2   = -1e9;
+     mutightID1     = -1e9;
+     mutightID2     = -1e9;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
