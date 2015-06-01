@@ -33,7 +33,8 @@ VZ_JetMET  = False
 #SAMPLE="RSGravToZZToLLQQ_M-1000" 
 #SAMPLE="RSGravToZZToLLQQ_M-1400" 
 #SAMPLE="RSGravToZZToLLQQ_M-1600" 
-SAMPLE="RSGravToZZToLLQQ_M-2000" 
+#SAMPLE="RSGravToZZToLLQQ_M-2000" 
+SAMPLE="RSGravToZZToLLQQ_M-2500" 
 #SAMPLE="RSGravToZZ_kMpl01_M-1000" 
 #SAMPLE="RSGravToZZ_kMpl01_M-1800"
 #SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
@@ -59,6 +60,7 @@ configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
                  "RSGravToZZToLLQQ_M-1600"        : 0.00605376,
                  "RSGravToZZToLLQQ_M-1800"        : 0.00283966,
                  "RSGravToZZToLLQQ_M-2000"        : 0.00156097,
+                 "RSGravToZZToLLQQ_M-2500"        : 0.000372413,
                  "RSGravToZZ_kMpl01_M-1000"       : 1.202,
                  "RSGravToZZ_kMpl01_M-1800"       : 0.05024,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 0.02284,
@@ -85,6 +87,7 @@ configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
                  "RSGravToZZToLLQQ_M-1600"        : 31091,
                  "RSGravToZZToLLQQ_M-1800"        : 31075,
                  "RSGravToZZToLLQQ_M-2000"        : 31091,
+                 "RSGravToZZToLLQQ_M-2500"        : 31147,
                  "RSGravToZZ_kMpl01_M-1000"       : 29586,
                  "RSGravToZZ_kMpl01_M-1800"       : 100000,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 29744,
