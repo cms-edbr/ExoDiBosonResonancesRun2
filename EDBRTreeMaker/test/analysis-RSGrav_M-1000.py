@@ -28,7 +28,11 @@ VZ_JetMET  = False
 #*********************************** THE SAMPLES *****************************************************#
 # choose the sample                                                                     
 
-SAMPLE="RSGravToZZ_kMpl01_M-1000_PHYS14" 
+#SAMPLE="RSGravToZZToLLQQ_M-600" 
+#SAMPLE="RSGravToZZToLLQQ_M-800" 
+SAMPLE="RSGravToZZToLLQQ_M-1000" 
+#SAMPLE="RSGravToZZ_kMpl01_M-1000" 
+#SAMPLE="RSGravToZZ_kMpl01_M-1800"
 #SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
 #SAMPLE="RSGravToZZ_kMpl01_M-3000_PHYS14"
 #SAMPLE="RSGravToZZ_kMpl01_M-4000_PHYS14"
@@ -45,7 +49,11 @@ SAMPLE="RSGravToZZ_kMpl01_M-1000_PHYS14"
 #SAMPLE="WJetsToLNu_HT-400to600_PHYS14"
 #SAMPLE="WJetsToLNu_HT-600toInf_PHYS14"
 
-configXsecs = {  "RSGravToZZ_kMpl01_M-1000_PHYS14": 1.202,
+configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
+                 "RSGravToZZToLLQQ_M-800"         : 0.274593,
+                 "RSGravToZZToLLQQ_M-1000"        : 0.0811175,
+                 "RSGravToZZ_kMpl01_M-1000"       : 1.202,
+                 "RSGravToZZ_kMpl01_M-1800"       : 0.05024,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 0.02284,
                  "RSGravToZZ_kMpl01_M-3000_PHYS14": 0.001454,
                  "RSGravToZZ_kMpl01_M-4000_PHYS14": 0.0001357,
@@ -63,7 +71,11 @@ configXsecs = {  "RSGravToZZ_kMpl01_M-1000_PHYS14": 1.202,
                  "DYJetsToLL_HT-600toInf_PHYS14"  : 2.179,
               }
 
-configNevents = {"RSGravToZZ_kMpl01_M-1000_PHYS14": 30000,
+configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
+                 "RSGravToZZToLLQQ_M-800"         : 31071,
+                 "RSGravToZZToLLQQ_M-1000"        : 31229,
+                 "RSGravToZZ_kMpl01_M-1000"       : 29586,
+                 "RSGravToZZ_kMpl01_M-1800"       : 100000,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 29744,
                  "RSGravToZZ_kMpl01_M-3000_PHYS14": 29209,
                  "RSGravToZZ_kMpl01_M-4000_PHYS14": 30000,
@@ -109,14 +121,14 @@ process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 if option == 'RECO':
     process.hadronicV.cut = \
         'pt > 100 &'+\
-        '(userFloat("ak8PFJetsCHSPrunedLinks") > 50.0) &'+\
-        '(userFloat("ak8PFJetsCHSPrunedLinks") < 110.0)'
+        '(userFloat("ak8PFJetsCHSSoftDropMass") > 50.0) &'+\
+        '(userFloat("ak8PFJetsCHSSoftDropMass") < 110.0)'
     process.goodMET.cut = "pt > 250"	
 if option == 'GEN':
     process.hadronicV.cut = \
         'pt > 100 &'+\
-        '(userFloat("ak8GenJetsPrunedLinks") > 50.0) &'+\
-        '(userFloat("ak8GenJetsPrunedLinks") < 110.0)'
+        '(userFloat("ak8GenJetsSoftDropMass") > 50.0) &'+\
+        '(userFloat("ak8GenJetsSoftDropMass") < 110.0)'
 #*******************************************************************************************************#
 
 process.goodOfflinePrimaryVertex = cms.EDFilter("VertexSelector",
@@ -196,23 +208,23 @@ print "++++++++++ CUTS ++++++++++\n"
 print "Graviton cut = "+str(process.graviton.cut)
 print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
 print "Hadronic V cut = "+str(process.hadronicV.cut)
-print "MET cut = "+str(process.goodMET.cut)
+##print "MET cut = "+str(process.goodMET.cut)
 print "\n++++++++++++++++++++++++++"
 
 CHANNEL = "VZ_CHANNEL"
 if VZ_JetMET == True : 
    CHANNEL = "VZnu_CHANNEL"  
-
-process.miniIsolation = cms.EDProducer("miniPFIsolationProducer",
-                                    r_iso_min = cms.double(0.05),
-                                    r_iso_max = cms.double(0.2),
-                                    kt_scale  = cms.double(10.),
-                                    charged_only = cms.bool(False),
-                                    electrons = cms.InputTag("goodElectrons"),
-                                    muons = cms.InputTag("goodMuons"),
-                                    pfCands = cms.InputTag("packedPFCandidates"),
-                                  )
    
+process.miniIsolation = cms.EDProducer("miniPFIsolationProducer",
+                                      r_iso_min = cms.double(0.05),
+                                      r_iso_max = cms.double(0.2),
+                                      kt_scale  = cms.double(10.),
+                                      charged_only = cms.bool(False),
+                                      electrons = cms.InputTag("goodElectrons"),
+                                      muons = cms.InputTag("goodMuons"),
+                                      pfCands = cms.InputTag("packedPFCandidates")
+                                      )
+
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     originalNEvents = cms.int32(usedNevents),
                                     crossSectionPb = cms.double(usedXsec),
@@ -225,8 +237,8 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     eltightID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
                                     elheepID   = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
                                     hltToken = cms.InputTag("TriggerResults","","HLT"),
-                                    elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_*","HLT_Ele95_*"), 
-                                    muPaths = cms.vstring("HLT_Mu30_TkMu11_v*","HLT_Mu40_v*","HLT_IsoMu24_*IterTrk02_v*") 
+                                    elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*"), 
+                                    muPaths = cms.vstring("HLT_Mu30_TkMu11_v*") 
                                     )
 
 if option=='GEN':
@@ -248,7 +260,7 @@ process.analysis = cms.Path(process.leptonSequence    +
 
 
 if VZ_semileptonic == True :
-   process.analysis.replace(process.leptonSequence, process.leptonicDecay + process.hadronicDecay + process.leptonSequence)
+   #process.analysis.replace(process.leptonSequence, process.leptonicDecay + process.hadronicDecay + process.leptonSequence)
    process.analysis.remove(process.metSequence)
 
 if option=='RECO':
@@ -257,8 +269,7 @@ if option=='RECO':
     process = addElectronIDs(process)
 
 ### Source
-process.load("ExoDiBosonResonances.EDBRCommon.simulation."+SAMPLE)
-#process.source.fileNames = ["/store/mc/Phys14DR/RSGravToZZ_kMpl01_M-4500_Tune4C_13TeV-pythia8/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/1898E9B3-9C6B-E411-88A4-00266CF327E0.root"]
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
 
 process.maxEvents.input = -1
 
