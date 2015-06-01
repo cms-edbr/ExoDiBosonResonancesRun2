@@ -246,8 +246,8 @@ process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     eltightID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
                                     elheepID   = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
                                     hltToken = cms.InputTag("TriggerResults","","HLT"),
-                                    elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_*","HLT_Ele95_*"), 
-                                    muPaths = cms.vstring("HLT_Mu30_TkMu11_v*","HLT_Mu40_v*","HLT_IsoMu24_*IterTrk02_v*") 
+                                    elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*"), 
+                                    muPaths = cms.vstring("HLT_Mu30_TkMu11_v*") 
                                     )
 
 if option=='GEN':
@@ -280,7 +280,7 @@ if option=='RECO':
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
 
-process.maxEvents.input = -1
+process.maxEvents.input = 1000
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000

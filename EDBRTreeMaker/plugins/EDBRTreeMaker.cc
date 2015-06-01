@@ -144,8 +144,8 @@ private:
   std::vector<std::string> muPaths_;
   std::vector<std::string> elPaths;
   std::vector<std::string> muPaths;
-  TEfficiency *eleff, *mueff;
-  TH1I *elframe, *muframe;
+  int  hltDoubleEle33;
+  int  hltMu30TkMu11;
 };
 
 //
@@ -211,6 +211,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
   outTree_->Branch("candTMass"       ,&candTMass      ,"candTMass/D"      );
 
+  /// HLT bits
+  outTree_->Branch("hltDoubleEle33"  ,&hltDoubleEle33 ,"hltDoubleEle33/I" );
+  outTree_->Branch("hltMu30TkMu11"   ,&hltMu30TkMu11  ,"hltMu30TkMu11/I"  );
+  
   /// Muon ID quantities ID quantities
   outTree_->Branch("mutrackerID1"    ,&mutrackerID1   ,"mutrackerID1/I"   );
   outTree_->Branch("mutrackerID2"    ,&mutrackerID2   ,"mutrackerID2/I"   );
@@ -296,6 +300,14 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    run    = iEvent.eventAuxiliary().run();
    ls     = iEvent.eventAuxiliary().luminosityBlock();
 
+   setDummyValues(); //Initalize variables with dummy values
+
+   // ------ analize trigger results ----------//
+   Handle<TriggerResults> trigRes;
+   iEvent.getByToken(hltToken_, trigRes);
+   hltDoubleEle33 = (int)trigRes->accept(hltConfig.triggerIndex(elPaths[0]));
+   hltMu30TkMu11  = (int)trigRes->accept(hltConfig.triggerIndex(muPaths[0]));
+
    Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
 
@@ -304,8 +316,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    /// How should we choose the correct graviton candidate?
    numCands = gravitons->size();
-
-   setDummyValues(); //Initalize variables with dummy values
    
    if(numCands != 0 ) {
        const reco::Candidate& graviton  = gravitons->at(0);
@@ -568,23 +578,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(massVhad > 70 and massVhad < 110)
 	   reg = 1;
    
-       // ------ analize trigger results ----------//
-       Handle<TriggerResults> trigRes;
-       iEvent.getByToken(hltToken_, trigRes);
-       if( lep<12 and eltightID1 and elmediumID2 ){
-          for (size_t i=0; i<elPaths.size(); i++){
-              const unsigned int path_index = hltConfig.triggerIndex(elPaths[i]);
-              bool path_bit = trigRes->accept(path_index);
-              eleff->Fill( path_bit, i );
-          }
-       }
-       if( lep>12 and mutrackerID1 and mutrackerID2 ){
-          for (size_t i=0; i<muPaths.size(); i++){
-              const unsigned int path_index = hltConfig.triggerIndex(muPaths[i]);
-              bool path_bit = trigRes->accept(path_index);
-              mueff->Fill( path_bit, i );
-          }
-       }
        outTree_->Fill();
    }
    else {
@@ -704,16 +697,12 @@ void EDBRTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
          foundPaths.pop_back();
       }
    }
-   Int_t elbins = elPaths.size();
-   Int_t mubins = muPaths.size();
-   elframe = fs->make<TH1I>("elframe",";;( pass ID and HLT ) / pass ID", elbins, 0, elbins);
-   muframe = fs->make<TH1I>("muframe",";;( pass ID and HLT ) / pass ID", mubins, 0, mubins);
-   eleff = fs->make<TEfficiency>("eleff","", elbins, 0, elbins);
-   mueff = fs->make<TEfficiency>("mueff","", mubins, 0, mubins);
-   TAxis *elaxis = elframe->GetXaxis();   
-   TAxis *muaxis = muframe->GetXaxis();   
-   for (size_t i=0; i < elPaths.size(); i++) elaxis->SetBinLabel( i+1, elPaths[i].c_str() );
-   for (size_t i=0; i < muPaths.size(); i++) muaxis->SetBinLabel( i+1, muPaths[i].c_str() );
+
+   std::cout<<"\n************** HLT Information **************\n";
+   for (size_t i=0; i < elPaths.size(); i++) std::cout << "\n Electron paths: " << elPaths[i].c_str() <<"\t"<< std::endl;
+   for (size_t i=0; i < muPaths.size(); i++) std::cout << "\n Muon paths    : " << muPaths[i].c_str() <<"\t"<< std::endl;
+   std::cout<<"\n*********************************************\n\n";
+
 }
 
 void EDBRTreeMaker::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
