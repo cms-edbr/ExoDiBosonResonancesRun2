@@ -88,7 +88,6 @@ goodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto_ptr< vector<pat::Electron> > goodElectrons( new vector<pat::Electron> );
     for ( size_t i=0; i<elmult; ++i ) {
         const pat::Electron& el = (*electrons)[i];
-        if ( el.pt()<40.||fabs(el.eta())>2.5 ) continue;       // acceptance cut
         const Ptr<pat::Electron> elRef(electrons, i);
         int mediumID = (*elmediumID_handle)[ elRef ]; 
         int  tightID =  (*eltightID_handle)[ elRef ]; 
@@ -100,7 +99,6 @@ goodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto_ptr< vector<pat::Muon> > goodMuons( new vector<pat::Muon> );
     for ( size_t i=0; i<mumult; ++i ) {
         const pat::Muon& mu = (*muons)[i];
-        if ( mu.pt()<40.||fabs(mu.eta())>2.5 ) continue;       // acceptance cut
         int trackerID = (int)hptm::isTrackerMuon(mu, vertex);  
         int tightID   = (int)muon::isTightMuon(  mu, vertex);  
         if ( !trackerID ) continue;                            // muons must pass trackerID 
