@@ -318,7 +318,13 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    numCands = gravitons->size();
    
    if(numCands != 0 ) {
-       const reco::Candidate& graviton  = gravitons->at(0);
+       int G_index=0;
+       for( int i=1; i<numCands; i++ ){
+           // Pick index of the candidate with lowest pt
+           int temp = gravitons->at(G_index).pt() < gravitons->at(i).pt() ? G_index : i ;
+           G_index = temp;
+       }
+       const reco::Candidate& graviton  = gravitons->at(G_index);
        const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
        const reco::Candidate& metCand = metHandle->at(0);
        

@@ -2,8 +2,8 @@ Instructions to setup the ExoDiBosonResonances code
 ========
 
 ```
-cmsrel CMSSW_7_4_4_patch2
-cd CMSSW_7_4_4_patch2/src
+cmsrel CMSSW_7_4_4_patch4
+cd CMSSW_7_4_4_patch4/src
 cmsenv
 git cms-init # This will allow you to checkout packages in official CMSSW.
 git cms-merge-topic 9003 # EGM VID IDs for 74X - PHYS14 tunings 
