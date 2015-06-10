@@ -116,7 +116,6 @@ if option == 'GEN':
     process.load("ExoDiBosonResonances.EDBRGenStudies.genMET_cff")
 ### RECO level studies
 if option == 'RECO':
-    process.load("ExoDiBosonResonances.EDBRCommon.goodLeptonsProducer_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
@@ -191,7 +190,7 @@ process.leptonSequence = cms.Sequence(process.muSequence +
 
 
 if VZ_semileptonic == True :
-   process.leptonSequence.replace(process.eleSequence, process.eleSequence + process.leptonicVSequence + process.leptonicVSelector + process.leptonicVFilter)
+    process.leptonSequence.replace(process.eleSequence, process.eleSequence + process.leptonicVSequence + process.leptonicVSelector + process.leptonicVFilter)
 
 process.jetSequence = cms.Sequence(process.fatJetsSequence +
                                    process.hadronicV +
@@ -225,16 +224,6 @@ CHANNEL = "VZ_CHANNEL"
 if VZ_JetMET == True : 
    CHANNEL = "VZnu_CHANNEL"  
    
-process.miniIsolation = cms.EDProducer("miniPFIsolationProducer",
-                                      r_iso_min = cms.double(0.05),
-                                      r_iso_max = cms.double(0.2),
-                                      kt_scale  = cms.double(10.),
-                                      charged_only = cms.bool(False),
-                                      electrons = cms.InputTag("goodElectrons"),
-                                      muons = cms.InputTag("goodMuons"),
-                                      pfCands = cms.InputTag("packedPFCandidates")
-                                      )
-
 process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
                                     originalNEvents = cms.int32(usedNevents),
                                     crossSectionPb = cms.double(usedXsec),
@@ -265,9 +254,7 @@ process.analysis = cms.Path(process.leptonSequence    +
                             process.metSequence       + 
                             process.jetSequence       +
                             process.gravitonSequence  +
-                            process.miniIsolation     +
                             process.treeDumper)
-
 
 if VZ_semileptonic == True :
    #process.analysis.replace(process.leptonSequence, process.leptonicDecay + process.hadronicDecay + process.leptonSequence)
@@ -276,7 +263,9 @@ if VZ_semileptonic == True :
 if option=='RECO':
     from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
     process = addElectronIDs(process)
-    process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.egmGsfElectronIDSequence + process.goodLeptonsProducer + process.leptonSequence)
+    process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
+    process.load("ExoDiBosonResonances.EDBRLeptons.miniPFIsolationProducer_cff")
+    process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.egmGsfElectronIDSequence + process.goodLeptonsProducer + process.leptonSequence + process.miniPFIsolationProducer)
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
