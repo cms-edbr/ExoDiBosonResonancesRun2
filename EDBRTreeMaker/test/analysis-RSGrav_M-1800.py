@@ -3,37 +3,33 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-# Delivers "L1GtStableParametersRcd" record in the EventSetup
+# Delivers L1GtStableParametersRcd record in the EventSetup
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
-
-#***************************************** FILTER MODE **********************************************#
-#                                                                                                    #
-# True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
-# False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
-#                                                                                                    #
-filterMode = True                      
-#filterMode = False
-#                                                                                                    #
-#****************************************************************************************************#
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
-#VZ_semileptonic = False
-VZ_semileptonic = True
-#VZ_JetMET  = True
-VZ_JetMET  = False
+CHANNEL         = "VZ_CHANNEL" # VZnu_CHANNEL
+VZ_semileptonic = True         # False
+VZ_JetMET       = False        # True
 #                                                                                                    #
 #****************************************************************************************************#
 
-#*********************************** THE SAMPLES *****************************************************#
+#*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
 #SAMPLE="RSGravToZZToLLQQ_M-600" 
 #SAMPLE="RSGravToZZToLLQQ_M-800" 
 #SAMPLE="RSGravToZZToLLQQ_M-1000" 
+#SAMPLE="RSGravToZZToLLQQ_M-1200" 
 #SAMPLE="RSGravToZZToLLQQ_M-1400" 
 #SAMPLE="RSGravToZZToLLQQ_M-1600" 
 SAMPLE="RSGravToZZToLLQQ_M-1800" 
+#SAMPLE="RSGravToZZToLLQQ_M-2000" 
+#SAMPLE="RSGravToZZToLLQQ_M-2500" 
+#SAMPLE="RSGravToZZToLLQQ_M-3000" 
+#SAMPLE="RSGravToZZToLLQQ_M-3500" 
+#SAMPLE="RSGravToZZToLLQQ_M-4000" 
+#SAMPLE="RSGravToZZToLLQQ_M-4500" 
 #SAMPLE="RSGravToZZ_kMpl01_M-1000" 
 #SAMPLE="RSGravToZZ_kMpl01_M-1800"
 #SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
@@ -52,12 +48,27 @@ SAMPLE="RSGravToZZToLLQQ_M-1800"
 #SAMPLE="WJetsToLNu_HT-400to600_PHYS14"
 #SAMPLE="WJetsToLNu_HT-600toInf_PHYS14"
 
+### Source
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
+process.maxEvents.input = -1
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.limit = 99999999
+
 configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
                  "RSGravToZZToLLQQ_M-800"         : 0.274593,
                  "RSGravToZZToLLQQ_M-1000"        : 0.0811175,
+                 "RSGravToZZToLLQQ_M-1200"        : 0.0295627,
                  "RSGravToZZToLLQQ_M-1400"        : 0.01232,
                  "RSGravToZZToLLQQ_M-1600"        : 0.00605376,
                  "RSGravToZZToLLQQ_M-1800"        : 0.00283966,
+                 "RSGravToZZToLLQQ_M-2000"        : 0.00156097,
+                 "RSGravToZZToLLQQ_M-2500"        : 0.000372413,
+                 "RSGravToZZToLLQQ_M-3000"        : 8.28108e-05,
+                 "RSGravToZZToLLQQ_M-3500"        : 2.76551e-05,
+                 "RSGravToZZToLLQQ_M-4000"        : 8.54621e-06,
+                 "RSGravToZZToLLQQ_M-4500"        : 2.65225e-06,
                  "RSGravToZZ_kMpl01_M-1000"       : 1.202,
                  "RSGravToZZ_kMpl01_M-1800"       : 0.05024,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 0.02284,
@@ -80,9 +91,16 @@ configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
 configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
                  "RSGravToZZToLLQQ_M-800"         : 31071,
                  "RSGravToZZToLLQQ_M-1000"        : 31229,
+                 "RSGravToZZToLLQQ_M-1200"        : 31222,
                  "RSGravToZZToLLQQ_M-1400"        : 31127,
                  "RSGravToZZToLLQQ_M-1600"        : 31091,
                  "RSGravToZZToLLQQ_M-1800"        : 31075,
+                 "RSGravToZZToLLQQ_M-2000"        : 31091,
+                 "RSGravToZZToLLQQ_M-2500"        : 31147,
+                 "RSGravToZZToLLQQ_M-3000"        : 31389,
+                 "RSGravToZZToLLQQ_M-3500"        : 31034,
+                 "RSGravToZZToLLQQ_M-4000"        : 31334,
+                 "RSGravToZZToLLQQ_M-4500"        : 30787,
                  "RSGravToZZ_kMpl01_M-1000"       : 29586,
                  "RSGravToZZ_kMpl01_M-1800"       : 100000,
                  "RSGravToZZ_kMpl01_M-2000_PHYS14": 29744,
@@ -105,104 +123,125 @@ configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
 usedXsec = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
 
+#*******************************************************************************************************#
+
+### Hadronic and leptonic boson.
+process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
+process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
+#process.load("ExoDiBosonResonances.EDBRCommon.leptonicW_cff")
+#process.load("ExoDiBosonResonances.EDBRCommon.hadronicW_cff")
+
+WBOSONCUT = "pt > 200. & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50."
+ZBOSONCUT = "pt > 200. & 70. < mass < 110."
+
+process.leptonicVSelector = cms.EDFilter( "CandViewSelector",
+                                          src = cms.InputTag("leptonicV"),
+                                          cut = cms.string( ZBOSONCUT ), #Change in case of WChannel
+                                          filter = cms.bool(True) )
+
+process.leptonicVFilter = cms.EDFilter(   "CandViewCountFilter",
+                                          src = cms.InputTag("leptonicV"),
+                                          minNumber = cms.uint32(1),
+                                          filter = cms.bool(True) )
+
+process.hadronicVFilter = cms.EDFilter(   "CandViewCountFilter",
+                                          src = cms.InputTag("hadronicV"),
+                                          minNumber = cms.uint32(1),
+                                          filter = cms.bool(True) )
+
+process.graviton = cms.EDProducer(        "CandViewCombiner",
+                                          decay = cms.string("leptonicV hadronicV"),
+                                          checkCharge = cms.bool(False),
+                                          cut = cms.string("mass > 400"),
+                                          roles = cms.vstring('leptonicV', 'hadronicV') )
+
+process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
+                                          src = cms.InputTag("graviton"),
+                                          minNumber = cms.uint32(1),
+                                          filter = cms.bool(True) )
+
+process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
+                                          originalNEvents = cms.int32(usedNevents),
+                                          crossSectionPb  = cms.double(usedXsec),
+                                          targetLumiInvPb = cms.double(1000.0),
+                                          EDBRChannel = cms.string(CHANNEL),
+                                          isGen       = cms.bool(False),
+                                          gravitonSrc = cms.string("graviton"),
+                                          metSrc      = cms.string("slimmedMETs"),
+                                          elmediumID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
+                                          eltightID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
+                                          elheepID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
+                                          hltToken    = cms.InputTag("TriggerResults","","HLT"),
+                                          elPaths     = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*"), 
+                                          muPaths     = cms.vstring("HLT_Mu30_TkMu11_v*") ) 
+
 #************************************** SELECT GEN OR RECO ******************************************# 
-option = 'RECO' 
-#option = 'GEN'
+
+option = 'RECO' # 'GEN' 
+
 ### GEN level studies
 if option == 'GEN':
     process.load("ExoDiBosonResonances.EDBRGenStudies.genMuons_cff")
     process.load("ExoDiBosonResonances.EDBRGenStudies.genElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRGenStudies.genFatJets_cff")
     process.load("ExoDiBosonResonances.EDBRGenStudies.genMET_cff")
+    process.treeDumper.metSrc = 'genMetTrue'
+    process.treeDumper.isGen  = True
+    process.hadronicV.cut = cms.string('pt > 200. '
+                                       '& (userFloat("ak8GenJetsSoftDropMass") > 50.) '
+                                       '& (userFloat("ak8GenJetsSoftDropMass") < 110.)')
+
 ### RECO level studies
 if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
-### Hadronic and leptonic boson.
-### Naturally, you should choose the one channel you need
-#process.load("ExoDiBosonResonances.EDBRCommon.leptonicW_cff")
-#process.load("ExoDiBosonResonances.EDBRCommon.hadronicW_cff")
-process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
-process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
+    process.hadronicV.cut = cms.string('pt > 200. '
+                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") > 50.) '
+                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 110.)')
 
-if option == 'RECO':
-    process.hadronicV.cut = \
-        'pt > 100 &'+\
-        '(userFloat("ak8PFJetsCHSSoftDropMass") > 50.0) &'+\
-        '(userFloat("ak8PFJetsCHSSoftDropMass") < 110.0)'
-    process.goodMET.cut = "pt > 250"	
-if option == 'GEN':
-    process.hadronicV.cut = \
-        'pt > 100 &'+\
-        '(userFloat("ak8GenJetsSoftDropMass") > 50.0) &'+\
-        '(userFloat("ak8GenJetsSoftDropMass") < 110.0)'
-#*******************************************************************************************************#
+#***************************************** SEQUENCES **********************************************# 
 
-process.goodOfflinePrimaryVertex = cms.EDFilter("VertexSelector",
-                                       src = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                       cut = cms.string("chi2!=0 && ndof >= 4.0 && abs(z) <= 24.0 && abs(position.Rho) <= 2.0"),
-                                       filter = cms.bool(True)
-                                       )
+process.leptonSequence = cms.Sequence(    process.muSequence        +
+                                          process.eleSequence       +
+                                          process.leptonicVSequence + 
+                                          process.leptonicVSelector + 
+                                          process.leptonicVFilter   )
 
-WBOSONCUT = "pt > 100.0 & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50.0"
-ZBOSONCUT = "pt > 100.0 & 70.0 < mass < 110.0"
+process.jetSequence = cms.Sequence(       process.fatJetsSequence   +
+                                          process.hadronicV         +
+                                          process.hadronicVFilter   )
 
-process.leptonicVSelector = cms.EDFilter("CandViewSelector",
-                                       src = cms.InputTag("leptonicV"),
-                                       cut = cms.string( ZBOSONCUT ), #Change in case of WChannel
-                                       filter = cms.bool(True)
-                                       )
+process.gravitonSequence = cms.Sequence(  process.graviton          +
+                                          process.gravitonFilter    )
 
-process.leptonicVFilter = cms.EDFilter("CandViewCountFilter",
-                                       src = cms.InputTag("leptonicV"),
-                                       minNumber = cms.uint32(1),
-                                       filter = cms.bool(True)
-                                       )
-process.hadronicVFilter = cms.EDFilter("CandViewCountFilter",
-                                       src = cms.InputTag("hadronicV"),
-                                       minNumber = cms.uint32(1),
-                                       filter = cms.bool(True)
-                                       )
+process.analysis = cms.Path(              process.leptonSequence    +
+                                          process.jetSequence       +
+                                          process.gravitonSequence  +
+                                          process.treeDumper        )
 
-process.graviton = cms.EDProducer("CandViewCombiner",
-                                       decay = cms.string("leptonicV hadronicV"),
-                                       checkCharge = cms.bool(False),
-                                       cut = cms.string("mass > 180"),
-                                       roles = cms.vstring('leptonicV', 'hadronicV'),
-                                       )
-if VZ_JetMET == True :
-   process.graviton.decay = cms.string("goodMET hadronicV")
-   process.graviton.cut   = cms.string("")
-   process.graviton.roles = cms.vstring('goodMET', 'hadronicV')
+if option=='RECO':
+    from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
+    process = addElectronIDs(process)
+    process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
+    process.load("ExoDiBosonResonances.EDBRLeptons.miniPFIsolationProducer_cff")
+    process.analysis.replace(process.leptonSequence, 
+                             process.egmGsfElectronIDSequence + 
+                             process.goodLeptonsProducer      +  
+                             process.leptonSequence           + 
+                             process.miniPFIsolationProducer  )
 
-### We should add some modules to remove multiple candidates at some point...
-
-process.gravitonFilter =  cms.EDFilter("CandViewCountFilter",
-                                       src = cms.InputTag("graviton"),
-                                       minNumber = cms.uint32(1),
-                                       filter = cms.bool(True)
-                                       )
-
-process.leptonSequence = cms.Sequence(process.muSequence +
-                                      process.eleSequence)
-
-
-if VZ_semileptonic == True :
-    process.leptonSequence.replace(process.eleSequence, process.eleSequence + process.leptonicVSequence + process.leptonicVSelector + process.leptonicVFilter)
-
-process.jetSequence = cms.Sequence(process.fatJetsSequence +
-                                   process.hadronicV +
-                                   process.hadronicVFilter)
-
-process.gravitonSequence = cms.Sequence(process.graviton +
-                                        process.gravitonFilter)
+#***************************************** FILTER MODE **********************************************#
+#                                                                                                    #
+# True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
+# False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
+#                                                                                                    #
+filterMode = True   # False       
 
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
-    process.goodOfflinePrimaryVertex.filter = False
     process.Ztomumu.cut = ''
     process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
@@ -211,71 +250,29 @@ if filterMode == False:
     process.graviton.cut = ''
     process.leptonicVFilter.minNumber = 0
     process.hadronicVFilter.minNumber = 0
-    process.gravitonFilter.minNumber = 0
+    process.gravitonFilter.minNumber  = 0
+#                                                                                                    #
+#****************************************************************************************************#
+
+if VZ_JetMET == True :
+    process.graviton.decay = cms.string("goodMET hadronicV")
+    process.graviton.cut   = cms.string("")
+    process.graviton.roles = cms.vstring('goodMET', 'hadronicV')
+
+    process.leptonSequence.remove(  process.leptonicVSequence,
+                                    process.leptonicVSelector,
+                                    process.leptonicVFilter)
+
+    process.leptonSequence.replace( process.leptonSequence,
+                                    process.leptonSequence +
+                                    process.metSequence    )
 
 print "++++++++++ CUTS ++++++++++\n"
 print "Graviton cut = "+str(process.graviton.cut)
 print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
 print "Hadronic V cut = "+str(process.hadronicV.cut)
-##print "MET cut = "+str(process.goodMET.cut)
 print "\n++++++++++++++++++++++++++"
-
-CHANNEL = "VZ_CHANNEL"
-if VZ_JetMET == True : 
-   CHANNEL = "VZnu_CHANNEL"  
-   
-process.treeDumper = cms.EDAnalyzer("EDBRTreeMaker",
-                                    originalNEvents = cms.int32(usedNevents),
-                                    crossSectionPb = cms.double(usedXsec),
-                                    targetLumiInvPb = cms.double(1000.0),
-                                    EDBRChannel = cms.string(CHANNEL),
-                                    isGen = cms.bool(False),
-                                    gravitonSrc = cms.string("graviton"),
-                                    metSrc = cms.string("slimmedMETs"),
-                                    elmediumID = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-                                    eltightID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
-                                    elheepID   = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
-                                    hltToken = cms.InputTag("TriggerResults","","HLT"),
-                                    elPaths = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*"), 
-                                    muPaths = cms.vstring("HLT_Mu30_TkMu11_v*") 
-                                    )
-
-if option=='GEN':
-    process.treeDumper.metSrc = 'genMetTrue'
-    process.treeDumper.isGen  = True
-
-### In case you need to select the decay channel at GEN level
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
-process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
-process.load("ExoDiBosonResonances.EDBRGenStudies.selectMETDecay")
-
-process.analysis = cms.Path(process.leptonSequence    +
-                            process.metSequence       + 
-                            process.jetSequence       +
-                            process.gravitonSequence  +
-                            process.treeDumper)
-
-if VZ_semileptonic == True :
-   #process.analysis.replace(process.leptonSequence, process.leptonicDecay + process.hadronicDecay + process.leptonSequence)
-   process.analysis.remove(process.metSequence)
-
-if option=='RECO':
-    from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
-    process = addElectronIDs(process)
-    process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
-    process.load("ExoDiBosonResonances.EDBRLeptons.miniPFIsolationProducer_cff")
-    process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.egmGsfElectronIDSequence + process.goodLeptonsProducer + process.leptonSequence + process.miniPFIsolationProducer)
-
-### Source
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
-
-process.maxEvents.input = -1
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("treeEDBR_"+SAMPLE+".root")
-                                   )
+                                  )
