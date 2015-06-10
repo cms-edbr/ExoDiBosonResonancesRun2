@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-
 hadronicV = cms.EDFilter("PATJetSelector",
                          src = cms.InputTag("cleanJets"),
-                         cut = cms.string("pt > 100 & (70.0 < mass < 110.0)")
+                         cut = cms.string("70. < mass < 110.")
                          )
 
 hadronicVSequence = cms.Sequence(hadronicV)
