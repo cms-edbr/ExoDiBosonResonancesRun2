@@ -42,12 +42,16 @@ class goodLeptonsProducer : public edm::EDProducer {
       edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
       edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
       edm::EDGetTokenT<pat::MuonCollection> muonToken_;
+      edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
+      edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
 };
 
 goodLeptonsProducer::goodLeptonsProducer(const edm::ParameterSet& iConfig):
     vertexToken_(consumes<reco::VertexCollection> (iConfig.getParameter<edm::InputTag>("vertex"))),
     electronToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-    muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons")))
+    muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    eltightIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eltightID"))),
+    elmediumIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elmediumID")))
 {
     produces<std::vector<pat::Electron> >("goodElectrons");
     produces<std::vector<pat::Muon> >(    "goodMuons"    );
@@ -70,8 +74,8 @@ goodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // electron IDs
     Handle<ValueMap<bool> > elmediumID_handle;
     Handle<ValueMap<bool> > eltightID_handle;
-    iEvent.getByLabel(InputTag("egmGsfElectronIDs","cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"), elmediumID_handle);
-    iEvent.getByLabel(InputTag("egmGsfElectronIDs","cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),   eltightID_handle);
+    iEvent.getByToken(elmediumIDToken_, elmediumID_handle);
+    iEvent.getByToken(eltightIDToken_,  eltightID_handle);
 
     // handle muons and electons
     Handle<pat::MuonCollection> muons;
@@ -84,23 +88,23 @@ goodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto_ptr< vector<pat::Electron> > goodElectrons( new vector<pat::Electron> );
     for ( size_t i=0; i<elmult; ++i ) {
         const pat::Electron& el = (*electrons)[i];
-        if ( el.pt()<40.||fabs(el.eta())>2.5 ) continue;     // acceptance cut
+        if ( el.pt()<40.||fabs(el.eta())>2.5 ) continue;       // acceptance cut
         const Ptr<pat::Electron> elRef(electrons, i);
         int mediumID = (*elmediumID_handle)[ elRef ]; 
         int  tightID =  (*eltightID_handle)[ elRef ]; 
-        if ( !mediumID ) continue;                           // electrons must pass mediumID
-        if ( !tightID && !goodElectrons->size() ) continue;  // first electron must be tightID
+        if ( !mediumID ) continue;                             // electrons must pass mediumID
+        if ( !tightID && !goodElectrons->size() ) continue;    // first electron must be tight
         goodElectrons->push_back(el);
     }
 
     auto_ptr< vector<pat::Muon> > goodMuons( new vector<pat::Muon> );
     for ( size_t i=0; i<mumult; ++i ) {
         const pat::Muon& mu = (*muons)[i];
-        if ( mu.pt()<40.||fabs(mu.eta())>2.5 ) continue;
-        int trackerID = (int)hptm::isTrackerMuon(mu, vertex);
-        int tightID   = (int)muon::isTightMuon(  mu, vertex);
-        if ( !trackerID ) continue;
-        if ( !tightID && !goodMuons->size() ) continue;
+        if ( mu.pt()<40.||fabs(mu.eta())>2.5 ) continue;       // acceptance cut
+        int trackerID = (int)hptm::isTrackerMuon(mu, vertex);  
+        int tightID   = (int)muon::isTightMuon(  mu, vertex);  
+        if ( !trackerID ) continue;                            // muons must pass trackerID 
+        if ( !tightID && !goodMuons->size() ) continue;        // first muon must be tight
         goodMuons->push_back(mu);
     }
 

@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 goodElectrons = cms.EDFilter("PATElectronSelector",
-                             src = cms.InputTag("slimmedElectrons"),
-                             cut = cms.string("pt > 40 && abs(eta) < 2.5")
+                             src = cms.InputTag("goodLeptons:goodElectrons"),
+                             cut = cms.string(""),
+                             filter = cms.bool(False)
                             )
 
 eleSequence = cms.Sequence(goodElectrons)
@@ -12,7 +13,6 @@ eleSequence = cms.Sequence(goodElectrons)
 #
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-
 
 def addElectronIDs(process):
    
@@ -29,9 +29,8 @@ def addElectronIDs(process):
     # switch off isolation for HEEP
     #process.egmGsfElectronIDs.physicsObjectIDs[4].idDefinition.cutFlow[8].isIgnored = True
 
-    process.eleSequence = cms.Sequence(process.egmGsfElectronIDSequence+process.goodElectrons)
-
     return process
+
 #
 # END ELECTRON ID SECTION
 #

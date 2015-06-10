@@ -116,6 +116,7 @@ if option == 'GEN':
     process.load("ExoDiBosonResonances.EDBRGenStudies.genMET_cff")
 ### RECO level studies
 if option == 'RECO':
+    process.load("ExoDiBosonResonances.EDBRCommon.goodLeptonsProducer_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
@@ -274,13 +275,13 @@ if VZ_semileptonic == True :
 
 if option=='RECO':
     from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
-    process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.leptonSequence)
     process = addElectronIDs(process)
+    process.analysis.replace(process.leptonSequence, process.goodOfflinePrimaryVertex + process.egmGsfElectronIDSequence + process.goodLeptonsProducer + process.leptonSequence)
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
 
-process.maxEvents.input = 1000
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
