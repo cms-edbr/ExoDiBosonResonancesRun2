@@ -122,6 +122,7 @@ private:
   int    elheepID1,      elheepID2;
   int    eltightID1,     eltightID2;
   int    elmediumID1,    elmediumID2;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > elheepIDToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
@@ -134,7 +135,6 @@ private:
   double targetLumiInvPb_;
   std::string EDBRChannel_;
   bool isGen_;
-  //std::string hadronicVSrc_, leptonicVSrc_;
   std::string gravitonSrc_, metSrc_;
 
   //High Level Trigger
@@ -152,6 +152,7 @@ private:
 // constructors and destructor
 //
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
+  vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertex"))),
   elheepIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elheepID"))),
   eltightIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eltightID"))),
   elmediumIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elmediumID"))),
@@ -335,26 +336,10 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            iEvent.getByLabel("slimmedJetsAK8", jets);
            numjets = jets->size();
 
+           // handle goodOfflinePrimaryVertex collection
            Handle<reco::VertexCollection> vertices;
-           iEvent.getByLabel("offlineSlimmedPrimaryVertices", vertices);
-           if (vertices->empty()) return; // skip the event if no PV found
-	   nVtx = vertices->size();
-           reco::VertexCollection::const_iterator firstGoodVertex = vertices->end();
-           for (reco::VertexCollection::const_iterator vtx = vertices->begin(); vtx != vertices->end(); ++vtx) {
-               // Replace isFake() for miniAOD because it requires tracks and miniAOD vertices don't have tracks:
-               // Vertex.h: bool isFake() const {return (chi2_==0 && ndof_==0 && tracks_.empty());}
-               if (  /*!vtx->isFake() &&*/ 
-                     !(vtx->chi2()==0 && vtx->ndof()==0) 
-	             &&  vtx->ndof()>=4. && vtx->position().Rho()<=2.0
-	             && fabs(vtx->position().Z())<=24.0) {
-                  firstGoodVertex = vtx;
-                  break;
-               }           
-           }
-
-           if ( firstGoodVertex==vertices->end() ) return; // skip event if there are no good PVs
-           const reco::Vertex& vertex = dynamic_cast<const reco::Vertex&>(*firstGoodVertex);
-
+           iEvent.getByToken(vertexToken_, vertices);
+           const reco::Vertex& vertex = (*vertices)[0];
   
            // Effective area constants
            EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath()  );
@@ -466,11 +451,11 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                           double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
                           relIso1        = absiso1/el1->pt();
                           relIso2        = absiso2/el2->pt();
-                          d01            = (-1)*el1->gsfTrack()->dxy(firstGoodVertex->position());   
-                          dz1            = el1->gsfTrack()->dz(firstGoodVertex->position());
+                          d01            = (-1)*el1->gsfTrack()->dxy(vertex.position());   
+                          dz1            = el1->gsfTrack()->dz(vertex.position());
                           missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-                          d02            = (-1)*el2->gsfTrack()->dxy(firstGoodVertex->position());  
-                          dz2            = el2->gsfTrack()->dz(firstGoodVertex->position());
+                          d02            = (-1)*el2->gsfTrack()->dxy(vertex.position());  
+                          dz2            = el2->gsfTrack()->dz(vertex.position());
                           missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
                           passConVeto1   = el1->passConversionVeto();
                           passConVeto2   = el2->passConversionVeto();
