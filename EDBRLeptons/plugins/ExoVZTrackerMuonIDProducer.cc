@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "ExoDiBosonResonances/EDBRLeptons/interface/TrackerMuonSelector.h"
+//#include "ExoDiBosonResonances/EDBRLeptons/interface/TrackerMuonSelector.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -89,10 +89,10 @@ ExoVZTrackerMuonIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
    for (size_t i=0; i != muons->size(); ++i)
    {
        pat::Muon newMu = (*muons->at(i).clone());
-       if (hptm::isTrackerMuon(newMu,vertices->at(0)))
+       /*if (hptm::isTrackerMuon(newMu,vertices->at(0)))
 	   newMu.addUserInt("trackerMuon",1);
        else
-	   newMu.addUserInt("trackerMuon",0);
+	   newMu.addUserInt("trackerMuon",0);*/
 
        outMuonCollection->push_back(newMu);
    }
