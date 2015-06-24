@@ -9,12 +9,18 @@ goodOfflinePrimaryVertex = cms.EDFilter("VertexSelector",
                                        filter = cms.bool(True)
                                        )
 
-goodLeptons = cms.EDProducer("goodLeptonsProducer",
-                              vertex = cms.InputTag("goodOfflinePrimaryVertex"),
-                              electrons = cms.InputTag("slimmedElectrons"),
-                              muons = cms.InputTag("slimmedMuons"),
-                              elmediumID = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-                              eltightID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight")
+goodLeptons = cms.EDProducer("GoodLeptonsProducer",
+                              r_iso_min    = cms.double(0.05),
+                              r_iso_max    = cms.double(0.2),
+                              kt_scale     = cms.double(10.),
+                              charged_only = cms.bool(False),
+                              filter       = cms.bool(True),
+                              pfCands      = cms.InputTag("packedPFCandidates"),
+                              vertex       = cms.InputTag("goodOfflinePrimaryVertex"),
+                              electrons    = cms.InputTag("slimmedElectrons"),
+                              muons        = cms.InputTag("slimmedMuons"),
+                              elmediumID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
+                              eltightID    = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight")
                             )
 
 goodLeptonsProducer = cms.Sequence(goodOfflinePrimaryVertex + goodLeptons)

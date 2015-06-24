@@ -50,7 +50,7 @@ SAMPLE="RSGravToZZToLLQQ_M-1800"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
-process.maxEvents.input = -1
+process.maxEvents.input = -1 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -226,12 +226,10 @@ if option=='RECO':
     from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
     process = addElectronIDs(process)
     process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
-    process.load("ExoDiBosonResonances.EDBRLeptons.miniPFIsolationProducer_cff")
     process.analysis.replace(process.leptonSequence, 
                              process.egmGsfElectronIDSequence + 
                              process.goodLeptonsProducer      +  
-                             process.leptonSequence           + 
-                             process.miniPFIsolationProducer  )
+                             process.leptonSequence           ) 
 
 #***************************************** FILTER MODE **********************************************#
 #                                                                                                    #
@@ -239,10 +237,10 @@ if option=='RECO':
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
 filterMode = True   # False       
-
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
+    process.goodLeptons.filter = False
     process.Ztomumu.cut = ''
     process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
