@@ -117,7 +117,6 @@ private:
   double d01,            d02;
   double dz1,            dz2;
   double relIso1,        relIso2;
-  double relIso04R1,     relIso04R2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
   int    elheepID1,      elheepID2;
@@ -245,8 +244,6 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("dz2"             ,&dz2            ,"dz2/D"            );
   outTree_->Branch("relIso1"         ,&relIso1        ,"relIso1/D"        );
   outTree_->Branch("relIso2"         ,&relIso2        ,"relIso2/D"        );
-  outTree_->Branch("relIso04R1"      ,&relIso04R1     ,"relIso04R1/D"     );
-  outTree_->Branch("relIso04R2"      ,&relIso04R2     ,"relIso04R2/D"     );
   outTree_->Branch("missingHits1"    ,&missingHits1   ,"missingHits1/I"   );
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
@@ -404,17 +401,11 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
                         reco::MuonPFIsolation pfIso1  = mu1->pfIsolationR03();
                         reco::MuonPFIsolation pfIso2  = mu2->pfIsolationR03();
-                        reco::MuonPFIsolation pfIso1_ = mu1->pfIsolationR04();
-                        reco::MuonPFIsolation pfIso2_ = mu2->pfIsolationR04();
                         // isolation with delta beta correction
                         double absiso1  =  pfIso1.sumChargedHadronPt + std::max(0.0,  pfIso1.sumNeutralHadronEt +  pfIso1.sumPhotonEt -  0.5*pfIso1.sumPUPt );
                         double absiso2  =  pfIso2.sumChargedHadronPt + std::max(0.0,  pfIso2.sumNeutralHadronEt +  pfIso2.sumPhotonEt -  0.5*pfIso2.sumPUPt );
-                        double absiso1_ = pfIso1_.sumChargedHadronPt + std::max(0.0, pfIso1_.sumNeutralHadronEt + pfIso1_.sumPhotonEt - 0.5*pfIso1_.sumPUPt );
-                        double absiso2_ = pfIso2_.sumChargedHadronPt + std::max(0.0, pfIso2_.sumNeutralHadronEt + pfIso2_.sumPhotonEt - 0.5*pfIso2_.sumPUPt );
                         relIso1         = absiso1 /mu1->pt();
                         relIso2         = absiso2 /mu2->pt();
-                        relIso04R1      = absiso1_/mu1->pt();
-                        relIso04R2      = absiso2_/mu2->pt();
                         mutrackerID1    = (int)hptm::isTrackerMuon(*mu1,vertex);
                         mutrackerID2    = (int)hptm::isTrackerMuon(*mu2,vertex);
                         mutightID1      = (int)muon::isTightMuon(  *mu1,vertex);
@@ -646,7 +637,6 @@ void EDBRTreeMaker::setDummyValues() {
      d01            = -1e9;
      dz1            = -1e9;
      relIso1        = -1e9;
-     relIso04R1     = -1e9;
      missingHits1   = -1e9; 
      passConVeto1   = -1e9;
      elmediumID1    = -1e9;
@@ -662,7 +652,6 @@ void EDBRTreeMaker::setDummyValues() {
      d02            = -1e9;
      dz2            = -1e9;
      relIso2        = -1e9;
-     relIso04R2     = -1e9;
      missingHits2   = -1e9; 
      passConVeto2   = -1e9;
      elmediumID2    = -1e9; 
