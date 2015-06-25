@@ -50,7 +50,7 @@ SAMPLE="RSGravToZZToLLQQ_M-1800"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
-process.maxEvents.input = -1 
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -225,8 +225,10 @@ process.analysis = cms.Path(              process.leptonSequence    +
 if option=='RECO':
     from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
     process = addElectronIDs(process)
+    process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
     process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
     process.analysis.replace(process.leptonSequence, 
+                             process.hltSequence              +
                              process.egmGsfElectronIDSequence + 
                              process.goodLeptonsProducer      +  
                              process.leptonSequence           ) 
@@ -250,6 +252,7 @@ if filterMode == False:
     process.leptonicVFilter.minNumber = 0
     process.hadronicVFilter.minNumber = 0
     process.gravitonFilter.minNumber  = 0
+    process.analysis.remove( process.hltSequence )
 #                                                                                                    #
 #****************************************************************************************************#
 
