@@ -233,6 +233,21 @@ if option=='RECO':
                              process.goodLeptonsProducer      +  
                              process.leptonSequence           ) 
 
+#************************************ TRIGGER REPORT ANALYZER ***************************************#
+#                                                                                                    #
+# Only supported for VZ channel                                                                      #
+process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
+process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
+process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
+process.analysis.replace(process.hltSequence,
+                         process.leptonicDecay +
+                         process.hadronicDecay +
+                         process.hltSequence   )
+
+process.endpath = cms.EndPath( process.trigReportAnalyzer )
+#                                                                                                    #
+#****************************************************************************************************#
+
 #***************************************** FILTER MODE **********************************************#
 #                                                                                                    #
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
