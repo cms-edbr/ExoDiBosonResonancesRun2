@@ -225,13 +225,28 @@ process.analysis = cms.Path(              process.leptonSequence    +
 if option=='RECO':
     from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
     process = addElectronIDs(process)
+    process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
     process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
-    process.load("ExoDiBosonResonances.EDBRLeptons.miniPFIsolationProducer_cff")
     process.analysis.replace(process.leptonSequence, 
+                             process.hltSequence              +
                              process.egmGsfElectronIDSequence + 
                              process.goodLeptonsProducer      +  
-                             process.leptonSequence           + 
-                             process.miniPFIsolationProducer  )
+                             process.leptonSequence           ) 
+
+#************************************ TRIGGER REPORT ANALYZER ***************************************#
+#                                                                                                    #
+# Only supported for VZ channel                                                                      #
+process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
+process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
+process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
+process.analysis.replace(process.hltSequence,
+                         process.leptonicDecay +
+                         process.hadronicDecay +
+                         process.hltSequence   )
+
+process.endpath = cms.EndPath( process.trigReportAnalyzer )
+#                                                                                                    #
+#****************************************************************************************************#
 
 #***************************************** FILTER MODE **********************************************#
 #                                                                                                    #
@@ -239,10 +254,10 @@ if option=='RECO':
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
 filterMode = True   # False       
-
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
+    process.goodLeptons.filter = False
     process.Ztomumu.cut = ''
     process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
@@ -252,6 +267,7 @@ if filterMode == False:
     process.leptonicVFilter.minNumber = 0
     process.hadronicVFilter.minNumber = 0
     process.gravitonFilter.minNumber  = 0
+    process.analysis.remove( process.hltSequence )
 #                                                                                                    #
 #****************************************************************************************************#
 

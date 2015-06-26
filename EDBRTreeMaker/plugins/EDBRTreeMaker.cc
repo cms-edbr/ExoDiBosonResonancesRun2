@@ -368,11 +368,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    philep1  = leptonicV.daughter(0)->phi();
                    philep2  = leptonicV.daughter(1)->phi();
                    lep  = abs(leptonicV.daughter(0)->pdgId());
-                   // mini isolation
-                   Handle<std::vector<double> > miniIso_h;
-                   iEvent.getByLabel(InputTag("miniIsolation","miniIsolationLeptons"), miniIso_h);
-                   miniIso1 = (*miniIso_h)[0];
-                   miniIso2 = (*miniIso_h)[1];
                    //met
                    met = metCand.pt();
                    metPhi = metCand.phi();
@@ -400,83 +395,90 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    //*****************************************************************//
                    //************************* ID for muons **************************//
                    //*****************************************************************//
-                   if(leptonicV.daughter(0)->isMuon() && 
-                      leptonicV.daughter(1)->isMuon()    ) {
-                      const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
-                      const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
-                      reco::MuonPFIsolation pfIso1 = mu1->pfIsolationR03();
-                      reco::MuonPFIsolation pfIso2 = mu2->pfIsolationR03();
-                      // isolation with delta beta correction
-                      double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - 0.5*pfIso1.sumPUPt );
-                      double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - 0.5*pfIso2.sumPUPt );
-                      relIso1        = absiso1/mu1->pt();
-                      relIso2        = absiso2/mu2->pt();
-                      mutrackerID1   = (int)hptm::isTrackerMuon(*mu1,vertex);
-                      mutrackerID2   = (int)hptm::isTrackerMuon(*mu2,vertex);
-                      mutightID1     = (int)muon::isTightMuon(  *mu1,vertex);
-                      mutightID2     = (int)muon::isTightMuon(  *mu2,vertex);
+                   if ( leptonicV.daughter(0)->isMuon() && 
+                        leptonicV.daughter(1)->isMuon()    ) {
+                        const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
+                        const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
+                        reco::MuonPFIsolation pfIso1  = mu1->pfIsolationR03();
+                        reco::MuonPFIsolation pfIso2  = mu2->pfIsolationR03();
+                        // isolation with delta beta correction
+                        double absiso1  =  pfIso1.sumChargedHadronPt + std::max(0.0,  pfIso1.sumNeutralHadronEt +  pfIso1.sumPhotonEt -  0.5*pfIso1.sumPUPt );
+                        double absiso2  =  pfIso2.sumChargedHadronPt + std::max(0.0,  pfIso2.sumNeutralHadronEt +  pfIso2.sumPhotonEt -  0.5*pfIso2.sumPUPt );
+                        relIso1         = absiso1 /mu1->pt();
+                        relIso2         = absiso2 /mu2->pt();
+                        mutrackerID1    = (int)hptm::isTrackerMuon(*mu1,vertex);
+                        mutrackerID2    = (int)hptm::isTrackerMuon(*mu2,vertex);
+                        mutightID1      = (int)muon::isTightMuon(  *mu1,vertex);
+                        mutightID2      = (int)muon::isTightMuon(  *mu2,vertex);
+                        // retrieve mini isolation
+                        miniIso1        = mu1->userFloat("miniIso");
+                        miniIso2        = mu2->userFloat("miniIso");
                    }
                    //*****************************************************************//
                    //************************* ID for electrons **********************//
                    //*****************************************************************//
-                   if(leptonicV.daughter(0)->isElectron() && 
-                      leptonicV.daughter(1)->isElectron()    ) {
-                      const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
-                      const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
-                      if (el1->gsfTrack().isNonnull() && 
-                          el2->gsfTrack().isNonnull()    ){
-                          reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
-                          reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
-                          eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
-                          ptel1          = el1->pt();
-                          ptel2          = el2->pt();
-                          etaSC1         = el1->superCluster()->eta();
-                          etaSC2         = el2->superCluster()->eta();
-                          dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
-                          dEtaIn2        = el2->deltaEtaSuperClusterTrackAtVtx();
-                          dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
-                          dPhiIn2        = el2->deltaPhiSuperClusterTrackAtVtx();
-                          hOverE1        = el1->hcalOverEcal();
-                          hOverE2        = el2->hcalOverEcal();
-                          full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
-                          full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
-                          ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
-                                           fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
-                          ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
-                                           fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() ) : 1e9;
-                          // isolation with effective area correction
-                          double     eA1 = _effectiveAreas.getEffectiveArea( etaSC1 );
-                          double     eA2 = _effectiveAreas.getEffectiveArea( etaSC2 );
-                          double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
-                          double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
-                          relIso1        = absiso1/el1->pt();
-                          relIso2        = absiso2/el2->pt();
-                          d01            = (-1)*el1->gsfTrack()->dxy(vertex.position());   
-                          dz1            = el1->gsfTrack()->dz(vertex.position());
-                          missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-                          d02            = (-1)*el2->gsfTrack()->dxy(vertex.position());  
-                          dz2            = el2->gsfTrack()->dz(vertex.position());
-                          missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-                          passConVeto1   = el1->passConversionVeto();
-                          passConVeto2   = el2->passConversionVeto();
-                          //Retrieve electron IDs
-                          Handle<View<pat::Electron> > electrons;
-                          iEvent.getByLabel("slimmedElectrons", electrons);
-                          const Ptr<pat::Electron> el1Ptr(electrons, 0 );
-                          const Ptr<pat::Electron> el2Ptr(electrons, 1 );
-                          Handle<ValueMap<bool> >  elmediumID_handle;
-                          Handle<ValueMap<bool> >  eltightID_handle;
-                          Handle<ValueMap<bool> >  elheepID_handle;
-                          iEvent.getByToken(elmediumIDToken_, elmediumID_handle);
-                          iEvent.getByToken(eltightIDToken_,  eltightID_handle);
-                          iEvent.getByToken(elheepIDToken_,   elheepID_handle);
-                          elmediumID1   = (*elmediumID_handle)[ el1Ptr ];
-                          elmediumID2   = (*elmediumID_handle)[ el2Ptr ];
-                          eltightID1    = (*eltightID_handle)[  el1Ptr ];
-                          eltightID2    = (*eltightID_handle)[  el2Ptr ];
-                          elheepID1     = (*elheepID_handle)[   el1Ptr ];
-                          elheepID2     = (*elheepID_handle)[   el2Ptr ];
-                      }
+                   if ( leptonicV.daughter(0)->isElectron() && 
+                        leptonicV.daughter(1)->isElectron()    ) {
+                        const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
+                        const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+                        //Retrieve electron IDs
+                        Handle<View<pat::Electron> > electrons;
+                        iEvent.getByLabel("slimmedElectrons", electrons);
+                        const Ptr<pat::Electron> el1Ptr(electrons, el1->userInt("slimmedIndex") );
+                        const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
+                        Handle<ValueMap<bool> >  elmediumID_handle;
+                        Handle<ValueMap<bool> >  eltightID_handle;
+                        Handle<ValueMap<bool> >  elheepID_handle;
+                        iEvent.getByToken(elmediumIDToken_, elmediumID_handle);
+                        iEvent.getByToken(eltightIDToken_,  eltightID_handle);
+                        iEvent.getByToken(elheepIDToken_,   elheepID_handle);
+                        elmediumID1   = (*elmediumID_handle)[ el1Ptr ];
+                        elmediumID2   = (*elmediumID_handle)[ el2Ptr ];
+                        eltightID1    = (*eltightID_handle)[  el1Ptr ];
+                        eltightID2    = (*eltightID_handle)[  el2Ptr ];
+                        elheepID1     = (*elheepID_handle)[   el1Ptr ];
+                        elheepID2     = (*elheepID_handle)[   el2Ptr ];
+                        // retrieve mini isolation
+                        miniIso1      = el1->userFloat("miniIso");
+                        miniIso2      = el2->userFloat("miniIso");
+                        // more electron ID variables
+                        if (el1->gsfTrack().isNonnull() && 
+                            el2->gsfTrack().isNonnull()    ){
+                            reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
+                            reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
+                            eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
+                            ptel1          = el1->pt();
+                            ptel2          = el2->pt();
+                            etaSC1         = el1->superCluster()->eta();
+                            etaSC2         = el2->superCluster()->eta();
+                            dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
+                            dEtaIn2        = el2->deltaEtaSuperClusterTrackAtVtx();
+                            dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
+                            dPhiIn2        = el2->deltaPhiSuperClusterTrackAtVtx();
+                            hOverE1        = el1->hcalOverEcal();
+                            hOverE2        = el2->hcalOverEcal();
+                            full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
+                            full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
+                            ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
+                                             fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
+                            ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
+                                             fabs(1.0/el2->ecalEnergy() - el2->eSuperClusterOverP()/el2->ecalEnergy() ) : 1e9;
+                            // isolation with effective area correction
+                            double     eA1 = _effectiveAreas.getEffectiveArea( etaSC1 );
+                            double     eA2 = _effectiveAreas.getEffectiveArea( etaSC2 );
+                            double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
+                            double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
+                            relIso1        = absiso1/el1->pt();
+                            relIso2        = absiso2/el2->pt();
+                            d01            = (-1)*el1->gsfTrack()->dxy(vertex.position());   
+                            dz1            = el1->gsfTrack()->dz(vertex.position());
+                            missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                            d02            = (-1)*el2->gsfTrack()->dxy(vertex.position());  
+                            dz2            = el2->gsfTrack()->dz(vertex.position());
+                            missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                            passConVeto1   = el1->passConversionVeto();
+                            passConVeto2   = el2->passConversionVeto();
+                        }
                    }
                    break;}
                case VW_CHANNEL:{
