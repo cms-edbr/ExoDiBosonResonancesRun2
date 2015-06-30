@@ -12,9 +12,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "TH1.h"
-#include "TEfficiency.h"
 #include "TAxis.h"
+#include "TH1.h"
+#include "TTree.h"
+
 
 class TrigReportAnalyzer : public edm::EDAnalyzer {
 public:
@@ -29,8 +30,12 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> trigResult_;
   edm::InputTag leptonicZ_ , hadronicZ_ ; 
 
-  TH1I *cutFlow;
-  TEfficiency *leptonicZ, *hadronicZ, *gravMass;
+  TH1I  *cutFlow;
+  TTree *genTree; 
+  int lep, index;
+  double ptZlep, ptZhad;
+  double massGrav;
+
 };
 
 TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
@@ -39,7 +44,7 @@ TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
   hadronicZ_(iConfig.getParameter<edm::InputTag>("hadronicZ"))
 {
   edm::Service<TFileService> fs;
-  cutFlow   = fs->make<TH1I>("cutFlow", "#bf{CMS} Preliminary 13 TeV", 6, 0, 6);
+  cutFlow = fs->make<TH1I>("cutFlow","", 6, 0, 6);
   TAxis *axis = cutFlow->GetXaxis();  
   axis->SetBinLabel(1,"Begin");
   axis->SetBinLabel(2,"HLT");
@@ -48,11 +53,12 @@ TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
   axis->SetBinLabel(5,"HadronicZ");
   axis->SetBinLabel(6,"Graviton");
 
-  const char* title1 = "#bf{CMS} Preliminary 13 TeV;Generated Z p_{T} (GeV);efficiency";
-  const char* title2 = "#bf{CMS} Preliminary 13 TeV;Generated Graviton Mass (GeV);efficiency";
-  leptonicZ = fs->make<TEfficiency>("leptonicZ",title1, 60, 0, 2400);
-  hadronicZ = fs->make<TEfficiency>("hadronicZ",title1, 60, 0, 2400);
-  gravMass  = fs->make<TEfficiency>("gravMass", title2,100, 0, 6000);
+  genTree = fs->make<TTree>("genTree", "physical variables at GEN level");
+  genTree->Branch("lep",      &lep,      "lep/I");
+  genTree->Branch("index",    &index,    "index/I");
+  genTree->Branch("ptZlep",   &ptZlep,   "ptZlep/D");
+  genTree->Branch("ptZhad",   &ptZhad,   "ptZhad/D");
+  genTree->Branch("massGrav", &massGrav, "massGrav/D");
 }
 
 TrigReportAnalyzer::~TrigReportAnalyzer(){ }
@@ -63,7 +69,7 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   Handle<TriggerResults> trigRes;
   iEvent.getByToken(trigResult_, trigRes);
-  size_t index = trigRes->index(0);
+  index = trigRes->index(0);
   switch(index){
       case  2: cutFlow->Fill("Begin",1); break;
       case  4: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); break;
@@ -72,15 +78,21 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("LeptonicZ",1); cutFlow->Fill("HadronicZ",1); break;
       case 19: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("LeptonicZ",1); cutFlow->Fill("HadronicZ",1); cutFlow->Fill("Graviton",1); break;
   }
-  // efficiency plots
-  Handle<View<reco::Candidate> > genZlep;
-  Handle<View<reco::Candidate> > genZhad;
-  iEvent.getByLabel(leptonicZ_ , genZlep);
-  iEvent.getByLabel(hadronicZ_ , genZhad);
-  leptonicZ->Fill( index> 9, (*genZlep)[0].pt() );
-  hadronicZ->Fill( index>14, (*genZhad)[0].pt() );
-  const reco::Candidate* genGrav = (*genZlep)[0].mother(0);
-  gravMass->Fill( index>16, genGrav->mass() );
+  // fill tree 
+  if (index > 1){
+     Handle<View<reco::Candidate> > genZlep;
+     Handle<View<reco::Candidate> > genZhad;
+     iEvent.getByLabel(leptonicZ_ , genZlep);
+     iEvent.getByLabel(hadronicZ_ , genZhad);
+     const reco::Candidate& Zlep = (*genZlep)[0];
+     const reco::Candidate& Zhad = (*genZhad)[0];
+     const reco::Candidate* genGrav = Zlep.mother(0);
+     lep      = abs( Zlep.daughter(0)->pdgId() );
+     ptZlep   = Zlep.pt() ;
+     ptZhad   = Zhad.pt() ;
+     massGrav = genGrav->mass();
+     genTree->Fill();
+  }
 }
 
 void TrigReportAnalyzer::beginJob() { }
