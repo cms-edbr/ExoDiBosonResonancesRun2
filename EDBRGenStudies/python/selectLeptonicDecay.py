@@ -5,6 +5,6 @@ leptonicDecay = cms.EDFilter("CandViewSelector",
                              cut = cms.string("22 < abs(pdgId()) < 26 "
                                               "& (abs(daughter(0).pdgId())==11||abs(daughter(1).pdgId())==11|| " 
                                               "   abs(daughter(0).pdgId())==13||abs(daughter(1).pdgId())==13 ) "
-                                              "& mother(0).pdgId()==5100039"),
+                                              "& (mother(0).pdgId()==39||mother(0).pdgId()==5100039)"),
                              filter = cms.bool(True)
                             )
