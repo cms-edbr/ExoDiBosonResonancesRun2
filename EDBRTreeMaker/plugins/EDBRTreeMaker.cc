@@ -103,7 +103,7 @@ private:
 
   // Muon ID 
   int    mutrackerID1,   mutrackerID2;
-  int    mutightID1,     mutightID2;
+  int    muhighPtID1,     muhighPtID2;
 
   // Electron ID 
   double eeDeltaR;
@@ -219,8 +219,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   /// Muon ID quantities ID quantities
   outTree_->Branch("mutrackerID1"    ,&mutrackerID1   ,"mutrackerID1/I"   );
   outTree_->Branch("mutrackerID2"    ,&mutrackerID2   ,"mutrackerID2/I"   );
-  outTree_->Branch("mutightID1"      ,&mutightID1     ,"mutightID1/I"     );
-  outTree_->Branch("mutightID2"      ,&mutightID2     ,"mutightID2/I"     );
+  outTree_->Branch("muhighPtID1"     ,&muhighPtID1    ,"muhighPtID1/I"    );
+  outTree_->Branch("muhighPtID2"     ,&muhighPtID2    ,"muhighPtID2/I"    );
 
   /// Electron ID quantities
   outTree_->Branch("eeDeltaR"        ,&eeDeltaR       ,"eeDeltaR/D"       );
@@ -408,8 +408,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         relIso2         = absiso2 /mu2->pt();
                         mutrackerID1    = (int)hptm::isTrackerMuon(*mu1,vertex);
                         mutrackerID2    = (int)hptm::isTrackerMuon(*mu2,vertex);
-                        mutightID1      = (int)muon::isTightMuon(  *mu1,vertex);
-                        mutightID2      = (int)muon::isTightMuon(  *mu2,vertex);
+                        muhighPtID1     = (int)muon::isHighPtMuon( *mu1,vertex);
+                        muhighPtID2     = (int)muon::isHighPtMuon( *mu2,vertex);
                         // retrieve mini isolation
                         miniIso1        = mu1->userFloat("miniIso");
                         miniIso2        = mu2->userFloat("miniIso");
@@ -659,8 +659,8 @@ void EDBRTreeMaker::setDummyValues() {
      elheepID2      = -1e9; 
      mutrackerID1   = -1e9;
      mutrackerID2   = -1e9;
-     mutightID1     = -1e9;
-     mutightID2     = -1e9;
+     muhighPtID1    = -1e9;
+     muhighPtID2    = -1e9;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
