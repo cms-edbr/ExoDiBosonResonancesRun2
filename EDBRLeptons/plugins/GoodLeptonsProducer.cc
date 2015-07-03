@@ -126,9 +126,9 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const pat::Muon& mu = (*muons)[i];
         double miniIso = getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&mu), r_iso_min_, r_iso_max_, kt_scale_, charged_only_);
         int trackerID = (int)hptm::isTrackerMuon(mu, vertex);  
-        int tightID   = (int)muon::isTightMuon(  mu, vertex);  
+        int highPtID  = (int)muon::isHighPtMuon( mu, vertex);  
         if ( filter_ && !trackerID && miniIso>0.1                       ) continue;        // muons must pass trackerID 
-        if ( filter_ && !tightID   && miniIso>0.1 && !goodMuons->size() ) continue;        // first muon must be tight
+        if ( filter_ && !highPtID  && miniIso>0.1 && !goodMuons->size() ) continue;        // first muon must be highPt
         // Add mini isolation
         pat::Muon* cloneMu = mu.clone();
         cloneMu->addUserFloat("miniIso", miniIso);
