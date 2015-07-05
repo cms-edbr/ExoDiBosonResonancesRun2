@@ -173,8 +173,8 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           eltightID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
                                           elheepID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
                                           hltToken    = cms.InputTag("TriggerResults","","HLT"),
-                                          elPaths     = cms.vstring("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v*"), 
-                                          muPaths     = cms.vstring("HLT_Mu30_TkMu11_v*") ) 
+                                          elPaths     = cms.vstring("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"), 
+                                          muPaths     = cms.vstring("HLT_Mu45_eta2p1_v*") ) 
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 

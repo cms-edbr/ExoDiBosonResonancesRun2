@@ -117,8 +117,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int       heepID =   (*elheepID_handle)[ elRef ]; 
         int mediumORheep = mediumID || heepID;
         int  tightORheep =  tightID || heepID;
-        if ( filter_ && !mediumORheep                          ) continue;    // electrons must pass medium or heep
-        if ( filter_ && !tightORheep && !goodElectrons->size() ) continue;    // first electron must be tight or heep
+        if ( filter_ && !mediumORheep               ) continue;    // electrons must pass medium or heep
+        if ( !tightORheep && !goodElectrons->size() ) continue;    // first electron must be tight or heep
         // Add mini isolation
         double miniIso = getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&el), r_iso_min_, r_iso_max_, kt_scale_, charged_only_);
         pat::Electron* cloneEl = el.clone();
@@ -131,12 +131,14 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto_ptr< vector<pat::Muon> > goodMuons( new vector<pat::Muon> );
     for ( size_t i=0; i<mumult; ++i ) {
         const pat::Muon& mu = (*muons)[i];
+        double miniIso = getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&mu), r_iso_min_, r_iso_max_, kt_scale_, charged_only_);
+        int isoID = miniIso<0.1 ? 1 : 0;
         int trackerID = (int)hptm::isTrackerMuon(mu, vertex);  
         int highPtID  = (int)muon::isHighPtMuon( mu, vertex);  
-        if ( filter_ && !trackerID                       ) continue;        // muons must pass trackerID 
-        if ( filter_ && !highPtID  && !goodMuons->size() ) continue;        // first muon must be highPt
+        int tracker_OR_highPt_AND_miniIso = (trackerID||highPtID) && isoID;
+        if ( filter_ && !tracker_OR_highPt_AND_miniIso ) continue;        // muons must must be (tracker or highPt) and isolated 
+        if ( !highPtID  && !goodMuons->size()          ) continue;        // first muon must be highPt
         // Add mini isolation
-        double miniIso = getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&mu), r_iso_min_, r_iso_max_, kt_scale_, charged_only_);
         pat::Muon* cloneMu = mu.clone();
         cloneMu->addUserFloat("miniIso", miniIso);
         goodMuons->push_back(*cloneMu);
