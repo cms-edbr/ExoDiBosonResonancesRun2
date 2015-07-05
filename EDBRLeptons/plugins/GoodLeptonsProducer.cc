@@ -51,6 +51,7 @@ class GoodLeptonsProducer : public edm::EDProducer {
       edm::EDGetTokenT<pat::MuonCollection> muonToken_;
       edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
       edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
+      edm::EDGetTokenT<edm::ValueMap<bool> > elheepIDToken_;
 
      double getPFIsolation(edm::Handle<pat::PackedCandidateCollection>, const reco::Candidate*, double, double, double, bool);
 };
@@ -66,7 +67,8 @@ GoodLeptonsProducer::GoodLeptonsProducer(const edm::ParameterSet& iConfig):
     electronToken_(   consumes<pat::ElectronCollection>(        iConfig.getParameter<edm::InputTag>("electrons" ) ) ),
     muonToken_(       consumes<pat::MuonCollection>(            iConfig.getParameter<edm::InputTag>("muons"     ) ) ),
     eltightIDToken_(  consumes<edm::ValueMap<bool> >(           iConfig.getParameter<edm::InputTag>("eltightID" ) ) ),
-    elmediumIDToken_( consumes<edm::ValueMap<bool> >(           iConfig.getParameter<edm::InputTag>("elmediumID") ) )
+    elmediumIDToken_( consumes<edm::ValueMap<bool> >(           iConfig.getParameter<edm::InputTag>("elmediumID") ) ),
+    elheepIDToken_(   consumes<edm::ValueMap<bool> >(           iConfig.getParameter<edm::InputTag>("elheepID"  ) ) )
 {
     produces<std::vector<pat::Electron> >("goodElectrons");
     produces<std::vector<pat::Muon> >(    "goodMuons"    );
@@ -93,8 +95,10 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // electron IDs
     Handle<ValueMap<bool> > elmediumID_handle;
     Handle<ValueMap<bool> > eltightID_handle;
+    Handle<ValueMap<bool> > elheepID_handle;
     iEvent.getByToken(elmediumIDToken_, elmediumID_handle);
     iEvent.getByToken(eltightIDToken_,  eltightID_handle);
+    iEvent.getByToken(elheepIDToken_,   elheepID_handle);
 
     // handle muons and electons
     Handle<pat::MuonCollection> muons;
@@ -108,10 +112,13 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for ( size_t i=0; i<elmult; ++i ) {
         const pat::Electron& el = (*electrons)[i];
         const Ptr<pat::Electron> elRef(electrons, i);
-        int mediumID = (*elmediumID_handle)[ elRef ]; 
-        int  tightID =  (*eltightID_handle)[ elRef ]; 
-        if ( filter_ && !mediumID                          ) continue;    // electrons must pass mediumID
-        if ( filter_ && !tightID && !goodElectrons->size() ) continue;    // first electron must be tight
+        int     mediumID = (*elmediumID_handle)[ elRef ]; 
+        int      tightID =  (*eltightID_handle)[ elRef ]; 
+        int       heepID =   (*elheepID_handle)[ elRef ]; 
+        int mediumORheep = mediumID || heepID;
+        int  tightORheep =  tightID || heepID;
+        if ( filter_ && !mediumORheep                          ) continue;    // electrons must pass medium or heep
+        if ( filter_ && !tightORheep && !goodElectrons->size() ) continue;    // first electron must be tight or heep
         // Add mini isolation
         double miniIso = getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&el), r_iso_min_, r_iso_max_, kt_scale_, charged_only_);
         pat::Electron* cloneEl = el.clone();

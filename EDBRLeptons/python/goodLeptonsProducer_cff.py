@@ -20,7 +20,8 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
                               electrons    = cms.InputTag("slimmedElectrons"),
                               muons        = cms.InputTag("slimmedMuons"),
                               elmediumID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-                              eltightID    = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight")
+                              eltightID    = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
+                              elheepID     = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51")
                             )
 
 goodLeptonsProducer = cms.Sequence(goodOfflinePrimaryVertex + goodLeptons)
