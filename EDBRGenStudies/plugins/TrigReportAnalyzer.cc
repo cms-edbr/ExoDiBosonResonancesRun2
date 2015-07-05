@@ -5,6 +5,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,10 +31,10 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> trigResult_;
   edm::InputTag leptonicZ_ , hadronicZ_ ; 
 
-  TH1I  *cutFlow;
+  TH1I  *wfMu, *wfEl;
   TTree *genTree; 
   int lep, index;
-  double ptZlep, ptZhad;
+  double ptZlep, ptZhad, deltaRleplep;
   double massGrav;
 
 };
@@ -44,21 +45,30 @@ TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
   hadronicZ_(iConfig.getParameter<edm::InputTag>("hadronicZ"))
 {
   edm::Service<TFileService> fs;
-  cutFlow = fs->make<TH1I>("cutFlow","", 6, 0, 6);
-  TAxis *axis = cutFlow->GetXaxis();  
-  axis->SetBinLabel(1,"Begin");
-  axis->SetBinLabel(2,"HLT");
-  axis->SetBinLabel(3,"Vertex");
-  axis->SetBinLabel(4,"LeptonicZ");
-  axis->SetBinLabel(5,"HadronicZ");
-  axis->SetBinLabel(6,"Graviton");
+  wfMu = fs->make<TH1I>("wfMu","", 6, 0, 6);
+  wfEl = fs->make<TH1I>("wfEl","", 6, 0, 6);
+  TAxis *axisMu = wfMu->GetXaxis();  
+  axisMu->SetBinLabel(1,"Begin");
+  axisMu->SetBinLabel(2,"HLT");
+  axisMu->SetBinLabel(3,"Vertex");
+  axisMu->SetBinLabel(4,"Leptons");
+  axisMu->SetBinLabel(5,"V-jet");
+  axisMu->SetBinLabel(6,"Graviton");
+  TAxis *axisEl = wfEl->GetXaxis();  
+  axisEl->SetBinLabel(1,"Begin");
+  axisEl->SetBinLabel(2,"HLT");
+  axisEl->SetBinLabel(3,"Vertex");
+  axisEl->SetBinLabel(4,"Leptons");
+  axisEl->SetBinLabel(5,"V-jet");
+  axisEl->SetBinLabel(6,"Graviton");
 
   genTree = fs->make<TTree>("genTree", "physical variables at GEN level");
-  genTree->Branch("lep",      &lep,      "lep/I");
-  genTree->Branch("index",    &index,    "index/I");
-  genTree->Branch("ptZlep",   &ptZlep,   "ptZlep/D");
-  genTree->Branch("ptZhad",   &ptZhad,   "ptZhad/D");
-  genTree->Branch("massGrav", &massGrav, "massGrav/D");
+  genTree->Branch("lep",          &lep,          "lep/I");
+  genTree->Branch("index",        &index,        "index/I");
+  genTree->Branch("ptZlep",       &ptZlep,       "ptZlep/D");
+  genTree->Branch("ptZhad",       &ptZhad,       "ptZhad/D");
+  genTree->Branch("massGrav",     &massGrav,     "massGrav/D");
+  genTree->Branch("deltaRleplep", &deltaRleplep, "deltaRleplep/D");
 }
 
 TrigReportAnalyzer::~TrigReportAnalyzer(){ }
@@ -70,15 +80,6 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   Handle<TriggerResults> trigRes;
   iEvent.getByToken(trigResult_, trigRes);
   index = trigRes->index(0);
-  switch(index){
-      case  2: cutFlow->Fill("Begin",1); break;
-      case  4: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); break;
-      case 11: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
-      case 16: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("LeptonicZ",1); break;
-      case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("LeptonicZ",1); cutFlow->Fill("HadronicZ",1); break;
-      case 19: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("LeptonicZ",1); cutFlow->Fill("HadronicZ",1); cutFlow->Fill("Graviton",1); break;
-  }
-  // fill tree 
   if (index > 1){
      Handle<View<reco::Candidate> > genZlep;
      Handle<View<reco::Candidate> > genZhad;
@@ -87,12 +88,38 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      const reco::Candidate& Zlep = (*genZlep)[0];
      const reco::Candidate& Zhad = (*genZhad)[0];
      const reco::Candidate* genGrav = Zlep.mother(0);
-     lep      = abs( Zlep.daughter(0)->pdgId() );
-     ptZlep   = Zlep.pt() ;
-     ptZhad   = Zhad.pt() ;
-     massGrav = genGrav->mass();
+     const reco::Candidate* lep1 = Zlep.daughter(0);
+     const reco::Candidate* lep2 = Zlep.daughter(1);
+     lep          = abs( lep1->pdgId() );
+     ptZlep       = Zlep.pt() ;
+     ptZhad       = Zhad.pt() ;
+     massGrav     = genGrav->mass();
+     deltaRleplep = deltaR(lep1->eta(),lep1->phi(),lep2->eta(),lep2->phi());
+     // fill tree 
      genTree->Fill();
-  }
+     // cut flow for muons
+     if (lep==13){
+        switch(index){
+            case  2: wfMu->Fill("Begin",1); break;
+            case  4: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); break;
+            case 11: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); break;
+            case 16: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); break;
+            case 18: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("V-jet",1); break;
+            case 19: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("V-jet",1); wfMu->Fill("Graviton",1); break;
+        }
+     }
+     // cut flow for electrons
+     if (lep==11){
+        switch(index){
+            case  2: wfEl->Fill("Begin",1); break;
+            case  4: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); break;
+            case 11: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); break;
+            case 16: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); break;
+            case 18: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("V-jet",1); break;
+            case 19: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("V-jet",1); wfEl->Fill("Graviton",1); break;
+        }
+     }
+   }
 }
 
 void TrigReportAnalyzer::beginJob() { }
