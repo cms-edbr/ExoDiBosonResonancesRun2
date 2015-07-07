@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 goodElectrons = cms.EDFilter("PATElectronSelector",
                              src = cms.InputTag("goodLeptons:goodElectrons"),
-                             cut = cms.string("pt > 40 & abs(eta) < 2.5"),
+                             cut = cms.string("pt > 115 & abs(eta) < 2.5 & "
+                             #cut = cms.string("pt > 40 & abs(eta) < 2.5 & "
+                                              "(abs(superCluster().position().eta()) < 1.442 ||"
+                                              " abs(superCluster().position().eta()) > 1.566)  "),
                              filter = cms.bool(False)
                             )
 
@@ -19,7 +22,7 @@ def addElectronIDs(process):
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 
     process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
-    
+
     my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
                      'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
 

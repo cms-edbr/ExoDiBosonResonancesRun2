@@ -17,36 +17,19 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-#SAMPLE="RSGravToZZToLLQQ_M-600" 
-#SAMPLE="RSGravToZZToLLQQ_M-800" 
-#SAMPLE="RSGravToZZToLLQQ_M-1000" 
-#SAMPLE="RSGravToZZToLLQQ_M-1200" 
-#SAMPLE="RSGravToZZToLLQQ_M-1400" 
-#SAMPLE="RSGravToZZToLLQQ_M-1600" 
-#SAMPLE="RSGravToZZToLLQQ_M-1800" 
-#SAMPLE="RSGravToZZToLLQQ_M-2000" 
-#SAMPLE="RSGravToZZToLLQQ_M-2500" 
-SAMPLE="RSGravToZZToLLQQ_M-3000" 
-#SAMPLE="RSGravToZZToLLQQ_M-3500" 
-#SAMPLE="RSGravToZZToLLQQ_M-4000" 
-#SAMPLE="RSGravToZZToLLQQ_M-4500" 
-#SAMPLE="RSGravToZZ_kMpl01_M-1000" 
-#SAMPLE="RSGravToZZ_kMpl01_M-1800"
-#SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
-#SAMPLE="RSGravToZZ_kMpl01_M-3000_PHYS14"
-#SAMPLE="RSGravToZZ_kMpl01_M-4000_PHYS14"
-##SAMPLE="DYJetsToLL_HT-100to200_PHYS14"
-#SAMPLE="DYJetsToLL_HT-200to400_PHYS14"
-#SAMPLE="DYJetsToLL_HT-400to600_PHYS14"
-#SAMPLE="DYJetsToLL_HT-600toInf_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-100to200_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-200to400_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-400to600_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-600toInf_PHYS14"
-#SAMPLE="WJetsToLNu_HT-100to200_PHYS14"
-#SAMPLE="WJetsToLNu_HT-200to400_PHYS14"
-#SAMPLE="WJetsToLNu_HT-400to600_PHYS14"
-#SAMPLE="WJetsToLNu_HT-600toInf_PHYS14"
+#SAMPLE="BulkGravToZZToZlepZhad_M-600" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-800" 
+SAMPLE="BulkGravToZZToZlepZhad_M-1000" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-1200" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-1400" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-1600" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-1800" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-2000" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-2500" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-3000" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-3500" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-4000" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-4500" 
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
@@ -56,68 +39,34 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
-configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
-                 "RSGravToZZToLLQQ_M-800"         : 0.274593,
-                 "RSGravToZZToLLQQ_M-1000"        : 0.0811175,
-                 "RSGravToZZToLLQQ_M-1200"        : 0.0295627,
-                 "RSGravToZZToLLQQ_M-1400"        : 0.01232,
-                 "RSGravToZZToLLQQ_M-1600"        : 0.00605376,
-                 "RSGravToZZToLLQQ_M-1800"        : 0.00283966,
-                 "RSGravToZZToLLQQ_M-2000"        : 0.00156097,
-                 "RSGravToZZToLLQQ_M-2500"        : 0.000372413,
-                 "RSGravToZZToLLQQ_M-3000"        : 8.28108e-05,
-                 "RSGravToZZToLLQQ_M-3500"        : 2.76551e-05,
-                 "RSGravToZZToLLQQ_M-4000"        : 8.54621e-06,
-                 "RSGravToZZToLLQQ_M-4500"        : 2.65225e-06,
-                 "RSGravToZZ_kMpl01_M-1000"       : 1.202,
-                 "RSGravToZZ_kMpl01_M-1800"       : 0.05024,
-                 "RSGravToZZ_kMpl01_M-2000_PHYS14": 0.02284,
-                 "RSGravToZZ_kMpl01_M-3000_PHYS14": 0.001454,
-                 "RSGravToZZ_kMpl01_M-4000_PHYS14": 0.0001357,
-                 "ZJetsToNuNu_HT-100to200_PHYS14" : 372.6,
-                 "ZJetsToNuNu_HT-200to400_PHYS14" : 100.8,
-                 "ZJetsToNuNu_HT-400to600_PHYS14" : 11.99,
-                 "ZJetsToNuNu_HT-600toInf_PHYS14" : 4.113,
-                 "WJetsToLNu_HT-100to200_PHYS14"  : 1817.0,
-                 "WJetsToLNu_HT-200to400_PHYS14"  : 471.6,
-                 "WJetsToLNu_HT-400to600_PHYS14"  : 55.61,
-                 "WJetsToLNu_HT-600toInf_PHYS14"  : 18.81,
-                 "DYJetsToLL_HT-100to200_PHYS14"  : 194.3,
-                 "DYJetsToLL_HT-200to400_PHYS14"  : 52.24,
-                 "DYJetsToLL_HT-400to600_PHYS14"  : 6.546,
-                 "DYJetsToLL_HT-600toInf_PHYS14"  : 2.179,
+configXsecs = {  "BulkGravToZZToZlepZhad_M-600"         : 1.0,
+                 "BulkGravToZZToZlepZhad_M-800"         : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1200"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1400"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1600"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1800"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-2000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-2500"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-3000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-3500"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-4000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-4500"        : 1.0,
               }
 
-configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
-                 "RSGravToZZToLLQQ_M-800"         : 31071,
-                 "RSGravToZZToLLQQ_M-1000"        : 31229,
-                 "RSGravToZZToLLQQ_M-1200"        : 31222,
-                 "RSGravToZZToLLQQ_M-1400"        : 31127,
-                 "RSGravToZZToLLQQ_M-1600"        : 31091,
-                 "RSGravToZZToLLQQ_M-1800"        : 31075,
-                 "RSGravToZZToLLQQ_M-2000"        : 31091,
-                 "RSGravToZZToLLQQ_M-2500"        : 31147,
-                 "RSGravToZZToLLQQ_M-3000"        : 31389,
-                 "RSGravToZZToLLQQ_M-3500"        : 31034,
-                 "RSGravToZZToLLQQ_M-4000"        : 31334,
-                 "RSGravToZZToLLQQ_M-4500"        : 30787,
-                 "RSGravToZZ_kMpl01_M-1000"       : 29586,
-                 "RSGravToZZ_kMpl01_M-1800"       : 100000,
-                 "RSGravToZZ_kMpl01_M-2000_PHYS14": 29744,
-                 "RSGravToZZ_kMpl01_M-3000_PHYS14": 29209,
-                 "RSGravToZZ_kMpl01_M-4000_PHYS14": 30000,
-                 "ZJetsToNuNu_HT-100to200_PHYS14" : 4986424,
-                 "ZJetsToNuNu_HT-200to400_PHYS14" : 4546470,
-                 "ZJetsToNuNu_HT-400to600_PHYS14" : 4433784,
-                 "ZJetsToNuNu_HT-600toInf_PHYS14" : 4463806,
-                 "WJetsToLNu_HT-100to200_PHYS14"  : 5262265,
-                 "WJetsToLNu_HT-200to400_PHYS14"  : 4936077,
-                 "WJetsToLNu_HT-400to600_PHYS14"  : 4640594,
-                 "WJetsToLNu_HT-600toInf_PHYS14"  : 4581841,
-                 "DYJetsToLL_HT-100to200_PHYS14"  : 4054159,
-                 "DYJetsToLL_HT-200to400_PHYS14"  : 4666496,
-                 "DYJetsToLL_HT-400to600_PHYS14"  : 4931372,
-                 "DYJetsToLL_HT-600toInf_PHYS14"  : 4493574,
+configNevents = {"BulkGravToZZToZlepZhad_M-600"         : 50000,
+                 "BulkGravToZZToZlepZhad_M-800"         : 50000,
+                 "BulkGravToZZToZlepZhad_M-1000"        : 48400,
+                 "BulkGravToZZToZlepZhad_M-1200"        : 49200,
+                 "BulkGravToZZToZlepZhad_M-1400"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1600"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1800"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-2000"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-2500"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-3000"        : 49200,
+                 "BulkGravToZZToZlepZhad_M-3500"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-4000"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-4500"        : 50000,
                 }
 
 usedXsec = configXsecs[SAMPLE]
