@@ -21,8 +21,6 @@ def addElectronIDs(process):
    
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 
-    process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
-
     my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
                      'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
 

@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-# Delivers L1GtStableParametersRcd record in the EventSetup
-process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# find the global tag in the DAS under the Configs for given dataset
+process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
@@ -207,6 +209,8 @@ filterMode = True   # False
 ### but only later at the tree analysis.
 if filterMode == False:
     process.goodLeptons.filter = False
+    process.goodElectrons.cut = ''
+    process.goodMuons.cut = ''
     process.Ztomumu.cut = ''
     process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
@@ -217,6 +221,7 @@ if filterMode == False:
     process.hadronicVFilter.minNumber = 0
     process.gravitonFilter.minNumber  = 0
     process.analysis.remove( process.hltSequence )
+    del process.endpath
 #                                                                                                    #
 #****************************************************************************************************#
 

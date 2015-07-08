@@ -106,22 +106,32 @@ private:
   int    muhighPtID1,     muhighPtID2;
 
   // Electron ID 
+  int    barrel1,        barrel2;
+  int    endcap1,        endcap2;
   double eeDeltaR;
   double ptel1,          ptel2;
   double etaSC1,         etaSC2;
   double dEtaIn1,        dEtaIn2;
+  double dEtaSeed1,      dEtaSeed2; 
   double dPhiIn1,        dPhiIn2;
   double hOverE1,        hOverE2;
-  double full5x5_sigma1, full5x5_sigma2;
+  double sigmaIEtaIEta1, sigmaIEtaIEta2;
+  double e1x5OverE5x5_1, e1x5OverE5x5_2;
+  double e2x5OverE5x5_1, e2x5OverE5x5_2;
   double ooEmooP1,       ooEmooP2;
   double d01,            d02;
   double dz1,            dz2;
   double relIso1,        relIso2;
+  double caloIso1,       caloIso2;
+  double trackIso1,      trackIso2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
   int    elheepID1,      elheepID2;
   int    eltightID1,     eltightID2;
   int    elmediumID1,    elmediumID2;
+
+  double rho; // energy density
+
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > elheepIDToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
@@ -223,6 +233,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("muhighPtID2"     ,&muhighPtID2    ,"muhighPtID2/I"    );
 
   /// Electron ID quantities
+  outTree_->Branch("barrel1"         ,&barrel1        ,"barrel1/I"        );
+  outTree_->Branch("barrel2"         ,&barrel2        ,"barrel2/I"        );
+  outTree_->Branch("endcap1"         ,&endcap1        ,"endcap1/I"        );
+  outTree_->Branch("endcap2"         ,&endcap2        ,"endcap2/I"        );
   outTree_->Branch("eeDeltaR"        ,&eeDeltaR       ,"eeDeltaR/D"       );
   outTree_->Branch("ptel1"           ,&ptel1          ,"ptel1/D"          );
   outTree_->Branch("ptel2"           ,&ptel2          ,"ptel2/D"          );
@@ -230,12 +244,18 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("etaSC2"          ,&etaSC2         ,"etaSC2/D"         );
   outTree_->Branch("dEtaIn1"         ,&dEtaIn1        ,"dEtaIn1/D"        );
   outTree_->Branch("dEtaIn2"         ,&dEtaIn2        ,"dEtaIn2/D"        );
+  outTree_->Branch("dEtaSeed1"       ,&dEtaSeed1      ,"dEtaSeed1/D"      );
+  outTree_->Branch("dEtaSeed2"       ,&dEtaSeed2      ,"dEtaSeed2/D"      );
   outTree_->Branch("dPhiIn1"         ,&dPhiIn1        ,"dPhiIn1/D"        );
   outTree_->Branch("dPhiIn2"         ,&dPhiIn2        ,"dPhiIn2/D"        );
   outTree_->Branch("hOverE1"         ,&hOverE1        ,"hOverE1/D"        );
   outTree_->Branch("hOverE2"         ,&hOverE2        ,"hOverE2/D"        );
-  outTree_->Branch("full5x5_sigma1"  ,&full5x5_sigma1 ,"full5x5_sigma1/D" );
-  outTree_->Branch("full5x5_sigma2"  ,&full5x5_sigma2 ,"full5x5_sigma2/D" );
+  outTree_->Branch("sigmaIEtaIEta1"  ,&sigmaIEtaIEta1 ,"sigmaIEtaIEta1/D" );
+  outTree_->Branch("sigmaIEtaIEta2"  ,&sigmaIEtaIEta2 ,"sigmaIEtaIEta2/D" );
+  outTree_->Branch("e1x5OverE5x5_1"  ,&e1x5OverE5x5_1 ,"e1x5OverE5x5_1/D" );
+  outTree_->Branch("e1x5OverE5x5_2"  ,&e1x5OverE5x5_2 ,"e1x5OverE5x5_2/D" );
+  outTree_->Branch("e2x5OverE5x5_1"  ,&e2x5OverE5x5_1 ,"e2x5OverE5x5_1/D" );
+  outTree_->Branch("e2x5OverE5x5_2"  ,&e2x5OverE5x5_2 ,"e2x5OverE5x5_2/D" );
   outTree_->Branch("ooEmooP1"        ,&ooEmooP1       ,"ooEmooP1/D"       );
   outTree_->Branch("ooEmooP2"        ,&ooEmooP2       ,"ooEmooP2/D"       );
   outTree_->Branch("d01"             ,&d01            ,"d01/D"            );
@@ -244,6 +264,11 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("dz2"             ,&dz2            ,"dz2/D"            );
   outTree_->Branch("relIso1"         ,&relIso1        ,"relIso1/D"        );
   outTree_->Branch("relIso2"         ,&relIso2        ,"relIso2/D"        );
+  outTree_->Branch("caloIso1"        ,&caloIso1       ,"caloIso1/D"       );
+  outTree_->Branch("caloIso2"        ,&caloIso2       ,"caloIso2/D"       );
+  outTree_->Branch("trackIso1"       ,&trackIso1      ,"trackIso1/D"      );
+  outTree_->Branch("trackIso2"       ,&trackIso2      ,"trackIso2/D"      );
+  outTree_->Branch("rho"             ,&rho            ,"rho/D"            );
   outTree_->Branch("missingHits1"    ,&missingHits1   ,"missingHits1/I"   );
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
@@ -346,7 +371,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            // The rho
            Handle< double > rhoHandle;
            iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
-           float rho = (float)(*rhoHandle);
+           rho = (float)(*rhoHandle);
 
            //we put the definitions inside the channel
            switch(channel){
@@ -438,6 +463,23 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         eltightID2    = (*eltightID_handle)[  el2Ptr ];
                         elheepID1     = (*elheepID_handle)[   el1Ptr ];
                         elheepID2     = (*elheepID_handle)[   el2Ptr ];
+                        // shower shapes
+                        Handle<ValueMap<float> > sigmaIEtaIEtaHandle;  
+                        Handle<ValueMap<float> > e1x5Handle;  
+                        Handle<ValueMap<float> > e2x5Handle;  
+                        Handle<ValueMap<float> > e5x5Handle;
+                        iEvent.getByLabel(InputTag("electronIDValueMapProducer","eleFull5x5SigmaIEtaIEta"), sigmaIEtaIEtaHandle);
+                        iEvent.getByLabel(InputTag("electronIDValueMapProducer","eleFull5x5E1x5"), e1x5Handle);
+                        iEvent.getByLabel(InputTag("electronIDValueMapProducer","eleFull5x5E2x5"), e2x5Handle);
+                        iEvent.getByLabel(InputTag("electronIDValueMapProducer","eleFull5x5E5x5"), e5x5Handle);
+                        sigmaIEtaIEta1 = (*sigmaIEtaIEtaHandle)[ el1Ptr ];
+                        sigmaIEtaIEta2 = (*sigmaIEtaIEtaHandle)[ el2Ptr ];
+                        double e5x5_1 = (*e5x5Handle)[ el1Ptr ]; 
+                        double e5x5_2 = (*e5x5Handle)[ el2Ptr ]; 
+                        e1x5OverE5x5_1 = e5x5_1!=0 ? (*e1x5Handle)[el1Ptr]/e5x5_1 : 0; 
+                        e1x5OverE5x5_2 = e5x5_2!=0 ? (*e1x5Handle)[el2Ptr]/e5x5_2 : 0; 
+                        e2x5OverE5x5_1 = e5x5_1!=0 ? (*e2x5Handle)[el1Ptr]/e5x5_1 : 0; 
+                        e2x5OverE5x5_2 = e5x5_2!=0 ? (*e2x5Handle)[el2Ptr]/e5x5_2 : 0; 
                         // retrieve mini isolation
                         miniIso1      = el1->userFloat("miniIso");
                         miniIso2      = el2->userFloat("miniIso");
@@ -451,14 +493,18 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             ptel2          = el2->pt();
                             etaSC1         = el1->superCluster()->eta();
                             etaSC2         = el2->superCluster()->eta();
+                            barrel1        = etaSC1<1.4442 ? 1:0;
+                            barrel2        = etaSC2<1.4442 ? 1:0;
+                            endcap1        = etaSC1>1.566 && etaSC1<2.5 ? 1:0;
+                            endcap2        = etaSC2>1.566 && etaSC2<2.5 ? 1:0;
                             dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
                             dEtaIn2        = el2->deltaEtaSuperClusterTrackAtVtx();
                             dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
                             dPhiIn2        = el2->deltaPhiSuperClusterTrackAtVtx();
+                            dEtaSeed1      = el1->deltaEtaSeedClusterTrackAtVtx();
+                            dEtaSeed2      = el2->deltaEtaSeedClusterTrackAtVtx();
                             hOverE1        = el1->hcalOverEcal();
                             hOverE2        = el2->hcalOverEcal();
-                            full5x5_sigma1 = el1->full5x5_sigmaIetaIeta();
-                            full5x5_sigma2 = el2->full5x5_sigmaIetaIeta();
                             ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
                                              fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
                             ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
@@ -470,12 +516,16 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
                             relIso1        = absiso1/el1->pt();
                             relIso2        = absiso2/el2->pt();
+                            caloIso1       = el1->dr03EcalRecHitSumEt() + el1->dr03HcalDepth1TowerSumEt();
+                            caloIso2       = el2->dr03EcalRecHitSumEt() + el2->dr03HcalDepth1TowerSumEt();
+                            trackIso1      = el1->dr03TkSumPt();
+                            trackIso2      = el2->dr03TkSumPt();
                             d01            = (-1)*el1->gsfTrack()->dxy(vertex.position());   
                             dz1            = el1->gsfTrack()->dz(vertex.position());
-                            missingHits1   = el1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                            missingHits1   = el1->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
                             d02            = (-1)*el2->gsfTrack()->dxy(vertex.position());  
                             dz2            = el2->gsfTrack()->dz(vertex.position());
-                            missingHits2   = el2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+                            missingHits2   = el2->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
                             passConVeto1   = el1->passConversionVeto();
                             passConVeto2   = el2->passConversionVeto();
                         }
@@ -626,17 +676,25 @@ void EDBRTreeMaker::setDummyValues() {
      deltaphijetmet = -1e9; 
      lep            = -1e9;
      reg            = -1e9;
+     barrel1        = -1e9;
+     barrel2        = -1e9;
+     endcap1        = -1e9;
+     endcap2        = -1e9;
      eeDeltaR       = -1e9;
      ptel1          = -1e9;
      etaSC1         = -1e9;
      dEtaIn1        = -1e9;
      dPhiIn1        = -1e9;
      hOverE1        = -1e9;
-     full5x5_sigma1 = -1e9;
+     sigmaIEtaIEta1 = -1e9;
+     e1x5OverE5x5_1 = -1e9;
+     e2x5OverE5x5_1 = -1e9;
      ooEmooP1       = -1e9;
      d01            = -1e9;
      dz1            = -1e9;
      relIso1        = -1e9;
+     caloIso1       = -1e9;
+     trackIso1      = -1e9;
      missingHits1   = -1e9; 
      passConVeto1   = -1e9;
      elmediumID1    = -1e9;
@@ -647,11 +705,15 @@ void EDBRTreeMaker::setDummyValues() {
      dEtaIn2        = -1e9;
      dPhiIn2        = -1e9;
      hOverE2        = -1e9;
-     full5x5_sigma2 = -1e9;
+     sigmaIEtaIEta2 = -1e9;
+     e1x5OverE5x5_2 = -1e9;
+     e2x5OverE5x5_2 = -1e9;
      ooEmooP2       = -1e9;
      d02            = -1e9;
      dz2            = -1e9;
      relIso2        = -1e9;
+     caloIso2       = -1e9;
+     trackIso2      = -1e9;
      missingHits2   = -1e9; 
      passConVeto2   = -1e9;
      elmediumID2    = -1e9; 
