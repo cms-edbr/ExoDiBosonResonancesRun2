@@ -676,6 +676,7 @@ void EDBRTreeMaker::setDummyValues() {
      deltaphijetmet = -1e9; 
      lep            = -1e9;
      reg            = -1e9;
+     rho            = -1e9;
      barrel1        = -1e9;
      barrel2        = -1e9;
      endcap1        = -1e9;
