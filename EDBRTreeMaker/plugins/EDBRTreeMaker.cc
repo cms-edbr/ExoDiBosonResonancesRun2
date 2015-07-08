@@ -109,6 +109,7 @@ private:
   int    barrel1,        barrel2;
   int    endcap1,        endcap2;
   double eeDeltaR;
+  double etel1,          etel2;
   double ptel1,          ptel2;
   double etaSC1,         etaSC2;
   double dEtaIn1,        dEtaIn2;
@@ -239,6 +240,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("endcap1"         ,&endcap1        ,"endcap1/I"        );
   outTree_->Branch("endcap2"         ,&endcap2        ,"endcap2/I"        );
   outTree_->Branch("eeDeltaR"        ,&eeDeltaR       ,"eeDeltaR/D"       );
+  outTree_->Branch("etel1"           ,&etel1          ,"etel1/D"          );
+  outTree_->Branch("etel2"           ,&etel2          ,"etel2/D"          );
   outTree_->Branch("ptel1"           ,&ptel1          ,"ptel1/D"          );
   outTree_->Branch("ptel2"           ,&ptel2          ,"ptel2/D"          );
   outTree_->Branch("etaSC1"          ,&etaSC1         ,"etaSC1/D"         );
@@ -492,6 +495,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
                             reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
                             eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
+                            etel1          = el1->superCluster()->energy();
+                            etel2          = el2->superCluster()->energy();
                             ptel1          = el1->pt();
                             ptel2          = el2->pt();
                             etaSC1         = el1->superCluster()->eta();
@@ -506,8 +511,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             dPhiIn2        = el2->deltaPhiSuperClusterTrackAtVtx();
                             dEtaSeed1      = el1->deltaEtaSeedClusterTrackAtVtx();
                             dEtaSeed2      = el2->deltaEtaSeedClusterTrackAtVtx();
-                            hOverE1        = el1->hcalOverEcal();
-                            hOverE2        = el2->hcalOverEcal();
+                            hOverE1        = el1->hadronicOverEm();
+                            hOverE2        = el2->hadronicOverEm();
                             ooEmooP1       = el1->ecalEnergy() && std::isfinite(el1->ecalEnergy()) ? 
                                              fabs(1.0/el1->ecalEnergy() - el1->eSuperClusterOverP()/el1->ecalEnergy() ) : 1e9;
                             ooEmooP2       = el2->ecalEnergy() && std::isfinite(el2->ecalEnergy()) ? 
@@ -687,6 +692,7 @@ void EDBRTreeMaker::setDummyValues() {
      endcap1        = -1e9;
      endcap2        = -1e9;
      eeDeltaR       = -1e9;
+     etel1          = -1e9;
      ptel1          = -1e9;
      etaSC1         = -1e9;
      dEtaIn1        = -1e9;
@@ -707,6 +713,7 @@ void EDBRTreeMaker::setDummyValues() {
      elmediumID1    = -1e9;
      eltightID1     = -1e9;
      elheepID1      = -1e9;
+     etel2          = -1e9;
      ptel2          = -1e9;
      etaSC2         = -1e9;
      dEtaIn2        = -1e9;
