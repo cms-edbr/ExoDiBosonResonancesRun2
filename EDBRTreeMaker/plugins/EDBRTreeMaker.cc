@@ -124,6 +124,7 @@ private:
   double relIso1,        relIso2;
   double caloIso1,       caloIso2;
   double trackIso1,      trackIso2;
+  int    ecalDriven1,    ecalDriven2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
   int    elheepID1,      elheepID2;
@@ -269,6 +270,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("trackIso1"       ,&trackIso1      ,"trackIso1/D"      );
   outTree_->Branch("trackIso2"       ,&trackIso2      ,"trackIso2/D"      );
   outTree_->Branch("rho"             ,&rho            ,"rho/D"            );
+  outTree_->Branch("ecalDriven1"     ,&ecalDriven1    ,"ecalDriven1/I"    );
+  outTree_->Branch("ecalDriven2"     ,&ecalDriven2    ,"ecalDriven2/I"    );
   outTree_->Branch("missingHits1"    ,&missingHits1   ,"missingHits1/I"   );
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
@@ -521,10 +524,12 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             trackIso1      = el1->dr03TkSumPt();
                             trackIso2      = el2->dr03TkSumPt();
                             d01            = (-1)*el1->gsfTrack()->dxy(vertex.position());   
-                            dz1            = el1->gsfTrack()->dz(vertex.position());
-                            missingHits1   = el1->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
                             d02            = (-1)*el2->gsfTrack()->dxy(vertex.position());  
+                            dz1            = el1->gsfTrack()->dz(vertex.position());
                             dz2            = el2->gsfTrack()->dz(vertex.position());
+                            ecalDriven1    = el1->ecalDriven();
+                            ecalDriven2    = el2->ecalDriven();
+                            missingHits1   = el1->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
                             missingHits2   = el2->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
                             passConVeto1   = el1->passConversionVeto();
                             passConVeto2   = el2->passConversionVeto();
@@ -696,6 +701,7 @@ void EDBRTreeMaker::setDummyValues() {
      relIso1        = -1e9;
      caloIso1       = -1e9;
      trackIso1      = -1e9;
+     ecalDriven1    = -1e9;
      missingHits1   = -1e9; 
      passConVeto1   = -1e9;
      elmediumID1    = -1e9;
@@ -715,6 +721,7 @@ void EDBRTreeMaker::setDummyValues() {
      relIso2        = -1e9;
      caloIso2       = -1e9;
      trackIso2      = -1e9;
+     ecalDriven2    = -1e9;
      missingHits2   = -1e9; 
      passConVeto2   = -1e9;
      elmediumID2    = -1e9; 
