@@ -493,10 +493,10 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             ptel2          = el2->pt();
                             etaSC1         = el1->superCluster()->eta();
                             etaSC2         = el2->superCluster()->eta();
-                            barrel1        = etaSC1<1.4442 ? 1:0;
-                            barrel2        = etaSC2<1.4442 ? 1:0;
-                            endcap1        = etaSC1>1.566 && etaSC1<2.5 ? 1:0;
-                            endcap2        = etaSC2>1.566 && etaSC2<2.5 ? 1:0;
+                            barrel1        = fabs(etaSC1)<1.4442 ? 1:0;
+                            barrel2        = fabs(etaSC2)<1.4442 ? 1:0;
+                            endcap1        = fabs(etaSC1)>1.566 && fabs(etaSC1)<2.5 ? 1:0;
+                            endcap2        = fabs(etaSC2)>1.566 && fabs(etaSC2)<2.5 ? 1:0;
                             dEtaIn1        = el1->deltaEtaSuperClusterTrackAtVtx();
                             dEtaIn2        = el2->deltaEtaSuperClusterTrackAtVtx();
                             dPhiIn1        = el1->deltaPhiSuperClusterTrackAtVtx();
