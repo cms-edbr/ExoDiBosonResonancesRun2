@@ -10,12 +10,14 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -152,12 +154,17 @@ private:
   //High Level Trigger
   HLTConfigProvider hltConfig;
   edm::EDGetTokenT<edm::TriggerResults> hltToken_;
+  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> hltObjects_;
   std::vector<std::string> elPaths_;
   std::vector<std::string> muPaths_;
   std::vector<std::string> elPaths;
   std::vector<std::string> muPaths;
-  int  hltEle105;
-  int  hltMu50;
+  std::vector<float>  pthltObjs;
+  std::vector<float> etahltObjs;
+  std::vector<float> phihltObjs;
+  int  numhltObjs;
+  int  elhltbit;
+  int  muhltbit;
 };
 
 //
@@ -169,6 +176,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   eltightIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eltightID"))),
   elmediumIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elmediumID"))),
   hltToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltToken"))),
+  hltObjects_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("hltObjects"))),
   elPaths_(iConfig.getParameter<std::vector<std::string>>("elPaths")),
   muPaths_(iConfig.getParameter<std::vector<std::string>>("muPaths"))
 {
@@ -225,9 +233,15 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("candTMass"       ,&candTMass      ,"candTMass/D"      );
 
   /// HLT bits
-  outTree_->Branch("hltEle105"       ,&hltEle105      ,"hltEle105/I"      );
-  outTree_->Branch("hltMu50"         ,&hltMu50        ,"hltMu50/I"        );
+  outTree_->Branch("elhltbit"        ,&elhltbit       ,"elhltbit/I"       );
+  outTree_->Branch("muhltbit"        ,&muhltbit       ,"muhltbit/I"       );
   
+  /// HLT objets
+  outTree_->Branch("numhltObjs"      ,&numhltObjs     ,"numhltObjs/I"     );
+  outTree_->Branch( "pthltObjs"      ,&pthltObjs                          );
+  outTree_->Branch("etahltObjs"      ,&etahltObjs                         );
+  outTree_->Branch("phihltObjs"      ,&phihltObjs                         );
+ 
   /// Muon ID quantities ID quantities
   outTree_->Branch("mutrackerID1"    ,&mutrackerID1   ,"mutrackerID1/I"   );
   outTree_->Branch("mutrackerID2"    ,&mutrackerID2   ,"mutrackerID2/I"   );
@@ -337,18 +351,29 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ------ analize trigger results ----------//
    Handle<TriggerResults> trigRes;
    iEvent.getByToken(hltToken_, trigRes);
-   hltEle105 = (int)trigRes->accept(hltConfig.triggerIndex(elPaths[0]));
-   hltMu50   = (int)trigRes->accept(hltConfig.triggerIndex(muPaths[0]));
+   elhltbit = (int)trigRes->accept(hltConfig.triggerIndex(elPaths[0]));
+   muhltbit = (int)trigRes->accept(hltConfig.triggerIndex(muPaths[0]));
+   // translate indices in names
+   const TriggerNames &names = iEvent.triggerNames(*trigRes);
+   // ------ handle trigger objects ----------//
+   Handle<pat::TriggerObjectStandAloneCollection> hltObjects;
+   iEvent.getByToken(hltObjects_, hltObjects);
+   numhltObjs=0;
+   for (pat::TriggerObjectStandAlone obj : *hltObjects) {
+       obj.unpackPathNames(names);
+       bool isElObj = obj.hasPathName(elPaths[0], true, true);
+       bool isMuObj = obj.hasPathName(muPaths[0], true, true);
+       if ( !(isElObj||isMuObj) ) continue; // proceed only if the object fired our paths
+       pthltObjs.push_back(  obj.pt()  );
+       etahltObjs.push_back( obj.eta() );
+       phihltObjs.push_back( obj.phi() );
+       numhltObjs++;
+   }
 
    Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
-
-   Handle<View<reco::Candidate> > metHandle;
-   iEvent.getByLabel(metSrc_.c_str(), metHandle);
-   
-   /// How should we choose the correct graviton candidate?
    numCands = gravitons->size();
-   
+
    if(numCands != 0 ) {
        int G_index=0;
        for( int i=1; i<numCands; i++ ){
@@ -358,6 +383,10 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        const reco::Candidate& graviton  = gravitons->at(G_index);
        const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
+
+       // met
+       Handle<View<reco::Candidate> > metHandle;
+       iEvent.getByLabel(metSrc_.c_str(), metHandle);
        const reco::Candidate& metCand = metHandle->at(0);
        
        /// All the quantities which depend on RECO could go here
@@ -379,6 +408,9 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
            rho = (float)(*rhoHandle);
 
+           met = metCand.pt();
+           metPhi = metCand.phi();
+ 
            //we put the definitions inside the channel
            switch(channel){
                case VZ_CHANNEL:{
@@ -399,9 +431,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    philep1  = leptonicV.daughter(0)->phi();
                    philep2  = leptonicV.daughter(1)->phi();
                    lep  = abs(leptonicV.daughter(0)->pdgId());
-                   //met
-                   met = metCand.pt();
-                   metPhi = metCand.phi();
+
                    // hadrons
                    ptVhad       = hadronicV.pt();
                    yVhad        = hadronicV.eta();
@@ -730,6 +760,10 @@ void EDBRTreeMaker::setDummyValues() {
      mutrackerID2   = -1e9;
      muhighPtID1    = -1e9;
      muhighPtID2    = -1e9;
+     //clear vectors
+      pthltObjs.clear();
+     etahltObjs.clear();
+     phihltObjs.clear();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
