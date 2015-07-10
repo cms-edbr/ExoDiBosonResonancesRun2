@@ -165,6 +165,8 @@ private:
   int  numhltObjs;
   int  elhltbit;
   int  muhltbit;
+  double deltaRlep1Obj;
+  double deltaRlep2Obj;
 };
 
 //
@@ -237,10 +239,12 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("muhltbit"        ,&muhltbit       ,"muhltbit/I"       );
   
   /// HLT objets
-  outTree_->Branch("numhltObjs"      ,&numhltObjs     ,"numhltObjs/I"     );
   outTree_->Branch( "pthltObjs"      ,&pthltObjs                          );
   outTree_->Branch("etahltObjs"      ,&etahltObjs                         );
   outTree_->Branch("phihltObjs"      ,&phihltObjs                         );
+  outTree_->Branch("numhltObjs"      ,&numhltObjs     ,"numhltObjs/I"     );
+  outTree_->Branch("deltaRlep1Obj"   ,&deltaRlep1Obj  ,"deltaRlep1Obj/D"  );
+  outTree_->Branch("deltaRlep2Obj"   ,&deltaRlep2Obj  ,"deltaRlep2Obj/D"  );
  
   /// Muon ID quantities ID quantities
   outTree_->Branch("mutrackerID1"    ,&mutrackerID1   ,"mutrackerID1/I"   );
@@ -363,11 +367,12 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        obj.unpackPathNames(names);
        bool isElObj = obj.hasPathName(elPaths[0], true, true);
        bool isMuObj = obj.hasPathName(muPaths[0], true, true);
-       if ( !(isElObj||isMuObj) ) continue; // proceed only if the object fired our paths
-       pthltObjs.push_back(  obj.pt()  );
-       etahltObjs.push_back( obj.eta() );
-       phihltObjs.push_back( obj.phi() );
-       numhltObjs++;
+       if ( isElObj or isMuObj ) {
+           pthltObjs.push_back(  obj.pt()  );
+           etahltObjs.push_back( obj.eta() );
+           phihltObjs.push_back( obj.phi() );
+           numhltObjs++;
+       }
    }
 
    Handle<View<reco::Candidate> > gravitons;
@@ -431,6 +436,21 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    philep1  = leptonicV.daughter(0)->phi();
                    philep2  = leptonicV.daughter(1)->phi();
                    lep  = abs(leptonicV.daughter(0)->pdgId());
+
+                   // hlt matching
+                   if ( numhltObjs ){
+                       int closest1=0, closest2=0;
+                       for(int i=1; i<numhltObjs; i++){
+                           int temp1 = deltaR(etalep1,philep1,etahltObjs[closest1],phihltObjs[closest1])<
+                                       deltaR(etalep1,philep1,etahltObjs[i],phihltObjs[i]) ? closest1 : i;
+                           int temp2 = deltaR(etalep2,philep2,etahltObjs[closest2],phihltObjs[closest2])<
+                                       deltaR(etalep2,philep2,etahltObjs[i],phihltObjs[i]) ? closest2 : i;
+                           closest1  = temp1;
+                           closest2  = temp2;
+                       }
+                       deltaRlep1Obj = deltaR(etalep1,philep1,etahltObjs[closest1],phihltObjs[closest1]);
+                       deltaRlep2Obj = deltaR(etalep2,philep2,etahltObjs[closest2],phihltObjs[closest2]);
+                   }
 
                    // hadrons
                    ptVhad       = hadronicV.pt();
@@ -701,6 +721,8 @@ void EDBRTreeMaker::setDummyValues() {
      metPhi         = -1e9;
      metpt          = -1e9;
      metphi         = -1e9;
+     deltaRlep1Obj  = -1e9;
+     deltaRlep2Obj  = -1e9;
      deltaRleplep   = -1e9;
      deltaRlepjet   = -1e9;
      delPhilepmet   = -1e9;
