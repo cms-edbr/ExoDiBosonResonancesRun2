@@ -124,6 +124,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           eltightID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
                                           elheepID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
                                           hltToken    = cms.InputTag("TriggerResults","","HLT"),
+                                          hltObjects  = cms.InputTag("selectedPatTrigger"),
                                           elPaths     = cms.vstring("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"), 
                                           muPaths     = cms.vstring("HLT_Mu45_eta2p1_v*") ) 
 
@@ -204,7 +205,7 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True   # False       
+filterMode = False       
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
