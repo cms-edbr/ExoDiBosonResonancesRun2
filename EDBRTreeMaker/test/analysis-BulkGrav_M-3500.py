@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-# Delivers L1GtStableParametersRcd record in the EventSetup
-process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# find the global tag in the DAS under the Configs for given dataset
+process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
@@ -122,6 +124,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           eltightID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
                                           elheepID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
                                           hltToken    = cms.InputTag("TriggerResults","","HLT"),
+                                          hltObjects  = cms.InputTag("selectedPatTrigger"),
                                           elPaths     = cms.vstring("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"), 
                                           muPaths     = cms.vstring("HLT_Mu45_eta2p1_v*") ) 
 
@@ -202,11 +205,13 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True   # False       
+filterMode = False       
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
     process.goodLeptons.filter = False
+    process.goodElectrons.cut = ''
+    process.goodMuons.cut = ''
     process.Ztomumu.cut = ''
     process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
@@ -217,6 +222,7 @@ if filterMode == False:
     process.hadronicVFilter.minNumber = 0
     process.gravitonFilter.minNumber  = 0
     process.analysis.remove( process.hltSequence )
+    del process.endpath
 #                                                                                                    #
 #****************************************************************************************************#
 

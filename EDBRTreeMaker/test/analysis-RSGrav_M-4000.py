@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-# Delivers L1GtStableParametersRcd record in the EventSetup
-process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# find the global tag in the DAS under the Configs for given dataset
+process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
@@ -30,23 +32,6 @@ VZ_JetMET       = False        # True
 #SAMPLE="RSGravToZZToLLQQ_M-3500" 
 SAMPLE="RSGravToZZToLLQQ_M-4000" 
 #SAMPLE="RSGravToZZToLLQQ_M-4500" 
-#SAMPLE="RSGravToZZ_kMpl01_M-1000" 
-#SAMPLE="RSGravToZZ_kMpl01_M-1800"
-#SAMPLE="RSGravToZZ_kMpl01_M-2000_PHYS14"
-#SAMPLE="RSGravToZZ_kMpl01_M-3000_PHYS14"
-#SAMPLE="RSGravToZZ_kMpl01_M-4000_PHYS14"
-##SAMPLE="DYJetsToLL_HT-100to200_PHYS14"
-#SAMPLE="DYJetsToLL_HT-200to400_PHYS14"
-#SAMPLE="DYJetsToLL_HT-400to600_PHYS14"
-#SAMPLE="DYJetsToLL_HT-600toInf_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-100to200_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-200to400_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-400to600_PHYS14"
-#SAMPLE="ZJetsToNuNu_HT-600toInf_PHYS14"
-#SAMPLE="WJetsToLNu_HT-100to200_PHYS14"
-#SAMPLE="WJetsToLNu_HT-200to400_PHYS14"
-#SAMPLE="WJetsToLNu_HT-400to600_PHYS14"
-#SAMPLE="WJetsToLNu_HT-600toInf_PHYS14"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
@@ -69,23 +54,6 @@ configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
                  "RSGravToZZToLLQQ_M-3500"        : 2.76551e-05,
                  "RSGravToZZToLLQQ_M-4000"        : 8.54621e-06,
                  "RSGravToZZToLLQQ_M-4500"        : 2.65225e-06,
-                 "RSGravToZZ_kMpl01_M-1000"       : 1.202,
-                 "RSGravToZZ_kMpl01_M-1800"       : 0.05024,
-                 "RSGravToZZ_kMpl01_M-2000_PHYS14": 0.02284,
-                 "RSGravToZZ_kMpl01_M-3000_PHYS14": 0.001454,
-                 "RSGravToZZ_kMpl01_M-4000_PHYS14": 0.0001357,
-                 "ZJetsToNuNu_HT-100to200_PHYS14" : 372.6,
-                 "ZJetsToNuNu_HT-200to400_PHYS14" : 100.8,
-                 "ZJetsToNuNu_HT-400to600_PHYS14" : 11.99,
-                 "ZJetsToNuNu_HT-600toInf_PHYS14" : 4.113,
-                 "WJetsToLNu_HT-100to200_PHYS14"  : 1817.0,
-                 "WJetsToLNu_HT-200to400_PHYS14"  : 471.6,
-                 "WJetsToLNu_HT-400to600_PHYS14"  : 55.61,
-                 "WJetsToLNu_HT-600toInf_PHYS14"  : 18.81,
-                 "DYJetsToLL_HT-100to200_PHYS14"  : 194.3,
-                 "DYJetsToLL_HT-200to400_PHYS14"  : 52.24,
-                 "DYJetsToLL_HT-400to600_PHYS14"  : 6.546,
-                 "DYJetsToLL_HT-600toInf_PHYS14"  : 2.179,
               }
 
 configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
@@ -101,23 +69,6 @@ configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
                  "RSGravToZZToLLQQ_M-3500"        : 31034,
                  "RSGravToZZToLLQQ_M-4000"        : 31334,
                  "RSGravToZZToLLQQ_M-4500"        : 30787,
-                 "RSGravToZZ_kMpl01_M-1000"       : 29586,
-                 "RSGravToZZ_kMpl01_M-1800"       : 100000,
-                 "RSGravToZZ_kMpl01_M-2000_PHYS14": 29744,
-                 "RSGravToZZ_kMpl01_M-3000_PHYS14": 29209,
-                 "RSGravToZZ_kMpl01_M-4000_PHYS14": 30000,
-                 "ZJetsToNuNu_HT-100to200_PHYS14" : 4986424,
-                 "ZJetsToNuNu_HT-200to400_PHYS14" : 4546470,
-                 "ZJetsToNuNu_HT-400to600_PHYS14" : 4433784,
-                 "ZJetsToNuNu_HT-600toInf_PHYS14" : 4463806,
-                 "WJetsToLNu_HT-100to200_PHYS14"  : 5262265,
-                 "WJetsToLNu_HT-200to400_PHYS14"  : 4936077,
-                 "WJetsToLNu_HT-400to600_PHYS14"  : 4640594,
-                 "WJetsToLNu_HT-600toInf_PHYS14"  : 4581841,
-                 "DYJetsToLL_HT-100to200_PHYS14"  : 4054159,
-                 "DYJetsToLL_HT-200to400_PHYS14"  : 4666496,
-                 "DYJetsToLL_HT-400to600_PHYS14"  : 4931372,
-                 "DYJetsToLL_HT-600toInf_PHYS14"  : 4493574,
                 }
 
 usedXsec = configXsecs[SAMPLE]
@@ -258,6 +209,8 @@ filterMode = True   # False
 ### but only later at the tree analysis.
 if filterMode == False:
     process.goodLeptons.filter = False
+    process.goodElectrons.cut = ''
+    process.goodMuons.cut = ''
     process.Ztomumu.cut = ''
     process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
@@ -268,6 +221,7 @@ if filterMode == False:
     process.hadronicVFilter.minNumber = 0
     process.gravitonFilter.minNumber  = 0
     process.analysis.remove( process.hltSequence )
+    del process.endpath
 #                                                                                                    #
 #****************************************************************************************************#
 

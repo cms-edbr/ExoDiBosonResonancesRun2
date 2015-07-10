@@ -117,8 +117,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int       heepID =   (*elheepID_handle)[ elRef ]; 
         int mediumORheep = mediumID || heepID;
         int  tightORheep =  tightID || heepID;
-        if ( filter_ && !mediumORheep               ) continue;    // electrons must pass medium or heep
-        if ( !tightORheep && !goodElectrons->size() ) continue;    // first electron must be tight or heep
+        if ( filter_ && !mediumORheep                          ) continue;    // electrons must pass medium or heep
+        if ( filter_ && !tightORheep && !goodElectrons->size() ) continue;    // first electron must be tight or heep
         // Add mini isolation
         double miniIso = getPFIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&el), r_iso_min_, r_iso_max_, kt_scale_, charged_only_);
         pat::Electron* cloneEl = el.clone();
@@ -136,8 +136,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int trackerID = (int)hptm::isTrackerMuon(mu, vertex);  
         int highPtID  = (int)muon::isHighPtMuon( mu, vertex);  
         int tracker_OR_highPt_AND_miniIso = (trackerID||highPtID) && isoID;
-        if ( filter_ && !tracker_OR_highPt_AND_miniIso ) continue;        // muons must must be (tracker or highPt) and isolated 
-        if ( !highPtID  && !goodMuons->size()          ) continue;        // first muon must be highPt
+        if ( filter_ && !tracker_OR_highPt_AND_miniIso )   continue;        // muons must must be (tracker or highPt) and isolated 
+        if ( filter_ && !highPtID  && !goodMuons->size() ) continue;        // first muon must be highPt
         // Add mini isolation
         pat::Muon* cloneMu = mu.clone();
         cloneMu->addUserFloat("miniIso", miniIso);
