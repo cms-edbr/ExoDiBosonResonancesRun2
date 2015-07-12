@@ -110,16 +110,14 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                          kt_scale_, 
                                          charged_only_ );
         int isoID = miniIso<0.1 ? 1 : 0;
-
         const Ptr<pat::Electron> elRef(electrons, i);
         int modheepID =  (*modheepID_handle)[ elRef ]; 
-
-        if ( filter_ and modheepID and isoID ) {          // electrons must pass the modheepID and be mini-isolated
-            pat::Electron* cloneEl = el.clone();          // need to clone the electron to add miniIso as an UserFloat
-            cloneEl->addUserFloat("miniIso", miniIso);
-            cloneEl->addUserInt("slimmedIndex", i);       // index to localize the goodElectron in the slimmedElectrons collection
-            goodElectrons->push_back(*cloneEl);
-        }
+        int modheep_AND_miniIso = modheepID and isoID;
+        if ( filter_ and !modheep_AND_miniIso ) continue;  // electrons must pass the modheepID and be mini-isolated
+        pat::Electron* cloneEl = el.clone();               // need to clone the electron to add miniIso as an UserFloat
+        cloneEl->addUserFloat("miniIso", miniIso);
+        cloneEl->addUserInt("slimmedIndex", i);            // index to localize the goodElectron in the slimmedElectrons collection
+        goodElectrons->push_back(*cloneEl);
     }
 
     auto_ptr< vector<pat::Muon> > goodMuons( new vector<pat::Muon> );
@@ -131,13 +129,10 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                          r_iso_max_, 
                                          kt_scale_, 
                                          charged_only_ );
-
         int isoID = miniIso<0.1 ? 1 : 0;
-
         int trackerID = (int)hptm::isTrackerMuon(mu, vertex);  
         int highPtID  = (int)muon::isHighPtMuon( mu, vertex);  
         int tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
-
         if ( filter_ and !tracker_OR_highPt_AND_miniIso   ) continue;  // muons must must be (tracker or highPt) and mini-isolated 
         if ( filter_ and !highPtID and !goodMuons->size() ) continue;  // first muon must be highPt
         pat::Muon* cloneMu = mu.clone();
