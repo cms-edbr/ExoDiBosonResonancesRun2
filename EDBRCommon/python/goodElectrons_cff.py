@@ -22,7 +22,8 @@ def addElectronIDs(process):
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 
     my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
-                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
+                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_modHEEPV60_cff',
+                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff']
 
     for idmod in my_id_modules:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)

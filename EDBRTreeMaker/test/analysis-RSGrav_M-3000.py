@@ -41,34 +41,34 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
-configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
-                 "RSGravToZZToLLQQ_M-800"         : 0.274593,
-                 "RSGravToZZToLLQQ_M-1000"        : 0.0811175,
-                 "RSGravToZZToLLQQ_M-1200"        : 0.0295627,
-                 "RSGravToZZToLLQQ_M-1400"        : 0.01232,
-                 "RSGravToZZToLLQQ_M-1600"        : 0.00605376,
-                 "RSGravToZZToLLQQ_M-1800"        : 0.00283966,
-                 "RSGravToZZToLLQQ_M-2000"        : 0.00156097,
-                 "RSGravToZZToLLQQ_M-2500"        : 0.000372413,
-                 "RSGravToZZToLLQQ_M-3000"        : 8.28108e-05,
-                 "RSGravToZZToLLQQ_M-3500"        : 2.76551e-05,
-                 "RSGravToZZToLLQQ_M-4000"        : 8.54621e-06,
-                 "RSGravToZZToLLQQ_M-4500"        : 2.65225e-06,
+configXsecs = {  "BulkGravToZZToZlepZhad_M-600"         : 1.0,
+                 "BulkGravToZZToZlepZhad_M-800"         : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1200"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1400"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1600"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-1800"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-2000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-2500"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-3000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-3500"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-4000"        : 1.0,
+                 "BulkGravToZZToZlepZhad_M-4500"        : 1.0,
               }
 
-configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
-                 "RSGravToZZToLLQQ_M-800"         : 31071,
-                 "RSGravToZZToLLQQ_M-1000"        : 31229,
-                 "RSGravToZZToLLQQ_M-1200"        : 31222,
-                 "RSGravToZZToLLQQ_M-1400"        : 31127,
-                 "RSGravToZZToLLQQ_M-1600"        : 31091,
-                 "RSGravToZZToLLQQ_M-1800"        : 31075,
-                 "RSGravToZZToLLQQ_M-2000"        : 31091,
-                 "RSGravToZZToLLQQ_M-2500"        : 31147,
-                 "RSGravToZZToLLQQ_M-3000"        : 31389,
-                 "RSGravToZZToLLQQ_M-3500"        : 31034,
-                 "RSGravToZZToLLQQ_M-4000"        : 31334,
-                 "RSGravToZZToLLQQ_M-4500"        : 30787,
+configNevents = {"BulkGravToZZToZlepZhad_M-600"         : 50000,
+                 "BulkGravToZZToZlepZhad_M-800"         : 50000,
+                 "BulkGravToZZToZlepZhad_M-1000"        : 48400,
+                 "BulkGravToZZToZlepZhad_M-1200"        : 49200,
+                 "BulkGravToZZToZlepZhad_M-1400"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1600"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1800"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-2000"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-2500"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-3000"        : 49200,
+                 "BulkGravToZZToZlepZhad_M-3500"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-4000"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-4500"        : 50000,
                 }
 
 usedXsec = configXsecs[SAMPLE]
@@ -112,20 +112,22 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter = cms.bool(True) )
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          originalNEvents = cms.int32(usedNevents),
-                                          crossSectionPb  = cms.double(usedXsec),
-                                          targetLumiInvPb = cms.double(1000.0),
-                                          EDBRChannel = cms.string(CHANNEL),
-                                          isGen       = cms.bool(False),
-                                          gravitonSrc = cms.string("graviton"),
-                                          metSrc      = cms.string("slimmedMETs"),
-                                          vertex      = cms.InputTag("goodOfflinePrimaryVertex"),
-                                          elmediumID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-                                          eltightID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
-                                          elheepID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
-                                          hltToken    = cms.InputTag("TriggerResults","","HLT"),
-                                          elPaths     = cms.vstring("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"), 
-                                          muPaths     = cms.vstring("HLT_Mu45_eta2p1_v*") ) 
+                                          isGen           = cms.bool    (  False                                                                      ),
+                                          originalNEvents = cms.int32   (  usedNevents                                                                ),
+                                          crossSectionPb  = cms.double  (  usedXsec                                                                   ),
+                                          targetLumiInvPb = cms.double  (  1000.0                                                                     ),
+                                          EDBRChannel     = cms.string  (  CHANNEL                                                                    ),
+                                          gravitonSrc     = cms.string  ( "graviton"                                                                  ),
+                                          metSrc          = cms.string  ( "slimmedMETs"                                                               ),
+                                          elPaths         = cms.vstring ( "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"                                          ), 
+                                          muPaths         = cms.vstring ( "HLT_Mu45_eta2p1_v*"                                                        ), 
+                                          hltToken        = cms.InputTag( "TriggerResults","","HLT"                                                   ),
+                                          hltObjects      = cms.InputTag( "selectedPatTrigger"                                                        ),
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex"                                                  ),
+                                          elmediumID      = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium" ),
+                                          eltightID       = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"  ),
+                                          heepV60ID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60"                                  ),
+                                          modheepID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60-NonIso"                           ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 
@@ -204,7 +206,7 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True   # False       
+filterMode = True #False       
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
