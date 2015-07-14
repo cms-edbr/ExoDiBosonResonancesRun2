@@ -6,7 +6,7 @@ cmsrel CMSSW_7_4_7
 cd CMSSW_7_4_7/src
 cmsenv
 git cms-merge-topic jruizvar:HEEPV60_NonIso
-git clone -b HEEPV60_NonIso git@github.com:jruizvar/ExoDiBosonResonancesRun2.git ExoDiBosonResonances
+git clone -b Analysis74X git@github.com:cms-edbr/ExoDiBosonResonancesRun2.git ExoDiBosonResonances
 scram b -j 9
 ```
 
