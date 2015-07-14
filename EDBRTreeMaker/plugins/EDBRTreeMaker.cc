@@ -807,7 +807,7 @@ void EDBRTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
      edm::LogError("HltAnalysis") << "Initialization of HLTConfigProvider failed!!";
      return;
    }
-
+   elPaths.clear(), muPaths.clear();
    for (size_t i = 0; i < elPaths_.size(); i++) {
       std::vector<std::string> foundPaths = hltConfig.matched( hltConfig.triggerNames(), elPaths_[i] );
       while ( !foundPaths.empty() ){
@@ -824,8 +824,9 @@ void EDBRTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
    }
 
    std::cout<<"\n************** HLT Information **************\n";
-   for (size_t i=0; i < elPaths.size(); i++) std::cout << "\n Electron paths: " << elPaths[i].c_str() <<"\t"<< std::endl;
-   for (size_t i=0; i < muPaths.size(); i++) std::cout << "\n Muon paths    : " << muPaths[i].c_str() <<"\t"<< std::endl;
+   std::cout<<"\n Run number: " << iRun.run() << std::endl;
+   for (size_t i=0; i < elPaths.size(); i++) std::cout << "\n Electron paths: " << elPaths[i].c_str() << std::endl;
+   for (size_t i=0; i < muPaths.size(); i++) std::cout << "\n Muon paths    : " << muPaths[i].c_str() << std::endl;
    std::cout<<"\n*********************************************\n\n";
 
 }
