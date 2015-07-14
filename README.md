@@ -2,8 +2,8 @@ Instructions to setup the ExoDiBosonResonances code
 ========
 
 ```
-cmsrel CMSSW_7_4_7
-cd CMSSW_7_4_7/src
+cmsrel CMSSW_7_4_7_patch1
+cd CMSSW_7_4_7_patch1/src
 cmsenv
 git cms-merge-topic jruizvar:HEEPV60_NonIso
 git clone -b Analysis74X git@github.com:cms-edbr/ExoDiBosonResonancesRun2.git ExoDiBosonResonances
