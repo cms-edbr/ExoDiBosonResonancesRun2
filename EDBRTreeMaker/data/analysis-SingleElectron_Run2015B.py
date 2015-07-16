@@ -23,7 +23,7 @@ SAMPLE="SingleElectron_Run2015B"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.PromptReco."+SAMPLE)
-process.maxEvents.input = 100000
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -37,6 +37,12 @@ configNevents = {"SingleElectron_Run2015B"         : 1,
 
 usedXsec = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
+
+#*********************************** JSON file ****************************************************#
+# https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
+# last modified 15-Jul-2015 
+import FWCore.PythonUtilities.LumiList as LumiList
+process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_246908-251252_13TeV_PromptReco_Collisions15.json').getVLuminosityBlockRange()
 
 #*******************************************************************************************************#
 
