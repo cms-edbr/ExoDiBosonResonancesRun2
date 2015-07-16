@@ -71,7 +71,7 @@ private:
   //------------------------ GENERAL ----------------------------------------------
   int nVtx;
   int numCands;
-  int nevent, run, ls;
+  int nevent, run, lumisec;
   int channel, lep, reg;
   double triggerWeight, lumiWeight, pileupWeight;
 
@@ -212,6 +212,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
 
   /// Basic event quantities
   outTree_->Branch("event"           ,&nevent         ,"event/I"          );
+  outTree_->Branch("run"             ,&run            ,"run/I"            );
+  outTree_->Branch("lumisec"         ,&lumisec        ,"lumisec/I"        );
   outTree_->Branch("nVtx"            ,&nVtx           ,"nVtx/I"           );
   outTree_->Branch("numCands"        ,&numCands       ,"numCands/I"       );
   outTree_->Branch("ptVlep"          ,&ptVlep         ,"ptVlep/D"         );
@@ -347,9 +349,9 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   nevent = iEvent.eventAuxiliary().event();
-   run    = iEvent.eventAuxiliary().run();
-   ls     = iEvent.eventAuxiliary().luminosityBlock();
+   nevent  = iEvent.eventAuxiliary().event();
+   run     = iEvent.eventAuxiliary().run();
+   lumisec = iEvent.eventAuxiliary().luminosityBlock();
 
    setDummyValues(); //Initalize variables with dummy values
 
