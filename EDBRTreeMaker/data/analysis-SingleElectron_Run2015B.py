@@ -96,8 +96,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           vertex          = cms.InputTag( "goodOfflinePrimaryVertex"                                                  ),
                                           elmediumID      = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium" ),
                                           eltightID       = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"  ),
-                                          heepV60ID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60"                                  ),
-                                          modheepID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60-NonIso"                           ))
+                                          heepV60ID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60"                                  )
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 
