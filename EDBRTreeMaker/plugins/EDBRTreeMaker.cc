@@ -69,11 +69,11 @@ private:
   TTree* outTree_;
 
   //------------------------ GENERAL ----------------------------------------------
-  int nevent, run, ls;
   int nVtx;
   int numCands;
-  double triggerWeight, lumiWeight, pileupWeight;
+  int nevent, run, lumisec;
   int channel, lep, reg;
+  double triggerWeight, lumiWeight, pileupWeight;
 
   //------------------------ V quantities ------------------------------------------
   double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep;
@@ -85,10 +85,10 @@ private:
   double metpt, metphi;
 
   //---------------------- JETS ------------------------------------------------------
-  double tau1, tau2, tau3, tau21;
-  double massjet1, softjet1, prunedjet1;
-  double ptjet1, etajet1, phijet1;
   int numjets;
+  double tau1, tau2, tau3, tau21;
+  double ptjet1,   etajet1,  phijet1;
+  double massjet1, softjet1, prunedjet1;
 
   //-------------------- LEPTONS -----------------------------------------------------
   double ptlep1,   ptlep2;
@@ -103,96 +103,95 @@ private:
   double candMass;
   double candTMass; // transverse mass
 
-  // Muon ID 
-  int    mutrackerID1,   mutrackerID2;
-  int    muhighPtID1,     muhighPtID2;
-
-  // Electron ID 
-  int    barrel1,        barrel2;
-  int    endcap1,        endcap2;
-  double eeDeltaR;
-  double etel1,          etel2;
-  double ptel1,          ptel2;
-  double etaSC1,         etaSC2;
-  double dEtaIn1,        dEtaIn2;
-  double dEtaSeed1,      dEtaSeed2; 
-  double dPhiIn1,        dPhiIn2;
-  double hOverE1,        hOverE2;
-  double sigmaIEtaIEta1, sigmaIEtaIEta2;
-  double e1x5overE5x5_1, e1x5overE5x5_2;
-  double e2x5overE5x5_1, e2x5overE5x5_2;
-  double ooEmooP1,       ooEmooP2;
-  double d01,            d02;
-  double dz1,            dz2;
-  double relIso1,        relIso2;
-  double caloIso1,       caloIso2;
-  double trackIso1,      trackIso2;
-  int    ecalDriven1,    ecalDriven2;
-  int    missingHits1,   missingHits2;
-  int    passConVeto1,   passConVeto2;
-  int    elheepID1,      elheepID2;
-  int    eltightID1,     eltightID2;
-  int    elmediumID1,    elmediumID2;
-
-  double rho; // energy density
-
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > elheepIDToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
-
-  void setDummyValues();
-
   /// Parameters to steer the treeDumper
+  bool isGen_;
   int originalNEvents_;
   double crossSectionPb_;
   double targetLumiInvPb_;
   std::string EDBRChannel_;
-  bool isGen_;
   std::string gravitonSrc_, metSrc_;
 
   //High Level Trigger
+  int    numhltObjs;
+  int    elhltbit;
+  int    muhltbit;
+  double deltaRlep1Obj;
+  double deltaRlep2Obj;
   HLTConfigProvider hltConfig;
-  edm::EDGetTokenT<edm::TriggerResults> hltToken_;
-  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> hltObjects_;
-  std::vector<std::string> elPaths_;
-  std::vector<std::string> muPaths_;
-  std::vector<std::string> elPaths;
-  std::vector<std::string> muPaths;
   std::vector<float>  pthltObjs;
   std::vector<float> etahltObjs;
   std::vector<float> phihltObjs;
-  int  numhltObjs;
-  int  elhltbit;
-  int  muhltbit;
-  double deltaRlep1Obj;
-  double deltaRlep2Obj;
+  std::vector<std::string> elPaths;
+  std::vector<std::string> muPaths;
+  std::vector<std::string> elPaths_;
+  std::vector<std::string> muPaths_;
+  edm::EDGetTokenT<edm::TriggerResults> hltToken_;
+  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> hltObjects_;
+
+  // Vertex collection
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+
+  // Electron ID 
+  double d01,            d02;
+  double dz1,            dz2;
+  double etel1,          etel2;
+  double ptel1,          ptel2;
+  double etaSC1,         etaSC2;
+  double dEtaIn1,        dEtaIn2;
+  double dPhiIn1,        dPhiIn2;
+  double hOverE1,        hOverE2;
+  double relIso1,        relIso2;
+  double caloIso1,       caloIso2;
+  double ooEmooP1,       ooEmooP2;
+  double trackIso1,      trackIso2;
+  double dEtaSeed1,      dEtaSeed2; 
+  double sigmaIEtaIEta1, sigmaIEtaIEta2;
+  double e1x5overE5x5_1, e1x5overE5x5_2;
+  double e2x5overE5x5_1, e2x5overE5x5_2;
+  double rho; // energy density
+  double eeDeltaR;
+  int    barrel1,        barrel2;
+  int    endcap1,        endcap2;
+  int    heepV60ID1,     heepV60ID2;
+  int    modheepID1,     modheepID2;
+  int    eltightID1,     eltightID2;
+  int    elmediumID1,    elmediumID2;
+  int    ecalDriven1,    ecalDriven2;
+  int    missingHits1,   missingHits2;
+  int    passConVeto1,   passConVeto2;
+  edm::EDGetTokenT<edm::ValueMap<bool> > heepV60IDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > modheepIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
+
+  // Muon ID 
+  int    muhighPtID1,    muhighPtID2;
+  int    mutrackerID1,   mutrackerID2;
+
+  void setDummyValues();
 };
 
 //
 // constructors and destructor
 //
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
-  vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertex"))),
-  elheepIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elheepID"))),
-  eltightIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eltightID"))),
-  elmediumIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elmediumID"))),
-  hltToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltToken"))),
-  hltObjects_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("hltObjects"))),
-  elPaths_(iConfig.getParameter<std::vector<std::string>>("elPaths")),
-  muPaths_(iConfig.getParameter<std::vector<std::string>>("muPaths"))
+  isGen_          (                                                   iConfig.getParameter<bool>                    ( "isGen"           ) ),
+  originalNEvents_(                                                   iConfig.getParameter<int>                     ( "originalNEvents" ) ),
+  crossSectionPb_ (                                                   iConfig.getParameter<double>                  ( "crossSectionPb"  ) ),
+  targetLumiInvPb_(                                                   iConfig.getParameter<double>                  ( "targetLumiInvPb" ) ),
+  EDBRChannel_    (                                                   iConfig.getParameter<std::string>             ( "EDBRChannel"     ) ),
+  gravitonSrc_    (                                                   iConfig.getParameter<std::string>             ( "gravitonSrc"     ) ),
+  metSrc_         (                                                   iConfig.getParameter<std::string>             ( "metSrc"          ) ),
+  elPaths_        (                                                   iConfig.getParameter<std::vector<std::string>>( "elPaths"         ) ),
+  muPaths_        (                                                   iConfig.getParameter<std::vector<std::string>>( "muPaths"         ) ), 
+  hltToken_       ( consumes<edm::TriggerResults>                   ( iConfig.getParameter<edm::InputTag>           ( "hltToken"      ) ) ),
+  hltObjects_     ( consumes<pat::TriggerObjectStandAloneCollection>( iConfig.getParameter<edm::InputTag>           ( "hltObjects"    ) ) ),
+  vertexToken_    ( consumes<reco::VertexCollection>                ( iConfig.getParameter<edm::InputTag>           ( "vertex"        ) ) ),
+  heepV60IDToken_ ( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "heepV60ID"     ) ) ),
+  modheepIDToken_ ( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "modheepID"     ) ) ),
+  eltightIDToken_ ( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "eltightID"     ) ) ),
+  elmediumIDToken_( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "elmediumID"    ) ) )
 {
-  originalNEvents_ = iConfig.getParameter<int>("originalNEvents");
-  crossSectionPb_  = iConfig.getParameter<double>("crossSectionPb");
-  targetLumiInvPb_ = iConfig.getParameter<double>("targetLumiInvPb");
-  EDBRChannel_     = iConfig.getParameter<std::string>("EDBRChannel");
-  isGen_           = iConfig.getParameter<bool>("isGen");
-  // Sources
-  //hadronicVSrc_ = iConfig.getParameter<std::string>("hadronicVSrc");
-  //leptonicVSrc_ = iConfig.getParameter<std::string>("leptonicVSrc");
-  gravitonSrc_     = iConfig.getParameter<std::string>("gravitonSrc");
-  metSrc_          = iConfig.getParameter<std::string>("metSrc");
-
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
   else if(EDBRChannel_ == "VW_CHANNEL")
@@ -213,6 +212,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
 
   /// Basic event quantities
   outTree_->Branch("event"           ,&nevent         ,"event/I"          );
+  outTree_->Branch("run"             ,&run            ,"run/I"            );
+  outTree_->Branch("lumisec"         ,&lumisec        ,"lumisec/I"        );
   outTree_->Branch("nVtx"            ,&nVtx           ,"nVtx/I"           );
   outTree_->Branch("numCands"        ,&numCands       ,"numCands/I"       );
   outTree_->Branch("ptVlep"          ,&ptVlep         ,"ptVlep/D"         );
@@ -301,8 +302,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("elmediumID2"     ,&elmediumID2    ,"elmediumID2/I"    );
   outTree_->Branch("eltightID1"      ,&eltightID1     ,"eltightID1/I"     );
   outTree_->Branch("eltightID2"      ,&eltightID2     ,"eltightID2/I"     );
-  outTree_->Branch("elheepID1"       ,&elheepID1      ,"elheepID1/I"      );
-  outTree_->Branch("elheepID2"       ,&elheepID2      ,"elheepID2/I"      );
+  outTree_->Branch("heepV60ID1"      ,&heepV60ID1     ,"heepV60ID1/I"     );
+  outTree_->Branch("heepV60ID2"      ,&heepV60ID2     ,"heepV60ID2/I"     );
+  outTree_->Branch("modheepID1"      ,&modheepID1     ,"modheepID1/I"     );
+  outTree_->Branch("modheepID2"      ,&modheepID2     ,"modheepID2/I"     );
 
   // mini isolation for leptons
   outTree_->Branch("miniIso1"        ,&miniIso1       ,"miniIso1/D"       );
@@ -346,9 +349,9 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   nevent = iEvent.eventAuxiliary().event();
-   run    = iEvent.eventAuxiliary().run();
-   ls     = iEvent.eventAuxiliary().luminosityBlock();
+   nevent  = iEvent.eventAuxiliary().event();
+   run     = iEvent.eventAuxiliary().run();
+   lumisec = iEvent.eventAuxiliary().luminosityBlock();
 
    setDummyValues(); //Initalize variables with dummy values
 
@@ -536,16 +539,20 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
                         Handle<ValueMap<bool> >  elmediumID_handle;
                         Handle<ValueMap<bool> >  eltightID_handle;
-                        Handle<ValueMap<bool> >  elheepID_handle;
-                        iEvent.getByToken(elmediumIDToken_, elmediumID_handle);
-                        iEvent.getByToken(eltightIDToken_,  eltightID_handle);
-                        iEvent.getByToken(elheepIDToken_,   elheepID_handle);
-                        elmediumID1    = (*elmediumID_handle)[ el1Ptr ];
-                        elmediumID2    = (*elmediumID_handle)[ el2Ptr ];
-                        eltightID1     = (*eltightID_handle)[  el1Ptr ];
-                        eltightID2     = (*eltightID_handle)[  el2Ptr ];
-                        elheepID1      = (*elheepID_handle)[   el1Ptr ];
-                        elheepID2      = (*elheepID_handle)[   el2Ptr ];
+                        Handle<ValueMap<bool> >  heepV60ID_handle;
+                        Handle<ValueMap<bool> >  modheepID_handle;
+                        iEvent.getByToken(elmediumIDToken_,  elmediumID_handle);
+                        iEvent.getByToken(eltightIDToken_,   eltightID_handle);
+                        iEvent.getByToken(heepV60IDToken_,    heepV60ID_handle);
+                        iEvent.getByToken(modheepIDToken_,   modheepID_handle);
+                        elmediumID1  = (*elmediumID_handle)[  el1Ptr ];
+                        elmediumID2  = (*elmediumID_handle)[  el2Ptr ];
+                        eltightID1   = (*eltightID_handle)[   el1Ptr ];
+                        eltightID2   = (*eltightID_handle)[   el2Ptr ];
+                        heepV60ID1   = (*heepV60ID_handle)[   el1Ptr ];
+                        heepV60ID2   = (*heepV60ID_handle)[   el2Ptr ];
+                        modheepID1   = (*modheepID_handle)[   el1Ptr ];
+                        modheepID2   = (*modheepID_handle)[   el2Ptr ];
                         // shower shapes
                         sigmaIEtaIEta1 = el1->full5x5_sigmaIetaIeta();
                         sigmaIEtaIEta2 = el2->full5x5_sigmaIetaIeta();
@@ -756,7 +763,8 @@ void EDBRTreeMaker::setDummyValues() {
      passConVeto1   = -1e9;
      elmediumID1    = -1e9;
      eltightID1     = -1e9;
-     elheepID1      = -1e9;
+     heepV60ID1     = -1e9;
+     modheepID1     = -1e9;
      etel2          = -1e9;
      ptel2          = -1e9;
      etaSC2         = -1e9;
@@ -777,7 +785,8 @@ void EDBRTreeMaker::setDummyValues() {
      passConVeto2   = -1e9;
      elmediumID2    = -1e9; 
      eltightID2     = -1e9; 
-     elheepID2      = -1e9; 
+     heepV60ID2     = -1e9; 
+     modheepID2     = -1e9; 
      mutrackerID1   = -1e9;
      mutrackerID2   = -1e9;
      muhighPtID1    = -1e9;
@@ -800,7 +809,7 @@ void EDBRTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
      edm::LogError("HltAnalysis") << "Initialization of HLTConfigProvider failed!!";
      return;
    }
-
+   elPaths.clear(), muPaths.clear();
    for (size_t i = 0; i < elPaths_.size(); i++) {
       std::vector<std::string> foundPaths = hltConfig.matched( hltConfig.triggerNames(), elPaths_[i] );
       while ( !foundPaths.empty() ){
@@ -817,8 +826,9 @@ void EDBRTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
    }
 
    std::cout<<"\n************** HLT Information **************\n";
-   for (size_t i=0; i < elPaths.size(); i++) std::cout << "\n Electron paths: " << elPaths[i].c_str() <<"\t"<< std::endl;
-   for (size_t i=0; i < muPaths.size(); i++) std::cout << "\n Muon paths    : " << muPaths[i].c_str() <<"\t"<< std::endl;
+   std::cout<<"\n Run number: " << iRun.run() << std::endl;
+   for (size_t i=0; i < elPaths.size(); i++) std::cout << "\n Electron paths: " << elPaths[i].c_str() << std::endl;
+   for (size_t i=0; i < muPaths.size(); i++) std::cout << "\n Muon paths    : " << muPaths[i].c_str() << std::endl;
    std::cout<<"\n*********************************************\n\n";
 
 }

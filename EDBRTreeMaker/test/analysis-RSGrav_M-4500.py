@@ -112,20 +112,22 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter = cms.bool(True) )
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          originalNEvents = cms.int32(usedNevents),
-                                          crossSectionPb  = cms.double(usedXsec),
-                                          targetLumiInvPb = cms.double(1000.0),
-                                          EDBRChannel = cms.string(CHANNEL),
-                                          isGen       = cms.bool(False),
-                                          gravitonSrc = cms.string("graviton"),
-                                          metSrc      = cms.string("slimmedMETs"),
-                                          vertex      = cms.InputTag("goodOfflinePrimaryVertex"),
-                                          elmediumID  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-                                          eltightID   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
-                                          elheepID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV51"),
-                                          hltToken    = cms.InputTag("TriggerResults","","HLT"),
-                                          elPaths     = cms.vstring("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"), 
-                                          muPaths     = cms.vstring("HLT_Mu45_eta2p1_v*") ) 
+                                          isGen           = cms.bool    (  False                                                                      ),
+                                          originalNEvents = cms.int32   (  usedNevents                                                                ),
+                                          crossSectionPb  = cms.double  (  usedXsec                                                                   ),
+                                          targetLumiInvPb = cms.double  (  1000.0                                                                     ),
+                                          EDBRChannel     = cms.string  (  CHANNEL                                                                    ),
+                                          gravitonSrc     = cms.string  ( "graviton"                                                                  ),
+                                          metSrc          = cms.string  ( "slimmedMETs"                                                               ),
+                                          elPaths         = cms.vstring ( "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"                                          ), 
+                                          muPaths         = cms.vstring ( "HLT_Mu45_eta2p1_v*"                                                        ), 
+                                          hltToken        = cms.InputTag( "TriggerResults","","HLT"                                                   ),
+                                          hltObjects      = cms.InputTag( "selectedPatTrigger"                                                        ),
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex"                                                  ),
+                                          elmediumID      = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium" ),
+                                          eltightID       = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"  ),
+                                          heepV60ID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60"                                  ),
+                                          modheepID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60-NonIso"                           ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 
@@ -204,7 +206,7 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True   # False       
+filterMode = True #False       
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:

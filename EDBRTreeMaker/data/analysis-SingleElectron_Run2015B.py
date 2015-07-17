@@ -19,60 +19,30 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-#SAMPLE="RSGravToZZToLLQQ_M-600" 
-SAMPLE="RSGravToZZToLLQQ_M-800" 
-#SAMPLE="RSGravToZZToLLQQ_M-1000" 
-#SAMPLE="RSGravToZZToLLQQ_M-1200" 
-#SAMPLE="RSGravToZZToLLQQ_M-1400" 
-#SAMPLE="RSGravToZZToLLQQ_M-1600" 
-#SAMPLE="RSGravToZZToLLQQ_M-1800" 
-#SAMPLE="RSGravToZZToLLQQ_M-2000" 
-#SAMPLE="RSGravToZZToLLQQ_M-2500" 
-#SAMPLE="RSGravToZZToLLQQ_M-3000" 
-#SAMPLE="RSGravToZZToLLQQ_M-3500" 
-#SAMPLE="RSGravToZZToLLQQ_M-4000" 
-#SAMPLE="RSGravToZZToLLQQ_M-4500" 
+SAMPLE="SingleElectron_Run2015B" 
 
 ### Source
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
+process.load("ExoDiBosonResonances.EDBRCommon.PromptReco."+SAMPLE)
 process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
-configXsecs = {  "RSGravToZZToLLQQ_M-600"         : 0.908025,
-                 "RSGravToZZToLLQQ_M-800"         : 0.274593,
-                 "RSGravToZZToLLQQ_M-1000"        : 0.0811175,
-                 "RSGravToZZToLLQQ_M-1200"        : 0.0295627,
-                 "RSGravToZZToLLQQ_M-1400"        : 0.01232,
-                 "RSGravToZZToLLQQ_M-1600"        : 0.00605376,
-                 "RSGravToZZToLLQQ_M-1800"        : 0.00283966,
-                 "RSGravToZZToLLQQ_M-2000"        : 0.00156097,
-                 "RSGravToZZToLLQQ_M-2500"        : 0.000372413,
-                 "RSGravToZZToLLQQ_M-3000"        : 8.28108e-05,
-                 "RSGravToZZToLLQQ_M-3500"        : 2.76551e-05,
-                 "RSGravToZZToLLQQ_M-4000"        : 8.54621e-06,
-                 "RSGravToZZToLLQQ_M-4500"        : 2.65225e-06,
+configXsecs = {  "SingleElectron_Run2015B"         : 1.0,
               }
 
-configNevents = {"RSGravToZZToLLQQ_M-600"         : 30857,
-                 "RSGravToZZToLLQQ_M-800"         : 31071,
-                 "RSGravToZZToLLQQ_M-1000"        : 31229,
-                 "RSGravToZZToLLQQ_M-1200"        : 31222,
-                 "RSGravToZZToLLQQ_M-1400"        : 31127,
-                 "RSGravToZZToLLQQ_M-1600"        : 31091,
-                 "RSGravToZZToLLQQ_M-1800"        : 31075,
-                 "RSGravToZZToLLQQ_M-2000"        : 31091,
-                 "RSGravToZZToLLQQ_M-2500"        : 31147,
-                 "RSGravToZZToLLQQ_M-3000"        : 31389,
-                 "RSGravToZZToLLQQ_M-3500"        : 31034,
-                 "RSGravToZZToLLQQ_M-4000"        : 31334,
-                 "RSGravToZZToLLQQ_M-4500"        : 30787,
+configNevents = {"SingleElectron_Run2015B"         : 1,
                 }
 
 usedXsec = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
+
+#*********************************** JSON file ****************************************************#
+# https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
+# last modified 15-Jul-2015 
+import FWCore.PythonUtilities.LumiList as LumiList
+process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_246908-251252_13TeV_PromptReco_Collisions15.json').getVLuminosityBlockRange()
 
 #*******************************************************************************************************#
 
@@ -186,18 +156,12 @@ if option=='RECO':
                              process.goodLeptonsProducer      +  
                              process.leptonSequence           ) 
 
-#************************************ TRIGGER REPORT ANALYZER ***************************************#
+#************************************ TRIGGER REPORT DATA *******************************************#
 #                                                                                                    #
-# Only supported for VZ channel                                                                      #
-process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
-process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
-process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
-process.analysis.replace(process.hltSequence,
-                         process.leptonicDecay +
-                         process.hadronicDecay +
-                         process.hltSequence   )
-
-process.endpath = cms.EndPath( process.trigReportAnalyzer )
+# Only supported for VZ channel, running on DATA or MC background                                    #
+#
+process.load("ExoDiBosonResonances.EDBRCommon.trigReportData_cff")
+process.endpath = cms.EndPath( process.trigReportData )
 #                                                                                                    #
 #****************************************************************************************************#
 
