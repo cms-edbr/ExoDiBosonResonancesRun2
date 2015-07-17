@@ -19,7 +19,7 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
                               vertex       = cms.InputTag("goodOfflinePrimaryVertex"),
                               electrons    = cms.InputTag("slimmedElectrons"),
                               muons        = cms.InputTag("slimmedMuons"),
-                              modheepID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60-NonIso")
+                              heepV60ID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60")
                             )
 
 goodLeptonsProducer = cms.Sequence(goodOfflinePrimaryVertex + goodLeptons)
