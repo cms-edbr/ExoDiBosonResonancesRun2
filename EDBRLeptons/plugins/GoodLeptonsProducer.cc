@@ -21,6 +21,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -45,26 +46,26 @@ class GoodLeptonsProducer : public edm::EDProducer {
       double   kt_scale_;
       bool charged_only_;
       bool       filter_;
-      edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
-      edm::EDGetTokenT<reco::VertexCollection>     vertexToken_;
-      edm::EDGetTokenT<pat::ElectronCollection>  electronToken_;
-      edm::EDGetTokenT<pat::MuonCollection>          muonToken_;
-      edm::EDGetTokenT<edm::ValueMap<bool> >    modheepIDToken_;
+      edm::EDGetTokenT<pat::PackedCandidateCollection>            pfToken_;
+      edm::EDGetTokenT<reco::VertexCollection>                vertexToken_;
+      edm::EDGetTokenT<pat::ElectronCollection>             electronToken_;
+      edm::EDGetTokenT<pat::MuonCollection>                     muonToken_;
+      edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > heepV60IDToken_;
 
      double getPFIsolation(edm::Handle<pat::PackedCandidateCollection>, const reco::Candidate*, double, double, double, bool);
 };
 
 GoodLeptonsProducer::GoodLeptonsProducer(const edm::ParameterSet& iConfig):
-    r_iso_min_(                                                iConfig.getParameter<double>(       "r_iso_min"     ) ),
-    r_iso_max_(                                                iConfig.getParameter<double>(       "r_iso_max"     ) ),
-    kt_scale_(                                                 iConfig.getParameter<double>(       "kt_scale"      ) ),
-    charged_only_(                                             iConfig.getParameter<bool>(         "charged_only"  ) ),
-    filter_(                                                   iConfig.getParameter<bool>(         "filter"        ) ),
-    pfToken_(        consumes<pat::PackedCandidateCollection>( iConfig.getParameter<edm::InputTag>("pfCands"     ) ) ),
-    vertexToken_(    consumes<reco::VertexCollection> (        iConfig.getParameter<edm::InputTag>("vertex"      ) ) ),
-    electronToken_(  consumes<pat::ElectronCollection>(        iConfig.getParameter<edm::InputTag>("electrons"   ) ) ),
-    muonToken_(      consumes<pat::MuonCollection>(            iConfig.getParameter<edm::InputTag>("muons"       ) ) ),
-    modheepIDToken_( consumes<edm::ValueMap<bool> >(           iConfig.getParameter<edm::InputTag>("modheepID" ) ) )
+    r_iso_min_(                                                    iConfig.getParameter<double>(       "r_iso_min"     ) ),
+    r_iso_max_(                                                    iConfig.getParameter<double>(       "r_iso_max"     ) ),
+    kt_scale_(                                                     iConfig.getParameter<double>(       "kt_scale"      ) ),
+    charged_only_(                                                 iConfig.getParameter<bool>(         "charged_only"  ) ),
+    filter_(                                                       iConfig.getParameter<bool>(         "filter"        ) ),
+    pfToken_(        consumes<pat::PackedCandidateCollection>(     iConfig.getParameter<edm::InputTag>("pfCands"     ) ) ),
+    vertexToken_(    consumes<reco::VertexCollection> (            iConfig.getParameter<edm::InputTag>("vertex"      ) ) ),
+    electronToken_(  consumes<pat::ElectronCollection>(            iConfig.getParameter<edm::InputTag>("electrons"   ) ) ),
+    muonToken_(      consumes<pat::MuonCollection>(                iConfig.getParameter<edm::InputTag>("muons"       ) ) ),
+    heepV60IDToken_( consumes<edm::ValueMap<vid::CutFlowResult> >( iConfig.getParameter<edm::InputTag>("heepV60ID" ) ) )
 {
     produces<std::vector<pat::Electron> >("goodElectrons");
     produces<std::vector<pat::Muon> >(    "goodMuons"    );
@@ -89,8 +90,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const reco::Vertex& vertex = (*vertices)[0];
 
     // electron IDs
-    Handle<ValueMap<bool> > modheepID_handle;
-    iEvent.getByToken(modheepIDToken_, modheepID_handle);
+    Handle<ValueMap<vid::CutFlowResult> > heepV60ID_handle;
+    iEvent.getByToken(heepV60IDToken_, heepV60ID_handle);
 
     // handle muons and electons
     Handle<pat::MuonCollection> muons;
@@ -110,13 +111,16 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                          kt_scale_, 
                                          charged_only_ );
         int isoID = miniIso<0.1 ? 1 : 0;
-        const Ptr<pat::Electron> elRef(electrons, i);
-        int modheepID =  (*modheepID_handle)[ elRef ]; 
-        int modheep_AND_miniIso = modheepID and isoID;
-        if ( filter_ and !modheep_AND_miniIso ) continue;  // electrons must pass the modheepID and be mini-isolated
-        pat::Electron* cloneEl = el.clone();               // need to clone the electron to add miniIso as an UserFloat
+        const Ptr<pat::Electron> elPtr(electrons, i);
+        std::vector<std::string> maskCuts;
+        maskCuts.push_back("GsfEleTrkPtIsoCut_0"), maskCuts.push_back("GsfEleEmHadD1IsoRhoCut_0");
+        vid::CutFlowResult heep_noiso = (*heepV60ID_handle)[elPtr].getCutFlowResultMasking(maskCuts);
+        int heepV60ID_noiso = heep_noiso.cutFlowPassed(); 
+        int heepV60ID_noiso_AND_miniIso = heepV60ID_noiso and isoID;
+        if ( filter_ and !heepV60ID_noiso_AND_miniIso ) continue;  // electrons must pass the heepV60ID and be mini-isolated
+        pat::Electron* cloneEl = el.clone();                       // need to clone the electron to add miniIso as an UserFloat
         cloneEl->addUserFloat("miniIso", miniIso);
-        cloneEl->addUserInt("slimmedIndex", i);            // index to localize the goodElectron in the slimmedElectrons collection
+        cloneEl->addUserInt("slimmedIndex", i);                    // index to localize the goodElectron in the slimmedElectrons collection
         goodElectrons->push_back(*cloneEl);
     }
 

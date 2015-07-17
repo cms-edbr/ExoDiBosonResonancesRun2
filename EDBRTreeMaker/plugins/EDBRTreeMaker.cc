@@ -18,6 +18,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -159,10 +160,9 @@ private:
   int    ecalDriven1,    ecalDriven2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
-  edm::EDGetTokenT<edm::ValueMap<bool> > heepV60IDToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > modheepIDToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > eltightIDToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > elmediumIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > heepV60IDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> >               eltightIDToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> >               elmediumIDToken_;
 
   // Muon ID 
   int    muhighPtID1,    muhighPtID2;
@@ -187,8 +187,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   hltToken_       ( consumes<edm::TriggerResults>                   ( iConfig.getParameter<edm::InputTag>           ( "hltToken"      ) ) ),
   hltObjects_     ( consumes<pat::TriggerObjectStandAloneCollection>( iConfig.getParameter<edm::InputTag>           ( "hltObjects"    ) ) ),
   vertexToken_    ( consumes<reco::VertexCollection>                ( iConfig.getParameter<edm::InputTag>           ( "vertex"        ) ) ),
-  heepV60IDToken_ ( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "heepV60ID"     ) ) ),
-  modheepIDToken_ ( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "modheepID"     ) ) ),
+  heepV60IDToken_ ( consumes<edm::ValueMap<vid::CutFlowResult> >    ( iConfig.getParameter<edm::InputTag>           ( "heepV60ID"     ) ) ),
   eltightIDToken_ ( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "eltightID"     ) ) ),
   elmediumIDToken_( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "elmediumID"    ) ) )
 {
@@ -539,20 +538,22 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
                         Handle<ValueMap<bool> >  elmediumID_handle;
                         Handle<ValueMap<bool> >  eltightID_handle;
-                        Handle<ValueMap<bool> >  heepV60ID_handle;
-                        Handle<ValueMap<bool> >  modheepID_handle;
                         iEvent.getByToken(elmediumIDToken_,  elmediumID_handle);
-                        iEvent.getByToken(eltightIDToken_,   eltightID_handle);
-                        iEvent.getByToken(heepV60IDToken_,    heepV60ID_handle);
-                        iEvent.getByToken(modheepIDToken_,   modheepID_handle);
+                        iEvent.getByToken(eltightIDToken_,    eltightID_handle);
                         elmediumID1  = (*elmediumID_handle)[  el1Ptr ];
                         elmediumID2  = (*elmediumID_handle)[  el2Ptr ];
                         eltightID1   = (*eltightID_handle)[   el1Ptr ];
                         eltightID2   = (*eltightID_handle)[   el2Ptr ];
-                        heepV60ID1   = (*heepV60ID_handle)[   el1Ptr ];
-                        heepV60ID2   = (*heepV60ID_handle)[   el2Ptr ];
-                        modheepID1   = (*modheepID_handle)[   el1Ptr ];
-                        modheepID2   = (*modheepID_handle)[   el2Ptr ];
+                        // heepV60
+                        Handle<ValueMap<vid::CutFlowResult> >  heepV60ID_handle;
+                        iEvent.getByToken(heepV60IDToken_,     heepV60ID_handle);
+                        std::vector<std::string> maskCuts;
+                        maskCuts.push_back("GsfEleTrkPtIsoCut_0"), maskCuts.push_back("GsfEleEmHadD1IsoRhoCut_0");
+                        modheepID1 = (*heepV60ID_handle)[el1Ptr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
+                        modheepID2 = (*heepV60ID_handle)[el2Ptr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
+                        heepV60ID1 = (*heepV60ID_handle)[el1Ptr].cutFlowPassed();
+                        heepV60ID2 = (*heepV60ID_handle)[el2Ptr].cutFlowPassed();
+
                         // shower shapes
                         sigmaIEtaIEta1 = el1->full5x5_sigmaIetaIeta();
                         sigmaIEtaIEta2 = el2->full5x5_sigmaIetaIeta();
