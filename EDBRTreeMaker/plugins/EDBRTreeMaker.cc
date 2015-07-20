@@ -406,6 +406,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            // handle goodOfflinePrimaryVertex collection
            Handle<reco::VertexCollection> vertices;
            iEvent.getByToken(vertexToken_, vertices);
+           nVtx = vertices->size();
            const reco::Vertex& vertex = (*vertices)[0];
   
            // Effective area constants
