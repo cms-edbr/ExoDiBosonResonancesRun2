@@ -19,8 +19,8 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-#SAMPLE="SingleMuon_Run2015B" 
-SAMPLE="SingleElectron_Run2015B" 
+SAMPLE="SingleMuon_Run2015B" 
+#SAMPLE="SingleElectron_Run2015B" 
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.PromptReco."+SAMPLE)
