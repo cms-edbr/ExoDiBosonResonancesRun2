@@ -30,6 +30,9 @@ private:
 
   edm::EDGetTokenT<edm::TriggerResults> trigResult_;
   TH1I  *cutFlow;
+  TTree *evTree;
+  int run, lumisec, event;  
+  int index;
 
 };
 
@@ -37,14 +40,21 @@ TrigReportData::TrigReportData(const edm::ParameterSet& iConfig):
   trigResult_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("trigResult")))
 {
   edm::Service<TFileService> fs;
-  cutFlow = fs->make<TH1I>("cutFlow","", 6, 0, 6);
+  cutFlow = fs->make<TH1I>("cutFlow","", 7, 0, 7);
   TAxis *axis = cutFlow->GetXaxis();  
   axis->SetBinLabel(1,"Begin");
   axis->SetBinLabel(2,"HLT");
   axis->SetBinLabel(3,"Vertex");
   axis->SetBinLabel(4,"Leptons");
-  axis->SetBinLabel(5,"V-jet");
-  axis->SetBinLabel(6,"Graviton");
+  axis->SetBinLabel(5,"Dilepton");
+  axis->SetBinLabel(6,"V-jet");
+  axis->SetBinLabel(7,"Graviton");
+
+  evTree = fs->make<TTree>("evTree", "basic event information");
+  evTree->Branch("run",          &run,          "run/I");
+  evTree->Branch("lumisec",      &lumisec,      "lumisec/I");
+  evTree->Branch("event",        &event,        "event/I");
+  evTree->Branch("index",        &index,        "index/I");
 }
 
 TrigReportData::~TrigReportData(){ }
@@ -53,17 +63,24 @@ void TrigReportData::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 {
   using namespace edm;
 
+  run     = iEvent.eventAuxiliary().run();
+  lumisec = iEvent.eventAuxiliary().luminosityBlock();
+  event   = iEvent.eventAuxiliary().event();
+
   Handle<TriggerResults> trigRes;
   iEvent.getByToken(trigResult_, trigRes);
-  int index = trigRes->index(0);
+  index = trigRes->index(0);
+  // fill Tree
+  evTree->Fill();
   // cut flow 
   switch(index){
       case  0: cutFlow->Fill("Begin",1); break;
       case  3: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); break;
       case 10: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
-      case 15: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
-      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("V-jet",1); break;
-      case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("V-jet",1); cutFlow->Fill("Graviton",1); break;
+      case 11: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
+      case 15: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); break;
+      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); break;
+      case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); cutFlow->Fill("Graviton",1); break;
   }
 }
 
