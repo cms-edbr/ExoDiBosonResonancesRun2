@@ -33,6 +33,7 @@ private:
 
   TH1I  *wfMu, *wfEl;
   TTree *genTree; 
+  int run, lumisec, event;
   int lep, index;
   double ptZlep, ptZhad, deltaRleplep;
   double massGrav;
@@ -65,6 +66,9 @@ TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
   axisEl->SetBinLabel(7,"Graviton");
 
   genTree = fs->make<TTree>("genTree", "physical variables at GEN level");
+  genTree->Branch("run",          &run,          "run/I");
+  genTree->Branch("lumisec",      &lumisec,      "lumisec/I");
+  genTree->Branch("event",        &event,        "event/I");
   genTree->Branch("lep",          &lep,          "lep/I");
   genTree->Branch("index",        &index,        "index/I");
   genTree->Branch("ptZlep",       &ptZlep,       "ptZlep/D");
@@ -78,6 +82,10 @@ TrigReportAnalyzer::~TrigReportAnalyzer(){ }
 void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+
+  run     = iEvent.eventAuxiliary().run();
+  lumisec = iEvent.eventAuxiliary().luminosityBlock();
+  event   = iEvent.eventAuxiliary().event();
 
   Handle<TriggerResults> trigRes;
   iEvent.getByToken(trigResult_, trigRes);
