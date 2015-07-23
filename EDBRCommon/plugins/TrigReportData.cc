@@ -37,14 +37,15 @@ TrigReportData::TrigReportData(const edm::ParameterSet& iConfig):
   trigResult_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("trigResult")))
 {
   edm::Service<TFileService> fs;
-  cutFlow = fs->make<TH1I>("cutFlow","", 6, 0, 6);
+  cutFlow = fs->make<TH1I>("cutFlow","", 7, 0, 7);
   TAxis *axis = cutFlow->GetXaxis();  
   axis->SetBinLabel(1,"Begin");
   axis->SetBinLabel(2,"HLT");
   axis->SetBinLabel(3,"Vertex");
   axis->SetBinLabel(4,"Leptons");
-  axis->SetBinLabel(5,"V-jet");
-  axis->SetBinLabel(6,"Graviton");
+  axis->SetBinLabel(5,"Dilepton");
+  axis->SetBinLabel(6,"V-jet");
+  axis->SetBinLabel(7,"Graviton");
 }
 
 TrigReportData::~TrigReportData(){ }
@@ -62,8 +63,9 @@ void TrigReportData::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       case  3: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); break;
       case 10: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
       case 15: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
-      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("V-jet",1); break;
-      case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("V-jet",1); cutFlow->Fill("Graviton",1); break;
+      case 16: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); break;
+      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); break;
+      case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); cutFlow->Fill("Graviton",1); break;
   }
 }
 

@@ -58,14 +58,14 @@ process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 WBOSONCUT = "pt > 200. & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50."
 ZBOSONCUT = "pt > 200. & 70. < mass < 110."
 
-process.leptonicVSelector = cms.EDFilter( "CandViewSelector",
-                                          src = cms.InputTag("leptonicV"),
-                                          cut = cms.string( ZBOSONCUT ), #Change in case of WChannel
-                                          filter = cms.bool(True) )
-
 process.leptonicVFilter = cms.EDFilter(   "CandViewCountFilter",
                                           src = cms.InputTag("leptonicV"),
                                           minNumber = cms.uint32(1),
+                                          filter = cms.bool(True) )
+
+process.leptonicVSelector = cms.EDFilter( "CandViewSelector",
+                                          src = cms.InputTag("leptonicV"),
+                                          cut = cms.string( ZBOSONCUT ), #Change in case of WChannel
                                           filter = cms.bool(True) )
 
 process.hadronicVFilter = cms.EDFilter(   "CandViewCountFilter",
@@ -132,8 +132,8 @@ if option == 'RECO':
 process.leptonSequence = cms.Sequence(    process.muSequence        +
                                           process.eleSequence       +
                                           process.leptonicVSequence + 
-                                          process.leptonicVSelector + 
-                                          process.leptonicVFilter   )
+                                          process.leptonicVFilter   +
+                                          process.leptonicVSelector ) 
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence   +
                                           process.hadronicV         +
@@ -179,8 +179,6 @@ if filterMode == False:
     process.goodLeptons.filter = False
     process.goodElectrons.cut = ''
     process.goodMuons.cut = ''
-    process.Ztomumu.cut = ''
-    process.Ztoee.cut = ''
     process.leptonicVSelector.filter = False
     process.leptonicVSelector.cut = ''
     process.hadronicV.cut = ''
