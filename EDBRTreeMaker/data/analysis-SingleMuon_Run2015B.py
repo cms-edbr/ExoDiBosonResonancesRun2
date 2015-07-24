@@ -43,9 +43,9 @@ usedNevents = configNevents[SAMPLE]
 
 #*********************************** JSON file ****************************************************#
 # https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
-# last modified 21-Jul-2015 
+# last modified 24-Jul-2015 
 import FWCore.PythonUtilities.LumiList as LumiList
-process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_246908-251642_13TeV_PromptReco_Collisions15.json').getVLuminosityBlockRange()
+process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_246908-251883_13TeV_PromptReco_Collisions15.json').getVLuminosityBlockRange()
 
 #*******************************************************************************************************#
 
