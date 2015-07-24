@@ -117,8 +117,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         vid::CutFlowResult heep_noiso = (*heepV60ID_handle)[elPtr].getCutFlowResultMasking(maskCuts);
         int heepV60ID_noiso = heep_noiso.cutFlowPassed(); 
         int heepV60ID_noiso_AND_miniIso = heepV60ID_noiso and isoID;
-        if ( filter_ and !heepV60ID_noiso_AND_miniIso ) continue;  // electrons must pass the heepV60ID and be mini-isolated
-        pat::Electron* cloneEl = el.clone();                       // need to clone the electron to add miniIso as an UserFloat
+        if ( filter_ and !heepV60ID_noiso_AND_miniIso ) continue;  // electrons must be heepV60ID_noIso and miniIsolated
+        pat::Electron* cloneEl = el.clone();                       // need to clone the electron to add miniIso as UserFloat
         cloneEl->addUserFloat("miniIso", miniIso);
         cloneEl->addUserInt("slimmedIndex", i);                    // index to localize the goodElectron in the slimmedElectrons collection
         goodElectrons->push_back(*cloneEl);
@@ -137,8 +137,12 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int trackerID = (int)hptm::isTrackerMuon(mu, vertex);  
         int highPtID  = (int)muon::isHighPtMuon( mu, vertex);  
         int tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
-        if ( filter_ and !tracker_OR_highPt_AND_miniIso   ) continue;  // muons must must be (tracker or highPt) and mini-isolated 
-        if ( filter_ and !highPtID and !goodMuons->size() ) continue;  // first muon must be highPt
+        if ( filter_ and !tracker_OR_highPt_AND_miniIso ) continue;  // muons must be tracker_OR_highPt and miniIsolated 
+        if ( filter_ and goodMuons->size()==1 ) {
+            int highPt_AND_tracker = (int)muon::isHighPtMuon( (*goodMuons)[0], vertex) and trackerID; 
+            int tracker_AND_highPt = (int)hptm::isTrackerMuon((*goodMuons)[0], vertex) and highPtID; 
+            if ( !(highPt_AND_tracker or tracker_AND_highPt) ) continue; 
+        }
         pat::Muon* cloneMu = mu.clone();
         cloneMu->addUserFloat("miniIso", miniIso);
         goodMuons->push_back(*cloneMu);
