@@ -19,20 +19,26 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-SAMPLE="DYJetsToLL_HT-100to200" 
+#SAMPLE="WW" 
+#SAMPLE="WZ" 
+SAMPLE="ZZ" 
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
-process.maxEvents.input = -1 
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
-configXsecs = {  "DYJetsToLL_HT-100to200" : 139.4,
+configXsecs = {  "WW" : 118.7,
+                 "WZ" :  66.1, 
+                 "ZZ" :  15.4,
               }
 
-configNevents = {"DYJetsToLL_HT-100to200" : 2625679,
+configNevents = {"WW" : 994416,
+                 "WZ" : 991232,
+                 "ZZ" : 996168,
                 }
 
 usedXsec = configXsecs[SAMPLE]
