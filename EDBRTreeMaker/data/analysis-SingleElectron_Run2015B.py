@@ -43,9 +43,9 @@ usedNevents = configNevents[SAMPLE]
 
 #*********************************** JSON file ****************************************************#
 # https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
-# last modified 24-Jul-2015 
+# last modified 27-Jul-2015 
 import FWCore.PythonUtilities.LumiList as LumiList
-process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_246908-251883_13TeV_PromptReco_Collisions15.json').getVLuminosityBlockRange()
+process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt').getVLuminosityBlockRange()
 
 #*******************************************************************************************************#
 
@@ -88,7 +88,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                                                                      ),
                                           originalNEvents = cms.int32   (  usedNevents                                                                ),
                                           crossSectionPb  = cms.double  (  usedXsec                                                                   ),
-                                          targetLumiInvPb = cms.double  (  47.49                                                                      ),
+                                          targetLumiInvPb = cms.double  (  40.028                                                                     ),
                                           EDBRChannel     = cms.string  (  CHANNEL                                                                    ),
                                           gravitonSrc     = cms.string  ( "graviton"                                                                  ),
                                           metSrc          = cms.string  ( "slimmedMETs"                                                               ),
