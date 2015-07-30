@@ -20,6 +20,7 @@ VZ_JetMET       = False        # True
 # choose the sample                                                                     
 
 SAMPLE="DYJetsToLL_HT-100to200" 
+#SAMPLE="DYJetsToLL_HT-200to400" 
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
@@ -30,9 +31,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 configXsecs = {  "DYJetsToLL_HT-100to200" : 139.4,
+                 "DYJetsToLL_HT-200to400" : 42.75,       
               }
 
 configNevents = {"DYJetsToLL_HT-100to200" : 2625679,
+                 "DYJetsToLL_HT-200to400" : 860467,
                 }
 
 usedXsec = configXsecs[SAMPLE]
@@ -79,7 +82,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                                                                      ),
                                           originalNEvents = cms.int32   (  usedNevents                                                                ),
                                           crossSectionPb  = cms.double  (  usedXsec                                                                   ),
-                                          targetLumiInvPb = cms.double  (  1000.0                                                                     ),
+                                          targetLumiInvPb = cms.double  (  40.028                                                                     ),
                                           EDBRChannel     = cms.string  (  CHANNEL                                                                    ),
                                           gravitonSrc     = cms.string  ( "graviton"                                                                  ),
                                           metSrc          = cms.string  ( "slimmedMETs"                                                               ),
