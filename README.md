@@ -2,8 +2,8 @@ Instructions to setup the ExoDiBosonResonances code
 ========
 
 ```
-cmsrel CMSSW_7_4_7_patch2
-cd CMSSW_7_4_7_patch2/src
+cmsrel CMSSW_7_4_8
+cd CMSSW_7_4_8/src
 cmsenv
 git cms-init # This will allow you to checkout packages in official CMSSW
 git clone -b Analysis74X git@github.com:cms-edbr/ExoDiBosonResonancesRun2.git ExoDiBosonResonances
