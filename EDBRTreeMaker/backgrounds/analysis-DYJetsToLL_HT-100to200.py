@@ -21,6 +21,8 @@ VZ_JetMET       = False        # True
 
 SAMPLE="DYJetsToLL_HT-100to200" 
 #SAMPLE="DYJetsToLL_HT-200to400" 
+#SAMPLE="DYJetsToLL_HT-400to600" 
+#SAMPLE="DYJetsToLL_HT-600toInf" 
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
@@ -32,10 +34,14 @@ process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 configXsecs = {  "DYJetsToLL_HT-100to200" : 139.4,
                  "DYJetsToLL_HT-200to400" : 42.75,       
+                 "DYJetsToLL_HT-400to600" : 5.497,       
+                 "DYJetsToLL_HT-600toInf" : 2.21,       
               }
 
 configNevents = {"DYJetsToLL_HT-100to200" : 2625679,
-                 "DYJetsToLL_HT-200to400" : 860467,
+                 "DYJetsToLL_HT-200to400" : 955972,
+                 "DYJetsToLL_HT-400to600" : 1048047,
+                 "DYJetsToLL_HT-600toInf" : 987977,
                 }
 
 usedXsec = configXsecs[SAMPLE]

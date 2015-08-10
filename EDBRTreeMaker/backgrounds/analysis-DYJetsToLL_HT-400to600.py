@@ -20,8 +20,8 @@ VZ_JetMET       = False        # True
 # choose the sample                                                                     
 
 #SAMPLE="DYJetsToLL_HT-100to200" 
-SAMPLE="DYJetsToLL_HT-200to400" 
-#SAMPLE="DYJetsToLL_HT-400to600" 
+#SAMPLE="DYJetsToLL_HT-200to400" 
+SAMPLE="DYJetsToLL_HT-400to600" 
 #SAMPLE="DYJetsToLL_HT-600toInf" 
 
 ### Source
