@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Original Author:  Jose Cupertino Ruiz Vargas
-//         Created:  Sat, 23 May 2015 12:25:07 GMT
+//         Created:  Monday, 10 Aug 2015
 //
 
 
@@ -22,66 +22,54 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-//
-// class declaration
-//
-
-class miniPFIsolationProducer : public edm::EDProducer {
+template <typename T>
+class MiniPFIsolationProducer : public edm::EDProducer {
    public:
-      explicit miniPFIsolationProducer(const edm::ParameterSet&);
-      ~miniPFIsolationProducer();
+      explicit MiniPFIsolationProducer(const edm::ParameterSet&);
 
    private:
+      typedef T candidate_type;
+      typedef std::vector<candidate_type> candidateCollection;
+
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
-      // ----------member data ---------------------------
       double r_iso_min_;
       double r_iso_max_;
       double kt_scale_;
       bool charged_only_;
-      edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
-      edm::EDGetTokenT<pat::MuonCollection> muonToken_;
-      edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken_;
+      edm::EDGetTokenT<candidateCollection> leptonToken;
+      edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken;
 };
 
-miniPFIsolationProducer::miniPFIsolationProducer(const edm::ParameterSet& iConfig):
-    r_iso_min_(iConfig.getParameter<double>("r_iso_min")),
-    r_iso_max_(iConfig.getParameter<double>("r_iso_max")),
-    kt_scale_(iConfig.getParameter<double>("kt_scale")),
-    charged_only_(iConfig.getParameter<bool>("charged_only")),
-    electronToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-    muonToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-    pfToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCands")))
+template <typename T>
+MiniPFIsolationProducer<T>::MiniPFIsolationProducer(const edm::ParameterSet& iConfig):
+    r_iso_min_(                                           iConfig.getParameter<double>("r_iso_min"       ) ),
+    r_iso_max_(                                           iConfig.getParameter<double>("r_iso_max"       ) ),
+    kt_scale_(                                            iConfig.getParameter<double>("kt_scale"        ) ),
+    charged_only_(                                        iConfig.getParameter<bool>("charged_only"      ) ),
+    leptonToken(consumes<candidateCollection>(            iConfig.getParameter<edm::InputTag>("leptons") ) ),
+    pfToken(    consumes<pat::PackedCandidateCollection>( iConfig.getParameter<edm::InputTag>("pfCands") ) )
 {
-    produces<std::vector<double> >("miniIsolationLeptons");
+    produces<edm::ValueMap<float> >("miniIsolation");
 }
 
-miniPFIsolationProducer::~miniPFIsolationProducer() {}
-
-// ------------ method called to produce the data  ------------
-void
-miniPFIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+template <typename T>
+void MiniPFIsolationProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace std;
 
-    edm::Handle<pat::MuonCollection> muons;
-    iEvent.getByToken(muonToken_, muons);
-    edm::Handle<pat::ElectronCollection> electrons;
-    iEvent.getByToken(electronToken_, electrons);
+    edm::Handle<candidateCollection> leptons;
+    iEvent.getByToken(leptonToken, leptons);
+
     edm::Handle<pat::PackedCandidateCollection> pfcands;
-    iEvent.getByToken(pfToken_, pfcands);
+    iEvent.getByToken(pfToken, pfcands);
 
-    vector<const reco::Candidate *> leptons;
-    for (const pat::Electron &el : *electrons) leptons.push_back(&el);
-    for (const pat::Muon &mu : *muons) leptons.push_back(&mu);
-
-    // prepare output
-    auto_ptr< vector<double> > miniIso( new vector<double> );
-    miniIso->reserve(leptons.size());
+    vector<float> miniIso;
 
     // loop over leptons
-    for (const reco::Candidate *lep : leptons) {
-        if (lep->pt() < 5) continue;
+    typename candidateCollection::const_iterator lep, endLoop = leptons->end();
+    for (lep = leptons->begin(); lep != endLoop; ++lep) {
+        if (lep->pt() < 5) {miniIso.push_back(9999.); continue;}
         // initialize cones
         double deadcone_nh(0.), deadcone_ch(0.), deadcone_ph(0.), deadcone_pu(0.);
         if(lep->isElectron()) {
@@ -128,7 +116,6 @@ miniPFIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                 }
             }
         }// close loop over PF candidates
-
         double iso(0.);
         if (charged_only_){
           iso = iso_ch;
@@ -136,11 +123,22 @@ miniPFIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         else {
           iso = iso_ch + max(0., iso_nh + iso_ph - 0.5*iso_pu);
         }
-        miniIso->push_back(iso/lep->pt());
+        miniIso.push_back(iso/lep->pt());
     }// close loop over leptons
 
-    iEvent.put(miniIso, "miniIsolationLeptons");
+    // convert into ValueMap and store
+    auto_ptr<edm::ValueMap<float> > miniMap(new edm::ValueMap<float>());
+    edm::ValueMap<float>::Filler miniFiller(*miniMap);
+    miniFiller.insert(leptons, miniIso.begin(), miniIso.end());
+    miniFiller.fill();
+
+    iEvent.put(miniMap, "miniIsolation");
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(miniPFIsolationProducer);
+
+typedef MiniPFIsolationProducer<pat::Electron> PatElectronMiniIsolationValueMap;
+typedef MiniPFIsolationProducer<pat::Muon>         PatMuonMiniIsolationValueMap;
+
+DEFINE_FWK_MODULE(PatElectronMiniIsolationValueMap);
+DEFINE_FWK_MODULE(PatMuonMiniIsolationValueMap);

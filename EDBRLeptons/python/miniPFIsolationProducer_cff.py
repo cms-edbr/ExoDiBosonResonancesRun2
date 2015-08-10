@@ -1,13 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-miniIsolation = cms.EDProducer("miniPFIsolationProducer",
-                                r_iso_min = cms.double(0.05),
-                                r_iso_max = cms.double(0.2),
-                                kt_scale  = cms.double(10.),
-                                charged_only = cms.bool(False),
-                                electrons = cms.InputTag("goodElectrons"),
-                                muons = cms.InputTag("goodMuons"),
-                                pfCands = cms.InputTag("packedPFCandidates")
-                              )
+patElectronsIsoMap = cms.EDProducer("PatElectronMiniIsolationValueMap",
+                                     r_iso_min = cms.double(0.05),
+                                     r_iso_max = cms.double(0.2),
+                                     kt_scale  = cms.double(10.),
+                                     charged_only = cms.bool(False),
+                                     leptons = cms.InputTag("slimmedElectrons"),
+                                     pfCands = cms.InputTag("packedPFCandidates")
+                                   )
 
-miniPFIsolationProducer = cms.Sequence(miniIsolation)
+patMuonsIsoMap = cms.EDProducer("PatMuonMiniIsolationValueMap",
+                                     r_iso_min = cms.double(0.05),
+                                     r_iso_max = cms.double(0.2),
+                                     kt_scale  = cms.double(10.),
+                                     charged_only = cms.bool(False),
+                                     leptons = cms.InputTag("slimmedMuons"),
+                                     pfCands = cms.InputTag("packedPFCandidates")
+                               )

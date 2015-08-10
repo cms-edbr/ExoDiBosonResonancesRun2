@@ -76,11 +76,11 @@ void TrigReportData::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   switch(index){
       case  0: cutFlow->Fill("Begin",1); break;
       case  3: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); break;
-      case 10: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
-      case 11: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
-      case 15: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); break;
-      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); break;
-      case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); cutFlow->Fill("Graviton",1); break;
+      case 12: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
+      case 13: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
+      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); break;
+      case 19: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); break;
+      case 20: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Dilepton",1); cutFlow->Fill("V-jet",1); cutFlow->Fill("Graviton",1); break;
   }
 }
 
