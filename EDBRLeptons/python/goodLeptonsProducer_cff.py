@@ -9,7 +9,7 @@ goodOfflinePrimaryVertex = cms.EDFilter("VertexSelector",
                                        filter = cms.bool(True)
                                        )
 
-patElectronsIsoMap = cms.EDProducer("PatElectronMiniIsolationValueMap",
+electronsMiniIsolationValueMap = cms.EDProducer("PatElectronMiniIsolationValueMap",
                                      r_iso_min = cms.double(0.05),
                                      r_iso_max = cms.double(0.2),
                                      kt_scale  = cms.double(10.),
@@ -18,7 +18,7 @@ patElectronsIsoMap = cms.EDProducer("PatElectronMiniIsolationValueMap",
                                      pfCands = cms.InputTag("packedPFCandidates")
                                    )
 
-patMuonsIsoMap =     cms.EDProducer("PatMuonMiniIsolationValueMap",
+muonsMiniIsolationValueMap = cms.EDProducer("PatMuonMiniIsolationValueMap",
                                      r_iso_min = cms.double(0.05),
                                      r_iso_max = cms.double(0.2),
                                      kt_scale  = cms.double(10.),
@@ -33,9 +33,13 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
                               vertex       = cms.InputTag("goodOfflinePrimaryVertex"),
                               electrons    = cms.InputTag("slimmedElectrons"),
                               muons        = cms.InputTag("slimmedMuons"),
-                              elIsoMap     = cms.InputTag("patElectronsIsoMap"),
-                              muIsoMap     = cms.InputTag("patMuonsIsoMap"),
+                              elIsoMap     = cms.InputTag("electronsMiniIsolationValueMap"),
+                              muIsoMap     = cms.InputTag("muonsMiniIsolationValueMap"),
                               heepV60ID    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60")
                             )
 
-goodLeptonsProducer = cms.Sequence(goodOfflinePrimaryVertex + patElectronsIsoMap + patMuonsIsoMap + goodLeptons)
+goodLeptonsProducer = cms.Sequence( goodOfflinePrimaryVertex       + 
+                                    electronsMiniIsolationValueMap + 
+                                    muonsMiniIsolationValueMap     + 
+                                    goodLeptons
+                                  )
