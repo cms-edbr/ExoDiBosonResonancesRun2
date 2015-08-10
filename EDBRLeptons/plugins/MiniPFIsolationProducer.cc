@@ -50,7 +50,7 @@ MiniPFIsolationProducer<T>::MiniPFIsolationProducer(const edm::ParameterSet& iCo
     leptonToken(consumes<candidateCollection>(            iConfig.getParameter<edm::InputTag>("leptons") ) ),
     pfToken(    consumes<pat::PackedCandidateCollection>( iConfig.getParameter<edm::InputTag>("pfCands") ) )
 {
-    produces<edm::ValueMap<float> >("miniIsolation");
+    produces<edm::ValueMap<float> >();
 }
 
 template <typename T>
@@ -126,13 +126,13 @@ void MiniPFIsolationProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
         miniIso.push_back(iso/lep->pt());
     }// close loop over leptons
 
-    // convert into ValueMap and store
+    // convert into ValueMap
     auto_ptr<edm::ValueMap<float> > miniMap(new edm::ValueMap<float>());
     edm::ValueMap<float>::Filler miniFiller(*miniMap);
     miniFiller.insert(leptons, miniIso.begin(), miniIso.end());
     miniFiller.fill();
 
-    iEvent.put(miniMap, "miniIsolation");
+    iEvent.put(miniMap);
 }
 
 //define this as a plug-in
