@@ -51,7 +51,7 @@ void plotLimit(std::string key)
     }
     i++;
   }
-  Double_t l1[4], l2[4], h1[4], h2[4];
+  Double_t l1[10], l2[10], h1[10], h2[10];
   for(int j=0; j<y0.size(); j++){
      l1[j] = y2[j]-y1[j];
      l2[j] = y2[j]-y0[j];
@@ -59,8 +59,8 @@ void plotLimit(std::string key)
      h2[j] = y4[j]-y2[j];
   }
 
-  Double_t x[4]={1000.,2000.,3000.,4000.};
-  Double_t n[4]={   0.,   0.,   0.,   0.};
+  Double_t x[10]={1000.,1200.,1400.,1600.,1800.,2000.,2500.,3000.,3500.,4000.};
+  Double_t n[10]={   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.};
   TGraph *gr0 = new TGraph(y0.size(),x,&(y2[0]));
   gr0->SetLineStyle(2);
   gr0->SetLineWidth(2);
@@ -73,10 +73,10 @@ void plotLimit(std::string key)
   gr1->SetFillColor(3);
   gr2->SetFillColor(5);
   gr2->GetYaxis()->SetTitleOffset(1.2);
-  gr2->SetMinimum(2.);
-  gr2->SetMaximum(5.e3);
-  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 1 fb^{-1};M_{ZZ} [GeV];\
-                     #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [fb]",
+  gr2->SetMinimum(4.e-2);
+  gr2->SetMaximum(8.);
+  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 40 pb^{-1};M_{VZ} [GeV];\
+                     #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [pb]",
                      axisTitle[key].c_str() ));
 
   TCanvas *c1 = new TCanvas("c1","c1",700,700);
