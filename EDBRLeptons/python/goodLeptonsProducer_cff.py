@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 goodOfflinePrimaryVertex = cms.EDFilter("VertexSelector",
-                                       src = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                       cut = cms.string( "chi2 != 0 "
-                                                         "& ndof >= 4.0 "
-                                                         "& abs(z) <= 24.0 "
-                                                         "& abs(position.Rho) <= 2.0 "),
-                                       filter = cms.bool(True)
+                                         src = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                         cut = cms.string( "chi2 != 0 "
+                                                           "& ndof >= 4.0 "
+                                                           "& abs(z) <= 24.0 "
+                                                           "& abs(position.Rho) <= 2.0 "),
+                                         filter = cms.bool(True)
                                        )
 
 electronsMiniIsolationValueMap = cms.EDProducer("PatElectronMiniIsolationValueMap",
@@ -16,7 +16,7 @@ electronsMiniIsolationValueMap = cms.EDProducer("PatElectronMiniIsolationValueMa
                                      charged_only = cms.bool(False),
                                      leptons = cms.InputTag("slimmedElectrons"),
                                      pfCands = cms.InputTag("packedPFCandidates")
-                                   )
+                                  )
 
 muonsMiniIsolationValueMap = cms.EDProducer("PatMuonMiniIsolationValueMap",
                                      r_iso_min = cms.double(0.05),
@@ -25,11 +25,10 @@ muonsMiniIsolationValueMap = cms.EDProducer("PatMuonMiniIsolationValueMap",
                                      charged_only = cms.bool(False),
                                      leptons = cms.InputTag("slimmedMuons"),
                                      pfCands = cms.InputTag("packedPFCandidates")
-                                   )
+                                  )
 
 goodLeptons = cms.EDProducer("GoodLeptonsProducer",
                               filter       = cms.bool(True),
-                              pfCands      = cms.InputTag("packedPFCandidates"),
                               vertex       = cms.InputTag("goodOfflinePrimaryVertex"),
                               electrons    = cms.InputTag("slimmedElectrons"),
                               muons        = cms.InputTag("slimmedMuons"),
