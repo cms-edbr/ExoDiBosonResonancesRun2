@@ -65,7 +65,7 @@ configNevents = {"BulkGravToZZToZlepZhad_M-600"         : 50000,
                  "BulkGravToZZToZlepZhad_M-1800"        : 50000,
                  "BulkGravToZZToZlepZhad_M-2000"        : 50000,
                  "BulkGravToZZToZlepZhad_M-2500"        : 50000,
-                 "BulkGravToZZToZlepZhad_M-3000"        : 47000,
+                 "BulkGravToZZToZlepZhad_M-3000"        : 49200,
                  "BulkGravToZZToZlepZhad_M-3500"        : 50000,
                  "BulkGravToZZToZlepZhad_M-4000"        : 50000,
                  "BulkGravToZZToZlepZhad_M-4500"        : 50000,
@@ -205,22 +205,15 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True #False       
+filterMode = True       
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
-    process.goodLeptons.filter = False
+    process.hltFilter.triggerConditions = ('*',)
     process.goodElectrons.cut = ''
     process.goodMuons.cut = ''
-    process.leptonicVSelector.filter = False
-    process.leptonicVSelector.cut = ''
-    process.hadronicV.cut = ''
+    process.leptonicVSelector.cut = '70. < mass < 110.'
     process.graviton.cut = ''
-    process.leptonicVFilter.minNumber = 0
-    process.hadronicVFilter.minNumber = 0
-    process.gravitonFilter.minNumber  = 0
-    process.analysis.remove( process.hltSequence )
-    del process.endpath
 #                                                                                                    #
 #****************************************************************************************************#
 
