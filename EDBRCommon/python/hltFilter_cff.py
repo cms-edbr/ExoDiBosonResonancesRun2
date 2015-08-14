@@ -3,10 +3,10 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.triggerResultsFilter_cfi as hlt
 
 hltFilter = hlt.triggerResultsFilter.clone(
-                triggerConditions = ( 'HLT_Ele105_CaloIdVT_GsfTrkIdT_v*', 'HLT_Mu45_eta2p1_v*' ),
-                hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-                l1tResults = cms.InputTag( "gtDigis" ),
-                throw = False )
+                                  triggerConditions =      ( 'HLT_Ele105_CaloIdVT_GsfTrkIdT_v*', 'HLT_Mu45_eta2p1_v*' ),
+                                  hltResults = cms.InputTag( "TriggerResults", "", "HLT"       ),
+                                  l1tResults = cms.InputTag( "gtDigis"                         ),
+                                  throw = False )
 
 hltMatchingElectrons = cms.EDProducer("PatElectronHLTmatching",
                                   path       = cms.vstring ("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*" ), 
@@ -24,6 +24,6 @@ hltMatchingMuons = cms.EDProducer("PatMuonHLTmatching",
                                   maxDeltaR  = cms.double  ( 0.3                               ),
                                   maxDeltaPt = cms.double  ( 0.1                               ))
 
-hltSequence = cms.Sequence( hltFilter            + 
-                            hltMatchingElectrons +
-                            hltMatchingMuons     )
+hltSequence = cms.Sequence(       hltFilter            + 
+                                  hltMatchingElectrons +
+                                  hltMatchingMuons     )

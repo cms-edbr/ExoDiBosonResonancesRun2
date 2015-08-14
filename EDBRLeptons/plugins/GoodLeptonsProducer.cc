@@ -41,22 +41,22 @@ class GoodLeptonsProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
       bool filter_;
-      edm::EDGetTokenT<reco::VertexCollection>                vertexToken_;
-      edm::EDGetTokenT<pat::ElectronCollection>             electronToken_;
-      edm::EDGetTokenT<pat::MuonCollection>                     muonToken_;
-      edm::EDGetTokenT<edm::ValueMap<float> >               elIsoMapToken_;
-      edm::EDGetTokenT<edm::ValueMap<float> >               muIsoMapToken_;
-      edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > heepV60IDToken_;
+      edm::EDGetTokenT<reco::VertexCollection>               vertexToken_;
+      edm::EDGetTokenT<pat::ElectronCollection>            electronToken_;
+      edm::EDGetTokenT<pat::MuonCollection>                    muonToken_;
+      edm::EDGetTokenT<edm::ValueMap<float> >              elIsoMapToken_;
+      edm::EDGetTokenT<edm::ValueMap<float> >              muIsoMapToken_;
+      edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> >  heepV60Token_;
 };
 
 GoodLeptonsProducer::GoodLeptonsProducer(const edm::ParameterSet& iConfig):
-    filter_(                                                       iConfig.getParameter<bool>(         "filter"      ) ),
-    vertexToken_(    consumes<reco::VertexCollection> (            iConfig.getParameter<edm::InputTag>("vertex"    ) ) ),
-    electronToken_(  consumes<pat::ElectronCollection>(            iConfig.getParameter<edm::InputTag>("electrons" ) ) ),
-    muonToken_(      consumes<pat::MuonCollection>(                iConfig.getParameter<edm::InputTag>("muons"     ) ) ),
-    elIsoMapToken_(  consumes<edm::ValueMap<float> >(              iConfig.getParameter<edm::InputTag>("elIsoMap"  ) ) ),
-    muIsoMapToken_(  consumes<edm::ValueMap<float> >(              iConfig.getParameter<edm::InputTag>("muIsoMap"  ) ) ),
-    heepV60IDToken_( consumes<edm::ValueMap<vid::CutFlowResult> >( iConfig.getParameter<edm::InputTag>("heepV60ID" ) ) )
+    filter_(                                                      iConfig.getParameter<bool>(         "filter"      ) ),
+    vertexToken_(   consumes<reco::VertexCollection> (            iConfig.getParameter<edm::InputTag>("vertex"    ) ) ),
+    electronToken_( consumes<pat::ElectronCollection>(            iConfig.getParameter<edm::InputTag>("electrons" ) ) ),
+    muonToken_(     consumes<pat::MuonCollection>(                iConfig.getParameter<edm::InputTag>("muons"     ) ) ),
+    elIsoMapToken_( consumes<edm::ValueMap<float> >(              iConfig.getParameter<edm::InputTag>("elIsoMap"  ) ) ),
+    muIsoMapToken_( consumes<edm::ValueMap<float> >(              iConfig.getParameter<edm::InputTag>("muIsoMap"  ) ) ),
+    heepV60Token_(  consumes<edm::ValueMap<vid::CutFlowResult> >( iConfig.getParameter<edm::InputTag>("heepV60"   ) ) )
 {
     produces<std::vector<pat::Electron> >("goodElectrons");
     produces<std::vector<pat::Muon> >(    "goodMuons"    );
@@ -91,8 +91,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(elIsoMapToken_, elIsoMap);
 
     // electron IDs
-    Handle<ValueMap<vid::CutFlowResult> > heepV60ID_handle;
-    iEvent.getByToken(heepV60IDToken_,    heepV60ID_handle);
+    Handle<ValueMap<vid::CutFlowResult> > heepV60_handle;
+    iEvent.getByToken(heepV60Token_,      heepV60_handle);
 
     // output collections
     auto_ptr< vector<pat::Electron> > goodElectrons( new vector<pat::Electron> );
@@ -105,13 +105,15 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int isoID = miniIso<0.1 ? 1 : 0;
         std::vector<std::string> maskCuts;
         maskCuts.push_back("GsfEleTrkPtIsoCut_0"), maskCuts.push_back("GsfEleEmHadD1IsoRhoCut_0");
-        vid::CutFlowResult heep_noiso = (*heepV60ID_handle)[elPtr].getCutFlowResultMasking(maskCuts);
-        int heepV60ID_noiso = heep_noiso.cutFlowPassed(); 
-        int heepV60ID_noiso_AND_miniIso = heepV60ID_noiso and isoID;
-        if ( filter_ and !heepV60ID_noiso_AND_miniIso ) continue;  // electrons must be heepV60ID_noIso and miniIsolated
+        int heepV60 =       (*heepV60_handle)[elPtr].cutFlowPassed(); 
+        int heepV60_noiso = (*heepV60_handle)[elPtr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
+        int heepV60_noiso_AND_miniIso = heepV60_noiso and isoID;
+        if ( filter_ and !heepV60_noiso_AND_miniIso ) continue;    // electrons must be heepV60_noiso and miniIsolated
         pat::Electron* cloneEl = el.clone();                       // need to clone the electron to add miniIso as UserFloat
-        cloneEl->addUserFloat("miniIso", miniIso);
-        cloneEl->addUserInt("slimmedIndex", i);                    // index to localize the goodElectron in the slimmedElectrons collection
+        cloneEl->addUserInt("slimmedIndex",  i             );      // index to localize the goodElectron in the slimmedElectrons collection
+        cloneEl->addUserInt("heepV60",       heepV60       );
+        cloneEl->addUserInt("heepV60_noiso", heepV60_noiso );
+        cloneEl->addUserFloat("miniIso", miniIso           );
         goodElectrons->push_back(*cloneEl);
     }
 
@@ -130,7 +132,10 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if ( !(highPt_AND_tracker or tracker_AND_highPt) ) continue; 
         }
         pat::Muon* cloneMu = mu.clone();
-        cloneMu->addUserFloat("miniIso", miniIso);
+        cloneMu->addUserInt("slimmedIndex", i         );
+        cloneMu->addUserInt("isTracker",    trackerID );
+        cloneMu->addUserInt("isHighPt",     highPtID  );
+        cloneMu->addUserFloat("miniIso",    miniIso   );
         goodMuons->push_back(*cloneMu);
     }
 

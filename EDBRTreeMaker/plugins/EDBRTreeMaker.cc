@@ -6,7 +6,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -16,9 +15,6 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
-#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -29,10 +25,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "ExoDiBosonResonances/EDBRLeptons/interface/TrackerMuonSelector.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
@@ -52,16 +44,11 @@ class EDBRTreeMaker : public edm::EDAnalyzer {
 public:
   explicit EDBRTreeMaker(const edm::ParameterSet&);
   ~EDBRTreeMaker();
-  //static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  
 
 //******************************************************************
 //************************* MEMBER DATA ****************************
@@ -113,21 +100,12 @@ private:
   std::string gravitonSrc_, metSrc_;
 
   //High Level Trigger
-  int    numhltObjs;
   int    elhltbit;
   int    muhltbit;
   double deltaRlep1Obj;
   double deltaRlep2Obj;
-  HLTConfigProvider hltConfig;
-  std::vector<float>  pthltObjs;
-  std::vector<float> etahltObjs;
-  std::vector<float> phihltObjs;
-  std::vector<std::string> elPaths;
-  std::vector<std::string> muPaths;
-  std::vector<std::string> elPaths_;
-  std::vector<std::string> muPaths_;
-  edm::EDGetTokenT<edm::TriggerResults> hltToken_;
-  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> hltObjects_;
+  double deltaPtlep1Obj;
+  double deltaPtlep2Obj;
 
   // Vertex collection
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
@@ -153,20 +131,15 @@ private:
   double eeDeltaR;
   int    barrel1,        barrel2;
   int    endcap1,        endcap2;
-  int    heepV60ID1,     heepV60ID2;
-  int    modheepID1,     modheepID2;
-  int    eltightID1,     eltightID2;
-  int    elmediumID1,    elmediumID2;
+  int    heepV601,       heepV602;
+  int    modheep1,       modheep2;
   int    ecalDriven1,    ecalDriven2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
-  edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > heepV60IDToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> >               eltightIDToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> >               elmediumIDToken_;
 
   // Muon ID 
-  int    muhighPtID1,    muhighPtID2;
-  int    mutrackerID1,   mutrackerID2;
+  int    highPtMu1,      highPtMu2;
+  int    trackerMu1,     trackerMu2;
 
   void setDummyValues();
 };
@@ -175,21 +148,14 @@ private:
 // constructors and destructor
 //
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
-  isGen_          (                                                   iConfig.getParameter<bool>                    ( "isGen"           ) ),
-  originalNEvents_(                                                   iConfig.getParameter<int>                     ( "originalNEvents" ) ),
-  crossSectionPb_ (                                                   iConfig.getParameter<double>                  ( "crossSectionPb"  ) ),
-  targetLumiInvPb_(                                                   iConfig.getParameter<double>                  ( "targetLumiInvPb" ) ),
-  EDBRChannel_    (                                                   iConfig.getParameter<std::string>             ( "EDBRChannel"     ) ),
-  gravitonSrc_    (                                                   iConfig.getParameter<std::string>             ( "gravitonSrc"     ) ),
-  metSrc_         (                                                   iConfig.getParameter<std::string>             ( "metSrc"          ) ),
-  elPaths_        (                                                   iConfig.getParameter<std::vector<std::string>>( "elPaths"         ) ),
-  muPaths_        (                                                   iConfig.getParameter<std::vector<std::string>>( "muPaths"         ) ), 
-  hltToken_       ( consumes<edm::TriggerResults>                   ( iConfig.getParameter<edm::InputTag>           ( "hltToken"      ) ) ),
-  hltObjects_     ( consumes<pat::TriggerObjectStandAloneCollection>( iConfig.getParameter<edm::InputTag>           ( "hltObjects"    ) ) ),
-  vertexToken_    ( consumes<reco::VertexCollection>                ( iConfig.getParameter<edm::InputTag>           ( "vertex"        ) ) ),
-  heepV60IDToken_ ( consumes<edm::ValueMap<vid::CutFlowResult> >    ( iConfig.getParameter<edm::InputTag>           ( "heepV60ID"     ) ) ),
-  eltightIDToken_ ( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "eltightID"     ) ) ),
-  elmediumIDToken_( consumes<edm::ValueMap<bool> >                  ( iConfig.getParameter<edm::InputTag>           ( "elmediumID"    ) ) )
+  isGen_          (                                   iConfig.getParameter<bool>          ( "isGen"           ) ),
+  originalNEvents_(                                   iConfig.getParameter<int>           ( "originalNEvents" ) ),
+  crossSectionPb_ (                                   iConfig.getParameter<double>        ( "crossSectionPb"  ) ),
+  targetLumiInvPb_(                                   iConfig.getParameter<double>        ( "targetLumiInvPb" ) ),
+  EDBRChannel_    (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"     ) ),
+  gravitonSrc_    (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"     ) ),
+  metSrc_         (                                   iConfig.getParameter<std::string>   ( "metSrc"          ) ),
+  vertexToken_    ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"        ) ) )
 {
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -234,23 +200,19 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
   outTree_->Branch("candTMass"       ,&candTMass      ,"candTMass/D"      );
 
-  /// HLT bits
+  /// HLT info 
   outTree_->Branch("elhltbit"        ,&elhltbit       ,"elhltbit/I"       );
   outTree_->Branch("muhltbit"        ,&muhltbit       ,"muhltbit/I"       );
-  
-  /// HLT objets
-  outTree_->Branch( "pthltObjs"      ,&pthltObjs                          );
-  outTree_->Branch("etahltObjs"      ,&etahltObjs                         );
-  outTree_->Branch("phihltObjs"      ,&phihltObjs                         );
-  outTree_->Branch("numhltObjs"      ,&numhltObjs     ,"numhltObjs/I"     );
   outTree_->Branch("deltaRlep1Obj"   ,&deltaRlep1Obj  ,"deltaRlep1Obj/D"  );
   outTree_->Branch("deltaRlep2Obj"   ,&deltaRlep2Obj  ,"deltaRlep2Obj/D"  );
+  outTree_->Branch("deltaPtlep1Obj"  ,&deltaPtlep1Obj ,"deltaPtlep1Obj/D" );
+  outTree_->Branch("deltaPtlep2Obj"  ,&deltaPtlep2Obj ,"deltaPtlep2Obj/D" );
  
   /// Muon ID quantities ID quantities
-  outTree_->Branch("mutrackerID1"    ,&mutrackerID1   ,"mutrackerID1/I"   );
-  outTree_->Branch("mutrackerID2"    ,&mutrackerID2   ,"mutrackerID2/I"   );
-  outTree_->Branch("muhighPtID1"     ,&muhighPtID1    ,"muhighPtID1/I"    );
-  outTree_->Branch("muhighPtID2"     ,&muhighPtID2    ,"muhighPtID2/I"    );
+  outTree_->Branch("trackerMu1"      ,&trackerMu1     ,"trackerMu1/I"     );
+  outTree_->Branch("trackerMu2"      ,&trackerMu2     ,"trackerMu2/I"     );
+  outTree_->Branch("highPtMu1"       ,&highPtMu1      ,"highPtMu1/I"      );
+  outTree_->Branch("highPtMu2"       ,&highPtMu2      ,"highPtMu2/I"      );
 
   /// Electron ID quantities
   outTree_->Branch("barrel1"         ,&barrel1        ,"barrel1/I"        );
@@ -297,14 +259,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("missingHits2"    ,&missingHits2   ,"missingHits2/I"   );
   outTree_->Branch("passConVeto1"    ,&passConVeto1   ,"passConVeto1/I"   );
   outTree_->Branch("passConVeto2"    ,&passConVeto2   ,"passConVeto2/I"   );
-  outTree_->Branch("elmediumID1"     ,&elmediumID1    ,"elmediumID1/I"    );
-  outTree_->Branch("elmediumID2"     ,&elmediumID2    ,"elmediumID2/I"    );
-  outTree_->Branch("eltightID1"      ,&eltightID1     ,"eltightID1/I"     );
-  outTree_->Branch("eltightID2"      ,&eltightID2     ,"eltightID2/I"     );
-  outTree_->Branch("heepV60ID1"      ,&heepV60ID1     ,"heepV60ID1/I"     );
-  outTree_->Branch("heepV60ID2"      ,&heepV60ID2     ,"heepV60ID2/I"     );
-  outTree_->Branch("modheepID1"      ,&modheepID1     ,"modheepID1/I"     );
-  outTree_->Branch("modheepID2"      ,&modheepID2     ,"modheepID2/I"     );
+  outTree_->Branch("heepV601"        ,&heepV601       ,"heepV601/I"       );
+  outTree_->Branch("heepV602"        ,&heepV602       ,"heepV602/I"       );
+  outTree_->Branch("modheep1"        ,&modheep1       ,"modheep1/I"       );
+  outTree_->Branch("modheep2"        ,&modheep2       ,"modheep2/I"       );
 
   // mini isolation for leptons
   outTree_->Branch("miniIso1"        ,&miniIso1       ,"miniIso1/D"       );
@@ -355,32 +313,16 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    setDummyValues(); //Initalize variables with dummy values
 
    // ------ analize trigger results ----------//
-   Handle<TriggerResults> trigRes;
-   iEvent.getByToken(hltToken_, trigRes);
-   elhltbit = (int)trigRes->accept(hltConfig.triggerIndex(elPaths[0]));
-   muhltbit = (int)trigRes->accept(hltConfig.triggerIndex(muPaths[0]));
-   // translate indices in names
-   const TriggerNames &names = iEvent.triggerNames(*trigRes);
-   // ------ handle trigger objects ----------//
-   Handle<pat::TriggerObjectStandAloneCollection> hltObjects;
-   iEvent.getByToken(hltObjects_, hltObjects);
-   numhltObjs=0;
-   for (pat::TriggerObjectStandAlone obj : *hltObjects) {
-       obj.unpackPathNames(names);
-       bool isElObj = obj.hasPathName(elPaths[0], true, true);
-       bool isMuObj = obj.hasPathName(muPaths[0], true, true);
-       if ( isElObj or isMuObj ) {
-           pthltObjs.push_back(  obj.pt()  );
-           etahltObjs.push_back( obj.eta() );
-           phihltObjs.push_back( obj.phi() );
-           numhltObjs++;
-       }
-   }
+   Handle<bool>              elbit_handle,   mubit_handle;
+   Handle<ValueMap<float> > deltaR_handle, deltaPt_handle;
+   iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elbit_handle);
+   iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), mubit_handle);
+   elhltbit = (int)(*elbit_handle);
+   muhltbit = (int)(*elbit_handle);
 
    Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
    numCands = gravitons->size();
-
    if(numCands != 0 ) {
        int G_index=0;
        for( int i=1; i<numCands; i++ ){
@@ -398,10 +340,18 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        /// All the quantities which depend on RECO could go here
        if(not isGen_) {
+           // electrons and muons
+           Handle<View<pat::Electron> > electrons;
+           Handle<View<pat::Muon> >     muons;
+           iEvent.getByLabel("slimmedElectrons", electrons);
+           iEvent.getByLabel("slimmedMuons",     muons);
+
            // number of jets
            Handle<std::vector<pat::Jet>> jets;
            iEvent.getByLabel("slimmedJetsAK8", jets);
            numjets = jets->size();
+           met     = metCand.pt();
+           metPhi  = metCand.phi();
 
            // handle goodOfflinePrimaryVertex collection
            Handle<reco::VertexCollection> vertices;
@@ -410,14 +360,11 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            const reco::Vertex& vertex = (*vertices)[0];
   
            // Effective area constants
-           EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath()  );
+           EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath() );
            // The rho
            Handle< double > rhoHandle;
            iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
            rho = (float)(*rhoHandle);
-
-           met = metCand.pt();
-           metPhi = metCand.phi();
  
            //we put the definitions inside the channel
            switch(channel){
@@ -425,36 +372,20 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
                    //**************DEFINITIONS *********************************** 
                    // candidate
-                   candMass  = graviton.mass();
+                   candMass     = graviton.mass();
                    // leptons
-                   ptVlep   = leptonicV.pt();
-                   yVlep    = leptonicV.eta();
-                   phiVlep  = leptonicV.phi();
-                   massVlep = leptonicV.mass();
-                   mtVlep   = leptonicV.mt();
-                   ptlep1   = leptonicV.daughter(0)->pt();
-                   ptlep2   = leptonicV.daughter(1)->pt();
-                   etalep1  = leptonicV.daughter(0)->eta();
-                   etalep2  = leptonicV.daughter(1)->eta();
-                   philep1  = leptonicV.daughter(0)->phi();
-                   philep2  = leptonicV.daughter(1)->phi();
-                   lep  = abs(leptonicV.daughter(0)->pdgId());
-
-                   // hlt matching
-                   if ( numhltObjs ){
-                       int closest1=0, closest2=0;
-                       for(int i=1; i<numhltObjs; i++){
-                           int temp1 = deltaR(etalep1,philep1,etahltObjs[closest1],phihltObjs[closest1])<
-                                       deltaR(etalep1,philep1,etahltObjs[i],phihltObjs[i]) ? closest1 : i;
-                           int temp2 = deltaR(etalep2,philep2,etahltObjs[closest2],phihltObjs[closest2])<
-                                       deltaR(etalep2,philep2,etahltObjs[i],phihltObjs[i]) ? closest2 : i;
-                           closest1  = temp1;
-                           closest2  = temp2;
-                       }
-                       deltaRlep1Obj = deltaR(etalep1,philep1,etahltObjs[closest1],phihltObjs[closest1]);
-                       deltaRlep2Obj = deltaR(etalep2,philep2,etahltObjs[closest2],phihltObjs[closest2]);
-                   }
-
+                   ptVlep       = leptonicV.pt();
+                   yVlep        = leptonicV.eta();
+                   phiVlep      = leptonicV.phi();
+                   massVlep     = leptonicV.mass();
+                   mtVlep       = leptonicV.mt();
+                   ptlep1       = leptonicV.daughter(0)->pt();
+                   ptlep2       = leptonicV.daughter(1)->pt();
+                   etalep1      = leptonicV.daughter(0)->eta();
+                   etalep2      = leptonicV.daughter(1)->eta();
+                   philep1      = leptonicV.daughter(0)->phi();
+                   philep2      = leptonicV.daughter(1)->phi();
+                   lep      = abs(leptonicV.daughter(0)->pdgId());
                    // hadrons
                    ptVhad       = hadronicV.pt();
                    yVhad        = hadronicV.eta();
@@ -483,28 +414,44 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         leptonicV.daughter(1)->isMuon()    ) {
                         const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
                         const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
+                        const Ptr<pat::Muon> mu1Ptr(muons, mu1->userInt("slimmedIndex") );
+                        const Ptr<pat::Muon> mu2Ptr(muons, mu2->userInt("slimmedIndex") );
+                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaR"),   deltaR_handle);
+                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaPt"), deltaPt_handle);
+                        deltaRlep1Obj  = (*deltaR_handle)[mu1Ptr];
+                        deltaRlep2Obj  = (*deltaR_handle)[mu2Ptr];
+                        deltaPtlep1Obj = (*deltaPt_handle)[mu1Ptr];
+                        deltaPtlep2Obj = (*deltaPt_handle)[mu2Ptr];
                         reco::MuonPFIsolation pfIso1  = mu1->pfIsolationR03();
                         reco::MuonPFIsolation pfIso2  = mu2->pfIsolationR03();
                         // isolation with delta beta correction
-                        double absiso1  =  pfIso1.sumChargedHadronPt + std::max(0.0,  pfIso1.sumNeutralHadronEt +  pfIso1.sumPhotonEt -  0.5*pfIso1.sumPUPt );
-                        double absiso2  =  pfIso2.sumChargedHadronPt + std::max(0.0,  pfIso2.sumNeutralHadronEt +  pfIso2.sumPhotonEt -  0.5*pfIso2.sumPUPt );
-                        relIso1         = absiso1 /mu1->pt();
-                        relIso2         = absiso2 /mu2->pt();
-                        mutrackerID1    = (int)hptm::isTrackerMuon(*mu1,vertex);
-                        mutrackerID2    = (int)hptm::isTrackerMuon(*mu2,vertex);
-                        muhighPtID1     = (int)muon::isHighPtMuon( *mu1,vertex);
-                        muhighPtID2     = (int)muon::isHighPtMuon( *mu2,vertex);
+                        double absiso1 =  pfIso1.sumChargedHadronPt + std::max(0.0,  pfIso1.sumNeutralHadronEt +  pfIso1.sumPhotonEt -  0.5*pfIso1.sumPUPt );
+                        double absiso2 =  pfIso2.sumChargedHadronPt + std::max(0.0,  pfIso2.sumNeutralHadronEt +  pfIso2.sumPhotonEt -  0.5*pfIso2.sumPUPt );
+                        relIso1        = absiso1/mu1->pt();
+                        relIso2        = absiso2/mu2->pt();
+                        trackerMu1     = mu1->userInt("isTracker");
+                        trackerMu2     = mu2->userInt("isTracker");
+                        highPtMu1      = mu1->userInt("isHighPt");
+                        highPtMu2      = mu2->userInt("isHighPt");
                         // retrieve mini isolation
-                        miniIso1        = mu1->userFloat("miniIso");
-                        miniIso2        = mu2->userFloat("miniIso");
+                        miniIso1       = mu1->userFloat("miniIso");
+                        miniIso2       = mu2->userFloat("miniIso");
                    }
                    //*****************************************************************//
                    //************************* ID for electrons **********************//
                    //*****************************************************************//
-                   if ( leptonicV.daughter(0)->isElectron() && 
-                        leptonicV.daughter(1)->isElectron()    ) {
+                   else if ( leptonicV.daughter(0)->isElectron() && 
+                             leptonicV.daughter(1)->isElectron()    ) {
                         const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
                         const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+                        const Ptr<pat::Electron> el1Ptr(electrons, el1->userInt("slimmedIndex") );
+                        const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
+                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaR"),   deltaR_handle);
+                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaPt"), deltaPt_handle);
+                        deltaRlep1Obj  = (*deltaR_handle)[el1Ptr];
+                        deltaRlep2Obj  = (*deltaR_handle)[el2Ptr];
+                        deltaPtlep1Obj = (*deltaR_handle)[el1Ptr];
+                        deltaPtlep2Obj = (*deltaR_handle)[el2Ptr];
                         eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
                         ptel1          = el1->pt();
                         ptel2          = el2->pt();
@@ -532,29 +479,11 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         // retrieve mini isolation
                         miniIso1       = el1->userFloat("miniIso");
                         miniIso2       = el2->userFloat("miniIso");
-                        // retrieve electron IDs
-                        Handle<View<pat::Electron> > electrons;
-                        iEvent.getByLabel("slimmedElectrons", electrons);
-                        const Ptr<pat::Electron> el1Ptr(electrons, el1->userInt("slimmedIndex") );
-                        const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
-                        Handle<ValueMap<bool> >  elmediumID_handle;
-                        Handle<ValueMap<bool> >  eltightID_handle;
-                        iEvent.getByToken(elmediumIDToken_,  elmediumID_handle);
-                        iEvent.getByToken(eltightIDToken_,    eltightID_handle);
-                        elmediumID1  = (*elmediumID_handle)[  el1Ptr ];
-                        elmediumID2  = (*elmediumID_handle)[  el2Ptr ];
-                        eltightID1   = (*eltightID_handle)[   el1Ptr ];
-                        eltightID2   = (*eltightID_handle)[   el2Ptr ];
                         // heepV60
-                        Handle<ValueMap<vid::CutFlowResult> >  heepV60ID_handle;
-                        iEvent.getByToken(heepV60IDToken_,     heepV60ID_handle);
-                        std::vector<std::string> maskCuts;
-                        maskCuts.push_back("GsfEleTrkPtIsoCut_0"), maskCuts.push_back("GsfEleEmHadD1IsoRhoCut_0");
-                        modheepID1 = (*heepV60ID_handle)[el1Ptr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
-                        modheepID2 = (*heepV60ID_handle)[el2Ptr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
-                        heepV60ID1 = (*heepV60ID_handle)[el1Ptr].cutFlowPassed();
-                        heepV60ID2 = (*heepV60ID_handle)[el2Ptr].cutFlowPassed();
-
+                        heepV601       = el1->userInt("heepV60"); 
+                        heepV602       = el1->userInt("heepV60"); 
+                        modheep1       = el1->userInt("heepV60_noiso"); 
+                        modheep2       = el1->userInt("heepV60_noiso"); 
                         // shower shapes
                         sigmaIEtaIEta1 = el1->full5x5_sigmaIetaIeta();
                         sigmaIEtaIEta2 = el2->full5x5_sigmaIetaIeta();
@@ -583,12 +512,12 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         passConVeto2   = el2->passConversionVeto();
                         if (el1->gsfTrack().isNonnull() && 
                             el2->gsfTrack().isNonnull()    ){
-                            d01            = (-1)*el1->gsfTrack()->dxy(vertex.position());   
-                            d02            = (-1)*el2->gsfTrack()->dxy(vertex.position());  
-                            dz1            = el1->gsfTrack()->dz(vertex.position());
-                            dz2            = el2->gsfTrack()->dz(vertex.position());
-                            missingHits1   = el1->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-                            missingHits2   = el2->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+                            d01          = (-1)*el1->gsfTrack()->dxy(vertex.position());   
+                            d02          = (-1)*el2->gsfTrack()->dxy(vertex.position());  
+                            dz1          = el1->gsfTrack()->dz(vertex.position());
+                            dz2          = el2->gsfTrack()->dz(vertex.position());
+                            missingHits1 = el1->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+                            missingHits2 = el2->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
                         }
                    }
                    break;}
@@ -693,149 +622,108 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 void EDBRTreeMaker::setDummyValues() {
-     nVtx           = -1e9;
-     triggerWeight  = -1e9;
-     pileupWeight   = -1e9;
-     lumiWeight     = -1e9;
-     candMass       = -1e9;
-     ptVlep         = -1e9;
-     ptVhad         = -1e9;
-     yVlep          = -1e9;
-     yVhad          = -1e9;
-     phiVlep        = -1e9;
-     phiVhad        = -1e9;
-     massVlep       = -1e9;
-     massVhad       = -1e9;
-     mtVlep         = -1e9;
-     tau1           = -1e9;
-     tau2           = -1e9;
-     tau3           = -1e9;
-     tau21          = -1e9;
-     ptlep1         = -1e9;
-     ptlep2         = -1e9;
-     etalep1        = -1e9;
-     etalep2        = -1e9;
-     philep1        = -1e9;
-     philep2        = -1e9;
-     miniIso1       = -1e9;
-     miniIso2       = -1e9;
-     numjets        = -1e9; 
-     ptjet1         = -1e9;
-     etajet1        = -1e9;
-     phijet1        = -1e9;
-     massjet1       = -1e9;
-     softjet1       = -1e9;
-     prunedjet1     = -1e9;
-     met            = -1e9;
-     metPhi         = -1e9;
-     metpt          = -1e9;
-     metphi         = -1e9;
-     deltaRlep1Obj  = -1e9;
-     deltaRlep2Obj  = -1e9;
-     deltaRleplep   = -1e9;
-     deltaRlepjet   = -1e9;
-     delPhilepmet   = -1e9;
-     delPhijetmet   = -1e9;
-     deltaphijetmet = -1e9; 
-     lep            = -1e9;
-     reg            = -1e9;
-     rho            = -1e9;
-     barrel1        = -1e9;
-     barrel2        = -1e9;
-     endcap1        = -1e9;
-     endcap2        = -1e9;
-     eeDeltaR       = -1e9;
-     etel1          = -1e9;
-     ptel1          = -1e9;
-     etaSC1         = -1e9;
-     dEtaIn1        = -1e9;
-     dPhiIn1        = -1e9;
-     hOverE1        = -1e9;
-     sigmaIEtaIEta1 = -1e9;
-     e1x5overE5x5_1 = -1e9;
-     e2x5overE5x5_1 = -1e9;
-     ooEmooP1       = -1e9;
-     d01            = -1e9;
-     dz1            = -1e9;
-     relIso1        = -1e9;
-     caloIso1       = -1e9;
-     trackIso1      = -1e9;
-     ecalDriven1    = -1e9;
-     missingHits1   = -1e9; 
-     passConVeto1   = -1e9;
-     elmediumID1    = -1e9;
-     eltightID1     = -1e9;
-     heepV60ID1     = -1e9;
-     modheepID1     = -1e9;
-     etel2          = -1e9;
-     ptel2          = -1e9;
-     etaSC2         = -1e9;
-     dEtaIn2        = -1e9;
-     dPhiIn2        = -1e9;
-     hOverE2        = -1e9;
-     sigmaIEtaIEta2 = -1e9;
-     e1x5overE5x5_2 = -1e9;
-     e2x5overE5x5_2 = -1e9;
-     ooEmooP2       = -1e9;
-     d02            = -1e9;
-     dz2            = -1e9;
-     relIso2        = -1e9;
-     caloIso2       = -1e9;
-     trackIso2      = -1e9;
-     ecalDriven2    = -1e9;
-     missingHits2   = -1e9; 
-     passConVeto2   = -1e9;
-     elmediumID2    = -1e9; 
-     eltightID2     = -1e9; 
-     heepV60ID2     = -1e9; 
-     modheepID2     = -1e9; 
-     mutrackerID1   = -1e9;
-     mutrackerID2   = -1e9;
-     muhighPtID1    = -1e9;
-     muhighPtID2    = -1e9;
-     //clear vectors
-      pthltObjs.clear();
-     etahltObjs.clear();
-     phihltObjs.clear();
+     nVtx           = -1e4;
+     triggerWeight  = -1e4;
+     pileupWeight   = -1e4;
+     lumiWeight     = -1e4;
+     candMass       = -1e4;
+     ptVlep         = -1e4;
+     ptVhad         = -1e4;
+     yVlep          = -1e4;
+     yVhad          = -1e4;
+     phiVlep        = -1e4;
+     phiVhad        = -1e4;
+     massVlep       = -1e4;
+     massVhad       = -1e4;
+     mtVlep         = -1e4;
+     tau1           = -1e4;
+     tau2           = -1e4;
+     tau3           = -1e4;
+     tau21          = -1e4;
+     ptlep1         = -1e4;
+     ptlep2         = -1e4;
+     etalep1        = -1e4;
+     etalep2        = -1e4;
+     philep1        = -1e4;
+     philep2        = -1e4;
+     miniIso1       = -1e4;
+     miniIso2       = -1e4;
+     numjets        = -1e4; 
+     ptjet1         = -1e4;
+     etajet1        = -1e4;
+     phijet1        = -1e4;
+     massjet1       = -1e4;
+     softjet1       = -1e4;
+     prunedjet1     = -1e4;
+     met            = -1e4;
+     metPhi         = -1e4;
+     metpt          = -1e4;
+     metphi         = -1e4;
+     deltaRlep1Obj  = -1e4;
+     deltaRlep2Obj  = -1e4;
+     deltaPtlep1Obj = -1e4;
+     deltaPtlep2Obj = -1e4;
+     deltaRleplep   = -1e4;
+     deltaRlepjet   = -1e4;
+     delPhilepmet   = -1e4;
+     delPhijetmet   = -1e4;
+     deltaphijetmet = -1e4; 
+     lep            = -1e4;
+     reg            = -1e4;
+     rho            = -1e4;
+     barrel1        = -1e4;
+     barrel2        = -1e4;
+     endcap1        = -1e4;
+     endcap2        = -1e4;
+     eeDeltaR       = -1e4;
+     etel1          = -1e4;
+     ptel1          = -1e4;
+     etaSC1         = -1e4;
+     dEtaIn1        = -1e4;
+     dPhiIn1        = -1e4;
+     hOverE1        = -1e4;
+     sigmaIEtaIEta1 = -1e4;
+     e1x5overE5x5_1 = -1e4;
+     e2x5overE5x5_1 = -1e4;
+     ooEmooP1       = -1e4;
+     d01            = -1e4;
+     dz1            = -1e4;
+     relIso1        = -1e4;
+     caloIso1       = -1e4;
+     trackIso1      = -1e4;
+     ecalDriven1    = -1e4;
+     missingHits1   = -1e4; 
+     passConVeto1   = -1e4;
+     heepV601       = -1e4;
+     modheep1       = -1e4;
+     etel2          = -1e4;
+     ptel2          = -1e4;
+     etaSC2         = -1e4;
+     dEtaIn2        = -1e4;
+     dPhiIn2        = -1e4;
+     hOverE2        = -1e4;
+     sigmaIEtaIEta2 = -1e4;
+     e1x5overE5x5_2 = -1e4;
+     e2x5overE5x5_2 = -1e4;
+     ooEmooP2       = -1e4;
+     d02            = -1e4;
+     dz2            = -1e4;
+     relIso2        = -1e4;
+     caloIso2       = -1e4;
+     trackIso2      = -1e4;
+     ecalDriven2    = -1e4;
+     missingHits2   = -1e4; 
+     passConVeto2   = -1e4;
+     heepV602       = -1e4; 
+     modheep2       = -1e4; 
+     trackerMu1     = -1e4;
+     trackerMu2     = -1e4;
+     highPtMu1      = -1e4;
+     highPtMu2      = -1e4;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void EDBRTreeMaker::beginJob()
-{
-}
-
-void EDBRTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-   bool changed;
-   if ( !hltConfig.init(iRun, iSetup, "HLT", changed) ) {
-     edm::LogError("HltAnalysis") << "Initialization of HLTConfigProvider failed!!";
-     return;
-   }
-   elPaths.clear(), muPaths.clear();
-   for (size_t i = 0; i < elPaths_.size(); i++) {
-      std::vector<std::string> foundPaths = hltConfig.matched( hltConfig.triggerNames(), elPaths_[i] );
-      while ( !foundPaths.empty() ){
-         elPaths.push_back( foundPaths.back() );
-         foundPaths.pop_back();
-      }
-   }
-   for (size_t i = 0; i < muPaths_.size(); i++) {
-      std::vector<std::string> foundPaths = hltConfig.matched( hltConfig.triggerNames(), muPaths_[i] );
-      while ( !foundPaths.empty() ){
-         muPaths.push_back( foundPaths.back() );
-         foundPaths.pop_back();
-      }
-   }
-
-   std::cout<<"\n************** HLT Information **************\n";
-   std::cout<<"\n Run number: " << iRun.run() << std::endl;
-   for (size_t i=0; i < elPaths.size(); i++) std::cout << "\n Electron paths: " << elPaths[i].c_str() << std::endl;
-   for (size_t i=0; i < muPaths.size(); i++) std::cout << "\n Muon paths    : " << muPaths[i].c_str() << std::endl;
-   std::cout<<"\n*********************************************\n\n";
-
-}
-
-void EDBRTreeMaker::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 }
 
