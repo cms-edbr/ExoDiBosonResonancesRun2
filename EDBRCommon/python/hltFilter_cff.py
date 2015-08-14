@@ -14,7 +14,7 @@ hltMatchingElectrons = cms.EDProducer("PatElectronHLTmatching",
                                   hltObjects = cms.InputTag("selectedPatTrigger"               ),
                                   leptons    = cms.InputTag("slimmedElectrons"                 ),
                                   maxDeltaR  = cms.double  ( 0.3                               ),
-                                  maxDeltaPt = cms.double  ( 0.1                               ))
+                                  maxDeltaPt = cms.double  ( 1.0                               ))
 
 hltMatchingMuons = cms.EDProducer("PatMuonHLTmatching",
                                   path       = cms.vstring ("HLT_Mu45_eta2p1_v*"               ),
@@ -22,7 +22,7 @@ hltMatchingMuons = cms.EDProducer("PatMuonHLTmatching",
                                   hltObjects = cms.InputTag("selectedPatTrigger"               ),
                                   leptons    = cms.InputTag("slimmedMuons"                     ),
                                   maxDeltaR  = cms.double  ( 0.3                               ),
-                                  maxDeltaPt = cms.double  ( 0.1                               ))
+                                  maxDeltaPt = cms.double  ( 0.5                               ))
 
 hltSequence = cms.Sequence(       hltFilter            + 
                                   hltMatchingElectrons +

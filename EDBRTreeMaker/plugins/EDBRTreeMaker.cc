@@ -99,9 +99,13 @@ private:
   std::string EDBRChannel_;
   std::string gravitonSrc_, metSrc_;
 
-  //High Level Trigger
-  int    elhltbit;
-  int    muhltbit;
+  //-------------------- HIGH LEVEL TRIGGER ------------------------------------------
+  bool   elhltbit;
+  bool   muhltbit;
+  bool   matchByDeltaR1;
+  bool   matchByDeltaR2;
+  bool   matchByPt1;
+  bool   matchByPt2;
   double deltaRlep1Obj;
   double deltaRlep2Obj;
   double deltaPtlep1Obj;
@@ -203,6 +207,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   /// HLT info 
   outTree_->Branch("elhltbit"        ,&elhltbit       ,"elhltbit/I"       );
   outTree_->Branch("muhltbit"        ,&muhltbit       ,"muhltbit/I"       );
+  outTree_->Branch("matchByDeltaR1"  ,&matchByDeltaR1 ,"matchByDeltaR1/I" );
+  outTree_->Branch("matchByDeltaR2"  ,&matchByDeltaR2 ,"matchByDeltaR2/I" );
+  outTree_->Branch("matchByPt1"      ,&matchByPt1     ,"matchByPt1/I"     );
+  outTree_->Branch("matchByPt2"      ,&matchByPt2     ,"matchByPt2/I"     );
   outTree_->Branch("deltaRlep1Obj"   ,&deltaRlep1Obj  ,"deltaRlep1Obj/D"  );
   outTree_->Branch("deltaRlep2Obj"   ,&deltaRlep2Obj  ,"deltaRlep2Obj/D"  );
   outTree_->Branch("deltaPtlep1Obj"  ,&deltaPtlep1Obj ,"deltaPtlep1Obj/D" );
@@ -317,8 +325,8 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<ValueMap<float> > deltaR_handle, deltaPt_handle;
    iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elbit_handle);
    iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), mubit_handle);
-   elhltbit = (int)(*elbit_handle);
-   muhltbit = (int)(*mubit_handle);
+   elhltbit = (*elbit_handle);
+   muhltbit = (*mubit_handle);
 
    Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
@@ -422,6 +430,10 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         deltaRlep2Obj  = (*deltaR_handle)[mu2Ptr];
                         deltaPtlep1Obj = (*deltaPt_handle)[mu1Ptr];
                         deltaPtlep2Obj = (*deltaPt_handle)[mu2Ptr];
+                        matchByDeltaR1 = mu1->userInt("matchByDeltaR");
+                        matchByDeltaR2 = mu2->userInt("matchByDeltaR");
+                        matchByPt1     = mu1->userInt("matchByPt");
+                        matchByPt2     = mu2->userInt("matchByPt");
                         reco::MuonPFIsolation pfIso1  = mu1->pfIsolationR03();
                         reco::MuonPFIsolation pfIso2  = mu2->pfIsolationR03();
                         // isolation with delta beta correction
@@ -452,6 +464,10 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         deltaRlep2Obj  = (*deltaR_handle)[el2Ptr];
                         deltaPtlep1Obj = (*deltaR_handle)[el1Ptr];
                         deltaPtlep2Obj = (*deltaR_handle)[el2Ptr];
+                        matchByDeltaR1 = el1->userInt("matchByDeltaR");
+                        matchByDeltaR2 = el2->userInt("matchByDeltaR");
+                        matchByPt1     = el1->userInt("matchByPt");
+                        matchByPt2     = el2->userInt("matchByPt");
                         eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
                         ptel1          = el1->pt();
                         ptel2          = el2->pt();
@@ -659,6 +675,10 @@ void EDBRTreeMaker::setDummyValues() {
      metPhi         = -1e4;
      metpt          = -1e4;
      metphi         = -1e4;
+     matchByDeltaR1 = -1e4;
+     matchByDeltaR2 = -1e4;
+     matchByPt1     = -1e4;
+     matchByPt2     = -1e4;
      deltaRlep1Obj  = -1e4;
      deltaRlep2Obj  = -1e4;
      deltaPtlep1Obj = -1e4;
