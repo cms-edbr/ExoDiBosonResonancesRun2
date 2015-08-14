@@ -11,4 +11,4 @@
 #                       Use this mode for trigger studies
 #
 # Change filter mode from True to False with the following command:
-sed -i '208 s/True/False/' *.py
+sed -i '200 s/True/False/' *.py

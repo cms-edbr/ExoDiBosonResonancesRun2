@@ -24,8 +24,8 @@ SAMPLE="WZ"
 #SAMPLE="ZZ" 
 
 ### Source
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
-process.maxEvents.input = -1
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X50ns."+SAMPLE)
+process.maxEvents.input = -1 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -82,21 +82,14 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter = cms.bool(True) )
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          isGen           = cms.bool    (  False                                                                      ),
-                                          originalNEvents = cms.int32   (  usedNevents                                                                ),
-                                          crossSectionPb  = cms.double  (  usedXsec                                                                   ),
-                                          targetLumiInvPb = cms.double  (  40.028                                                                     ),
-                                          EDBRChannel     = cms.string  (  CHANNEL                                                                    ),
-                                          gravitonSrc     = cms.string  ( "graviton"                                                                  ),
-                                          metSrc          = cms.string  ( "slimmedMETs"                                                               ),
-                                          elPaths         = cms.vstring ( "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"                                          ), 
-                                          muPaths         = cms.vstring ( "HLT_Mu45_eta2p1_v*"                                                        ), 
-                                          hltToken        = cms.InputTag( "TriggerResults","","HLT"                                                   ),
-                                          hltObjects      = cms.InputTag( "selectedPatTrigger"                                                        ),
-                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex"                                                  ),
-                                          elmediumID      = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium" ),
-                                          eltightID       = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"  ),
-                                          heepV60ID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60"                                  ))
+                                          isGen           = cms.bool    (  False                     ),
+                                          originalNEvents = cms.int32   (  usedNevents               ),
+                                          crossSectionPb  = cms.double  (  usedXsec                  ),
+                                          targetLumiInvPb = cms.double  (  40.028                    ),
+                                          EDBRChannel     = cms.string  (  CHANNEL                   ),
+                                          gravitonSrc     = cms.string  ( "graviton"                 ),
+                                          metSrc          = cms.string  ( "slimmedMETs"              ),
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 
@@ -112,12 +105,10 @@ if option == 'GEN':
     process.treeDumper.isGen  = True
     process.hadronicV.cut = cms.string('pt > 200. '
                                        '& (userFloat("ak8GenJetsSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8GenJetsSoftDropMass") < 110.)')
+                                       '& (userFloat("ak8GenJetsSoftDropMass") < 70.)')
 
 ### RECO level studies
 if option == 'RECO':
-    process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
-    process.load("ExoDiBosonResonances.EDBRCommon.goodElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
     process.hadronicV.cut = cms.string('pt > 200. '
@@ -126,9 +117,7 @@ if option == 'RECO':
 
 #***************************************** SEQUENCES **********************************************# 
 
-process.leptonSequence = cms.Sequence(    process.muSequence        +
-                                          process.eleSequence       +
-                                          process.leptonicVSequence + 
+process.leptonSequence = cms.Sequence(    process.leptonicVSequence + 
                                           process.leptonicVFilter   +
                                           process.leptonicVSelector ) 
 
@@ -145,10 +134,13 @@ process.analysis = cms.Path(              process.leptonSequence    +
                                           process.treeDumper        )
 
 if option=='RECO':
-    from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
-    process = addElectronIDs(process)
     process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
     process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
+    from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
+    my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff']
+    for idmod in my_id_modules:
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
     process.analysis.replace(process.leptonSequence, 
                              process.hltSequence              +
                              process.egmGsfElectronIDSequence + 
@@ -174,8 +166,7 @@ filterMode = True
 ### but only later at the tree analysis.
 if filterMode == False:
     process.hltFilter.triggerConditions = ('*',)
-    process.goodElectrons.cut = ''
-    process.goodMuons.cut = ''
+    process.goodLeptons.filter = False
     process.leptonicVSelector.cut = '70. < mass < 110.'
     process.graviton.cut = ''
 #                                                                                                    #
