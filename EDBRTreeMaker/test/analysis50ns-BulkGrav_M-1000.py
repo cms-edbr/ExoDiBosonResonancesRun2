@@ -202,8 +202,7 @@ filterMode = True
 ### but only later at the tree analysis.
 if filterMode == False:
     process.hltFilter.triggerConditions = ('*',)
-    process.goodElectrons.cut = ''
-    process.goodMuons.cut = ''
+    process.goodLeptons.filter = False
     process.leptonicVSelector.cut = '70. < mass < 110.'
     process.graviton.cut = ''
 #                                                                                                    #

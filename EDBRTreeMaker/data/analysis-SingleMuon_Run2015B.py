@@ -116,7 +116,7 @@ if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
     process.hadronicV.cut = cms.string('pt > 200. '
                                        '& (userFloat("ak8PFJetsCHSSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 110.)')
+                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 70.)')
 
 #***************************************** SEQUENCES **********************************************# 
 
@@ -137,13 +137,13 @@ process.analysis = cms.Path(              process.leptonSequence    +
                                           process.treeDumper        )
 
 if option=='RECO':
+    process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
+    process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff']
     for idmod in my_id_modules:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-    process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
-    process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
     process.analysis.replace(process.leptonSequence, 
                              process.hltSequence              +
                              process.egmGsfElectronIDSequence + 
@@ -169,6 +169,7 @@ filterMode = True
 ### but only later at the tree analysis.
 if filterMode == False:
     process.hltFilter.triggerConditions = ('*',)
+    process.goodLeptons.filter = False
     process.leptonicVSelector.cut = '70. < mass < 110.'
     process.graviton.cut = ''
 #                                                                                                    #
