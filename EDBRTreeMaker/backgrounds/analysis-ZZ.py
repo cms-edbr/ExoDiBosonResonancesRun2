@@ -24,7 +24,7 @@ VZ_JetMET       = False        # True
 SAMPLE="ZZ" 
 
 ### Source
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X50ns."+SAMPLE)
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
 process.maxEvents.input = -1 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
