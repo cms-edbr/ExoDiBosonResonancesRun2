@@ -71,20 +71,6 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     using namespace edm;
     using namespace std;
 
-    // HLT information
-    Handle<bool> elHlt_handle;
-    Handle<bool> muHlt_handle;
-    Handle<ValueMap<bool> > elMatchDeltaR_handle,  muMatchDeltaR_handle;
-    Handle<ValueMap<bool> > elMatchPt_handle,      muMatchPt_handle;
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),     elHlt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchDeltaR"), elMatchDeltaR_handle);
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchPt"),     elMatchPt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),     muHlt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchDeltaR"), muMatchDeltaR_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchPt"),     muMatchPt_handle);
-    bool elPassHlt = (*elHlt_handle);
-    bool muPassHlt = (*muHlt_handle);
-
     // handle goodOfflinePrimaryVertex collection
     Handle<reco::VertexCollection>  vertices;
     iEvent.getByToken(vertexToken_, vertices);
@@ -118,18 +104,14 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const Ptr<pat::Electron> elPtr(electrons, i);
         const pat::Electron& el = (*electrons)[i];
         float miniIso           = (*elIsoMap)[elPtr]; 
-        bool  matchByDeltaR     = (*elMatchDeltaR_handle)[elPtr];
-        bool  matchByPt         = (*elMatchPt_handle)[elPtr];
         bool  isoID             = miniIso<0.1 ? true : false;
         bool  heepV60           = (*heepV60_handle)[elPtr].cutFlowPassed(); 
         bool  heepV60_noiso     = (*heepV60_handle)[elPtr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
         if ( !(heepV60_noiso and isoID) ) continue;
         pat::Electron* cloneEl = el.clone();
-        cloneEl->addUserInt("slimmedIndex",  i             ); //localize goodElectron in the slimmedElectrons
+        cloneEl->addUserInt("slimmedIndex",  i             ); // index to localize the goodElectron in the slimmedElectrons
         cloneEl->addUserInt("heepV60",       heepV60       );
         cloneEl->addUserInt("heepV60_noiso", heepV60_noiso );
-        cloneEl->addUserInt("matchByPt",     matchByPt     );
-        cloneEl->addUserInt("matchByDeltaR", matchByDeltaR );
         cloneEl->addUserFloat("miniIso",     miniIso       );
         goodElectrons->push_back(            *cloneEl      );
     }
@@ -138,8 +120,6 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const pat::Muon& mu    = (*muons)[i];
         float miniIso          = (*muIsoMap)[muPtr]; 
         bool  isoID            = miniIso<0.1 ? true : false;
-        bool  matchByDeltaR    = (*muMatchDeltaR_handle)[muPtr];
-        bool  matchByPt        = (*muMatchPt_handle)[muPtr];
         bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
         bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         bool tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
@@ -150,32 +130,44 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if ( !(highPt_AND_tracker or tracker_AND_highPt) ) continue; 
         }
         pat::Muon* cloneMu = mu.clone();
-        cloneMu->addUserInt("slimmedIndex",  i             );
-        cloneMu->addUserInt("isTracker",     trackerID     );
-        cloneMu->addUserInt("isHighPt",      highPtID      );
-        cloneMu->addUserInt("matchByPt",     matchByPt     );
-        cloneMu->addUserInt("matchByDeltaR", matchByDeltaR );
-        cloneMu->addUserFloat("miniIso",     miniIso       );
-        goodMuons->push_back(                *cloneMu      );
+        cloneMu->addUserInt("slimmedIndex", i         );
+        cloneMu->addUserInt("isTracker",    trackerID );
+        cloneMu->addUserInt("isHighPt",     highPtID  );
+        cloneMu->addUserFloat("miniIso",    miniIso   );
+        goodMuons->push_back(               *cloneMu  );
     }
 
     // The goodLepton matching HLT should pass acceptance
+    Handle<bool> elHlt_handle;
+    Handle<bool> muHlt_handle;
+    Handle<ValueMap<bool> > elMatchDeltaR_handle,  muMatchDeltaR_handle;
+    Handle<ValueMap<bool> > elMatchPt_handle,      muMatchPt_handle;
+    iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),     elHlt_handle);
+    iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),     muHlt_handle);
+    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchDeltaR"), elMatchDeltaR_handle);
+    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchPt"),     elMatchPt_handle);
+    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchDeltaR"), muMatchDeltaR_handle);
+    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchPt"),     muMatchPt_handle);
+    bool elPassHlt = (*elHlt_handle);
+    bool muPassHlt = (*muHlt_handle);
     bool elFlag=false, muFlag=false;
     for ( size_t i=0; i<goodElectrons->size(); ++i ) {
         const pat::Electron& el = (*goodElectrons)[i];
+        const Ptr<pat::Electron> elPtr(electrons, el.userInt("slimmedIndex"));
         bool  acceptance        = el.pt()>115. ? true : false;
-        bool  matchByDeltaR     = el.userInt("matchByDeltaR");
-        bool  matchByPt         = el.userInt("matchByPt");
-        if ( filter_ and !(elPassHlt and matchByDeltaR and matchByPt) ) continue; 
+        bool  matchHltByDeltaR  = (*elMatchDeltaR_handle)[elPtr];
+        bool  matchHltByPt      = (*elMatchPt_handle)[elPtr];
+        if ( filter_ and !(elPassHlt and matchHltByDeltaR and matchHltByPt) ) continue; 
         if ( filter_ and !acceptance ) continue; 
         elFlag=true;
     }
     for ( size_t i=0; i<goodMuons->size(); ++i ) {
-        const pat::Muon& mu     = (*goodMuons)[i];
-        bool  acceptance        = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
-        bool  matchByDeltaR     = mu.userInt("matchByDeltaR");
-        bool  matchByPt         = mu.userInt("matchByPt");
-        if ( filter_ and !(muPassHlt and matchByDeltaR and matchByPt) ) continue; 
+        const pat::Muon& mu    = (*goodMuons)[i];
+        const Ptr<pat::Muon> muPtr(muons, mu.userInt("slimmedIndex"));
+        bool  acceptance       = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
+        bool  matchHltByDeltaR = (*muMatchDeltaR_handle)[muPtr];
+        bool  matchHltByPt     = (*muMatchPt_handle)[muPtr];
+        if ( filter_ and !(muPassHlt and matchHltByDeltaR and matchHltByPt) ) continue; 
         if ( filter_ and !acceptance ) continue; 
         muFlag=true;
     }
