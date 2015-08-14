@@ -35,7 +35,7 @@ SAMPLE="BulkGravToZZToZlepZhad_M-1600"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
-process.maxEvents.input = -1
+process.maxEvents.input = -1 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -112,21 +112,14 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter = cms.bool(True) )
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          isGen           = cms.bool    (  False                                                                      ),
-                                          originalNEvents = cms.int32   (  usedNevents                                                                ),
-                                          crossSectionPb  = cms.double  (  usedXsec                                                                   ),
-                                          targetLumiInvPb = cms.double  (  40.028                                                                     ),
-                                          EDBRChannel     = cms.string  (  CHANNEL                                                                    ),
-                                          gravitonSrc     = cms.string  ( "graviton"                                                                  ),
-                                          metSrc          = cms.string  ( "slimmedMETs"                                                               ),
-                                          elPaths         = cms.vstring ( "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"                                          ), 
-                                          muPaths         = cms.vstring ( "HLT_Mu45_eta2p1_v*"                                                        ), 
-                                          hltToken        = cms.InputTag( "TriggerResults","","HLT"                                                   ),
-                                          hltObjects      = cms.InputTag( "selectedPatTrigger"                                                        ),
-                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex"                                                  ),
-                                          elmediumID      = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium" ),
-                                          eltightID       = cms.InputTag( "egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"  ),
-                                          heepV60ID       = cms.InputTag( "egmGsfElectronIDs:heepElectronID-HEEPV60"                                  ))
+                                          isGen           = cms.bool    (  False                     ),
+                                          originalNEvents = cms.int32   (  usedNevents               ),
+                                          crossSectionPb  = cms.double  (  usedXsec                  ),
+                                          targetLumiInvPb = cms.double  (  40.028                    ),
+                                          EDBRChannel     = cms.string  (  CHANNEL                   ),
+                                          gravitonSrc     = cms.string  ( "graviton"                 ),
+                                          metSrc          = cms.string  ( "slimmedMETs"              ),
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 
@@ -205,22 +198,15 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True #False       
+filterMode = True      
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
-    process.goodLeptons.filter = False
+    process.hltFilter.triggerConditions = ('*',)
     process.goodElectrons.cut = ''
     process.goodMuons.cut = ''
-    process.leptonicVSelector.filter = False
-    process.leptonicVSelector.cut = ''
-    process.hadronicV.cut = ''
+    process.leptonicVSelector.cut = '70. < mass < 110.'
     process.graviton.cut = ''
-    process.leptonicVFilter.minNumber = 0
-    process.hadronicVFilter.minNumber = 0
-    process.gravitonFilter.minNumber  = 0
-    process.analysis.remove( process.hltSequence )
-    del process.endpath
 #                                                                                                    #
 #****************************************************************************************************#
 

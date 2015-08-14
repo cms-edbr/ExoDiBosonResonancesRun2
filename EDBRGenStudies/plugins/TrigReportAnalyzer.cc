@@ -111,24 +111,24 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      if (lep==13){
         switch(index){
             case  2: wfMu->Fill("Begin",1); break;
-            case  5: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); break;
-            case 14: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); break;
-            case 15: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); break;
-            case 19: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); break;
-            case 21: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("V-jet",1); break;
-            case 22: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("V-jet",1); wfMu->Fill("Graviton",1); break;
+            case  7: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); break;
+            case 16: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); break;
+            case 17: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); break;
+            case 21: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); break;
+            case 23: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("V-jet",1); break;
+            case 24: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("V-jet",1); wfMu->Fill("Graviton",1); break;
         }
      }
      // cut flow for electrons
      if (lep==11){
         switch(index){
             case  2: wfEl->Fill("Begin",1); break;
-            case  5: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); break;
-            case 14: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); break;
-            case 15: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); break;
-            case 19: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); break;
-            case 21: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("V-jet",1); break;
-            case 22: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("V-jet",1); wfEl->Fill("Graviton",1); break;
+            case  7: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); break;
+            case 16: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); break;
+            case 17: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); break;
+            case 21: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); break;
+            case 23: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("V-jet",1); break;
+            case 24: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("V-jet",1); wfEl->Fill("Graviton",1); break;
         }
      }
    }
