@@ -74,16 +74,16 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // handle HLT information
     Handle<bool>      elHlt_handle;
     Handle<bool>      muHlt_handle;
-    bool elPassHlt = *elHlt_handle;
-    bool muPassHlt = *muHlt_handle;
     Handle<ValueMap<bool> > elMatchDeltaR_handle,  muMatchDeltaR_handle;
     Handle<ValueMap<bool> > elMatchPt_handle,      muMatchPt_handle;
     iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),     elHlt_handle);
+    iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),     muHlt_handle);
     iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchDeltaR"), elMatchDeltaR_handle);
     iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchPt"),     elMatchPt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),     muHlt_handle);
     iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchDeltaR"), muMatchDeltaR_handle);
     iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchPt"),     muMatchPt_handle);
+    bool elPassHlt = (*elHlt_handle);
+    bool muPassHlt = (*muHlt_handle);
 
     // handle goodOfflinePrimaryVertex collection
     Handle<reco::VertexCollection>  vertices;
@@ -117,35 +117,35 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for ( size_t i=0; i<elMult; ++i ) {
         const Ptr<pat::Electron> elPtr(electrons, i);
         float miniIso           = (*elIsoMap)[elPtr]; 
-        bool  isoID             = miniIso<0.1 ? 1 : 0;
+        bool  isoID             = miniIso<0.1 ? true : false;
         const pat::Electron& el = (*electrons)[i];
-        bool  acceptance        = el.pt()>115. && el.eta()<2.5 ? 1 : 0;
+        bool  acceptance        = (el.pt()>115. && el.eta()<2.5) ? true : false;
         bool  matchHltByDeltaR  = (*elMatchDeltaR_handle)[elPtr];
         bool  matchHltByPt      = (*elMatchPt_handle)[elPtr];
         bool  heepV60           = (*heepV60_handle)[elPtr].cutFlowPassed(); 
         bool  heepV60_noiso     = (*heepV60_handle)[elPtr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
-        if ( filter_ and !(heepV60_noiso and isoID) ) continue;    // electrons must be heepV60_noiso and miniIsolated
+        if ( filter_ and !(heepV60_noiso and isoID) ) continue;
         if ( filter_ and !(elPassHlt and matchHltByDeltaR and matchHltByPt and acceptance) ) continue;
-        pat::Electron* cloneEl = el.clone();                       // need to clone the electron to add miniIso as UserFloat
+        pat::Electron* cloneEl = el.clone();
         cloneEl->addUserInt("slimmedIndex",  i             );      // index to localize the goodElectron in the slimmedElectrons collection
         cloneEl->addUserInt("heepV60",       heepV60       );
         cloneEl->addUserInt("heepV60_noiso", heepV60_noiso );
-        cloneEl->addUserFloat("miniIso", miniIso           );
+        cloneEl->addUserFloat("miniIso",     miniIso       );
         goodElectrons->push_back(*cloneEl);
     }
 
     for ( size_t i=0; i<muMult; ++i ) {
         const Ptr<pat::Muon> muPtr(muons, i);
         float miniIso          = (*muIsoMap)[muPtr]; 
-        bool  isoID            = miniIso<0.1 ? 1 : 0;
+        bool  isoID            = miniIso<0.1 ? true : false;
         const pat::Muon& mu    = (*muons)[i];
-        bool  acceptance       = mu.pt()>50. && mu.eta()<2.1 ? 1 : 0;
+        bool  acceptance       = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
         bool  matchHltByDeltaR = (*muMatchDeltaR_handle)[muPtr];
         bool  matchHltByPt     = (*muMatchPt_handle)[muPtr];
-        bool  trackerID = hptm::isTrackerMuon(mu, vertex);  
-        bool  highPtID  = muon::isHighPtMuon( mu, vertex);  
+        bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
+        bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         bool tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
-        if ( filter_ and !tracker_OR_highPt_AND_miniIso ) continue;  // muons must be tracker_OR_highPt and miniIsolated 
+        if ( filter_ and !tracker_OR_highPt_AND_miniIso ) continue;
         if ( filter_ and goodMuons->size()==1 ) {
             bool highPt_AND_tracker = muon::isHighPtMuon( (*goodMuons)[0], vertex) and trackerID; 
             bool tracker_AND_highPt = hptm::isTrackerMuon((*goodMuons)[0], vertex) and highPtID; 
