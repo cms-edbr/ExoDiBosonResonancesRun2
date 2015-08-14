@@ -115,8 +115,8 @@ void HLTmatchValueMap<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                            deltaR( eta, phi, etaObj[i],       phiObj[i]       ) ? closest : i;
                 closest  = temp;
             }
-            double dR  = deltaR( eta, phi, etaObj[closest], phiObj[closest] ); 
-            double dPt = abs(pt-ptObj[closest])/pt; 
+            float dR  = deltaR( eta, phi, etaObj[closest], phiObj[closest] ); 
+            float dPt = fabs(pt-ptObj[closest])/pt; 
             bool matchBydR = dR  < maxDeltaR_  ? true : false;
             bool matchByPt = dPt < maxDeltaPt_ ? true : false;
             deltaRLepObj.push_back( dR );

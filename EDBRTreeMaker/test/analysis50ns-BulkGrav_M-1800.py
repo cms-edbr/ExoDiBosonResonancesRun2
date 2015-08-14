@@ -143,7 +143,7 @@ if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
     process.hadronicV.cut = cms.string('pt > 200. '
                                        '& (userFloat("ak8PFJetsCHSSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 70.)')
+                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 110.)')
 
 #***************************************** SEQUENCES **********************************************# 
 
@@ -197,7 +197,7 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True       
+filterMode = True 
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
