@@ -139,19 +139,15 @@ if option == 'GEN':
 
 ### RECO level studies
 if option == 'RECO':
-    process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
-    process.load("ExoDiBosonResonances.EDBRCommon.goodElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
     process.hadronicV.cut = cms.string('pt > 200. '
                                        '& (userFloat("ak8PFJetsCHSSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 110.)')
+                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 70.)')
 
 #***************************************** SEQUENCES **********************************************# 
 
-process.leptonSequence = cms.Sequence(    process.muSequence        +
-                                          process.eleSequence       +
-                                          process.leptonicVSequence + 
+process.leptonSequence = cms.Sequence(    process.leptonicVSequence + 
                                           process.leptonicVFilter   +
                                           process.leptonicVSelector ) 
 
@@ -168,10 +164,13 @@ process.analysis = cms.Path(              process.leptonSequence    +
                                           process.treeDumper        )
 
 if option=='RECO':
-    from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
-    process = addElectronIDs(process)
     process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
     process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
+    from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
+    my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff']
+    for idmod in my_id_modules:
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
     process.analysis.replace(process.leptonSequence, 
                              process.hltSequence              +
                              process.egmGsfElectronIDSequence + 
