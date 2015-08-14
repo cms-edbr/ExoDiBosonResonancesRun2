@@ -13,10 +13,10 @@ import PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi as jetCleaner_cfi
 
 cleanJets = jetCleaner_cfi.cleanPatJets.clone()
 cleanJets.src = "goodJets"
-cleanJets.checkOverlaps.muons.src = "goodMuons"
+cleanJets.checkOverlaps.muons.src = "goodLeptons:Muons"
 cleanJets.checkOverlaps.muons.deltaR = 0.8
 cleanJets.checkOverlaps.muons.requireNoOverlaps = True
-cleanJets.checkOverlaps.electrons.src = "goodElectrons"
+cleanJets.checkOverlaps.electrons.src = "goodLeptons:Electrons"
 cleanJets.checkOverlaps.electrons.deltaR = 0.8
 cleanJets.checkOverlaps.electrons.requireNoOverlaps = True
 cleanJets.checkOverlaps.photons = cms.PSet()

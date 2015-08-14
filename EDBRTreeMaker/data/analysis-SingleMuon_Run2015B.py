@@ -112,8 +112,6 @@ if option == 'GEN':
 
 ### RECO level studies
 if option == 'RECO':
-    process.load("ExoDiBosonResonances.EDBRCommon.goodMuons_cff")
-    process.load("ExoDiBosonResonances.EDBRCommon.goodElectrons_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
     process.hadronicV.cut = cms.string('pt > 200. '
@@ -122,9 +120,7 @@ if option == 'RECO':
 
 #***************************************** SEQUENCES **********************************************# 
 
-process.leptonSequence = cms.Sequence(    process.muSequence        +
-                                          process.eleSequence       +
-                                          process.leptonicVSequence + 
+process.leptonSequence = cms.Sequence(    process.leptonicVSequence + 
                                           process.leptonicVFilter   +
                                           process.leptonicVSelector ) 
 
@@ -141,8 +137,11 @@ process.analysis = cms.Path(              process.leptonSequence    +
                                           process.treeDumper        )
 
 if option=='RECO':
-    from ExoDiBosonResonances.EDBRCommon.goodElectrons_cff import addElectronIDs
-    process = addElectronIDs(process)
+    from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
+    my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff']
+    for idmod in my_id_modules:
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
     process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
     process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
     process.analysis.replace(process.leptonSequence, 
@@ -170,8 +169,6 @@ filterMode = True
 ### but only later at the tree analysis.
 if filterMode == False:
     process.hltFilter.triggerConditions = ('*',)
-    process.goodElectrons.cut = ''
-    process.goodMuons.cut = ''
     process.leptonicVSelector.cut = '70. < mass < 110.'
     process.graviton.cut = ''
 #                                                                                                    #

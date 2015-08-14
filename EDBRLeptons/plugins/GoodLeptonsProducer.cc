@@ -58,8 +58,8 @@ GoodLeptonsProducer::GoodLeptonsProducer(const edm::ParameterSet& iConfig):
     muIsoMapToken_( consumes<edm::ValueMap<float> >(              iConfig.getParameter<edm::InputTag>("muIsoMap"  ) ) ),
     heepV60Token_(  consumes<edm::ValueMap<vid::CutFlowResult> >( iConfig.getParameter<edm::InputTag>("heepV60"   ) ) )
 {
-    produces<std::vector<pat::Electron> >("goodElectrons");
-    produces<std::vector<pat::Muon> >(    "goodMuons"    );
+    produces<std::vector<pat::Electron> >("Electrons");
+    produces<std::vector<pat::Muon> >(    "Muons"    );
 }
 
 GoodLeptonsProducer::~GoodLeptonsProducer() {}
@@ -72,8 +72,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     using namespace std;
 
     // handle HLT information
-    Handle<bool>      elHlt_handle;
-    Handle<bool>      muHlt_handle;
+    Handle<bool> elHlt_handle;
+    Handle<bool> muHlt_handle;
     Handle<ValueMap<bool> > elMatchDeltaR_handle,  muMatchDeltaR_handle;
     Handle<ValueMap<bool> > elMatchPt_handle,      muMatchPt_handle;
     iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),     elHlt_handle);
@@ -125,9 +125,9 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         bool  heepV60           = (*heepV60_handle)[elPtr].cutFlowPassed(); 
         bool  heepV60_noiso     = (*heepV60_handle)[elPtr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
         if ( filter_ and !(heepV60_noiso and isoID) ) continue;
-        if ( filter_ and !(elPassHlt and matchHltByDeltaR and matchHltByPt and acceptance) ) continue;
+        if ( filter_ and elPassHlt and matchHltByDeltaR and matchHltByPt ) if(!acceptance) continue;
         pat::Electron* cloneEl = el.clone();
-        cloneEl->addUserInt("slimmedIndex",  i             );      // index to localize the goodElectron in the slimmedElectrons collection
+        cloneEl->addUserInt("slimmedIndex",  i             ); // index to localize the goodElectron in the slimmedElectrons collection
         cloneEl->addUserInt("heepV60",       heepV60       );
         cloneEl->addUserInt("heepV60_noiso", heepV60_noiso );
         cloneEl->addUserFloat("miniIso",     miniIso       );
@@ -151,7 +151,7 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             bool tracker_AND_highPt = hptm::isTrackerMuon((*goodMuons)[0], vertex) and highPtID; 
             if ( !(highPt_AND_tracker or tracker_AND_highPt) ) continue; 
         }
-        if ( filter_ and !(muPassHlt and matchHltByDeltaR and matchHltByPt and acceptance) ) continue;
+        if ( filter_ and muPassHlt and matchHltByDeltaR and matchHltByPt ) if(!acceptance) continue;
         pat::Muon* cloneMu = mu.clone();
         cloneMu->addUserInt("slimmedIndex", i         );
         cloneMu->addUserInt("isTracker",    trackerID );
@@ -160,8 +160,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         goodMuons->push_back(*cloneMu);
     }
 
-    iEvent.put(goodElectrons, "goodElectrons");
-    iEvent.put(goodMuons,     "goodMuons"    );
+    iEvent.put(goodElectrons, "Electrons");
+    iEvent.put(goodMuons,     "Muons"    );
 }
 
 //define this as a plug-in
