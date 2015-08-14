@@ -2,9 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 goodElectrons = cms.EDFilter("PATElectronSelector",
                              src = cms.InputTag("goodLeptons:goodElectrons"),
-                             cut = cms.string("pt > 115 & abs(eta) < 2.5 & "
-                                              "(abs(superCluster().position().eta()) < 1.442 ||"
-                                              " abs(superCluster().position().eta()) > 1.566)  "),
+                             cut = cms.string(""),
                              filter = cms.bool(False)
                             )
 
