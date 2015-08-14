@@ -48,12 +48,12 @@ class HLTmatchValueMap : public edm::EDProducer {
 
 template <typename T>
 HLTmatchValueMap<T>::HLTmatchValueMap(const edm::ParameterSet& iConfig):
-    path_       (                                                   iConfig.getParameter<std::vector<std::string>>( "path"            ) ), 
-    hltToken_   ( consumes<edm::TriggerResults>                   ( iConfig.getParameter<edm::InputTag>           ( "hltToken"      ) ) ),
-    hltObjects_ ( consumes<pat::TriggerObjectStandAloneCollection>( iConfig.getParameter<edm::InputTag>           ( "hltObjects"    ) ) ),
-    leptonToken_( consumes<candidateCollection>                   ( iConfig.getParameter<edm::InputTag>           ( "leptons"       ) ) ),
-    maxDeltaR_  (                                                   iConfig.getParameter<double>                  ( "maxDeltaR"       ) ),
-    maxDeltaPt_ (                                                   iConfig.getParameter<double>                  ( "maxDeltaPt"      ) )
+    path_       (                                                 iConfig.getParameter<std::vector<std::string>>("path"        ) ), 
+    hltToken_   (consumes<edm::TriggerResults>                   (iConfig.getParameter<edm::InputTag>           ("hltToken"  ) ) ),
+    hltObjects_ (consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>           ("hltObjects") ) ),
+    leptonToken_(consumes<candidateCollection>                   (iConfig.getParameter<edm::InputTag>           ("leptons"   ) ) ),
+    maxDeltaR_  (                                                 iConfig.getParameter<double>                  ("maxDeltaR"   ) ),
+    maxDeltaPt_ (                                                 iConfig.getParameter<double>                  ("maxDeltaPt"  ) )
 {
     produces<bool>("trigBit");
     produces<edm::ValueMap<float> >("deltaR");
