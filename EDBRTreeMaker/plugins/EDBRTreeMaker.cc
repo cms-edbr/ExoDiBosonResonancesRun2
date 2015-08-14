@@ -318,7 +318,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elbit_handle);
    iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), mubit_handle);
    elhltbit = (int)(*elbit_handle);
-   muhltbit = (int)(*elbit_handle);
+   muhltbit = (int)(*mubit_handle);
 
    Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
