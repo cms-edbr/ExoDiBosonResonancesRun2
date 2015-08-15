@@ -14,13 +14,13 @@
 #            bsub -q 2nd -M 20000 -J DY100 < lxbatchSubmit.sh
 
 export X509_USER_PROXY=/afs/cern.ch/user/j/jruizvar/x509up_u9472
-cd /afs/cern.ch/work/j/jruizvar/private/Summer15/50ns/CMSSW_7_4_9/src/ExoDiBosonResonances/EDBRTreeMaker/backgrounds
+cd /afs/cern.ch/work/j/jruizvar/private/Summer15/50ns/CMSSW_7_4_9_patch1/src/ExoDiBosonResonances/EDBRTreeMaker/backgrounds
 eval `scramv1 runtime -sh`
 
-cmsRun analysis50ns-DYJetsToLL_HT-100to200.py 
+#cmsRun analysis50ns-DYJetsToLL_HT-100to200.py 
 #cmsRun analysis50ns-DYJetsToLL_HT-200to400.py 
 #cmsRun analysis50ns-DYJetsToLL_HT-400to600.py 
 #cmsRun analysis50ns-DYJetsToLL_HT-600toInf.py 
 #cmsRun analysis50ns-WW.py 
 #cmsRun analysis50ns-WZ.py 
-#cmsRun analysis50ns-ZZ.py 
+cmsRun analysis50ns-ZZ.py 
