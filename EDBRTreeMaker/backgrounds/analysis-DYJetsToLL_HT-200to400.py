@@ -26,7 +26,7 @@ SAMPLE="DYJetsToLL_HT-200to400"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
-process.maxEvents.input = -1 
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -108,7 +108,7 @@ if option == 'GEN':
     process.treeDumper.isGen  = True
     process.hadronicV.cut = cms.string('pt > 200. '
                                        '& (userFloat("ak8GenJetsSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8GenJetsSoftDropMass") < 70.)')
+                                       '& (userFloat("ak8GenJetsSoftDropMass") < 110.)')
 
 ### RECO level studies
 if option == 'RECO':
@@ -164,7 +164,7 @@ process.endpath = cms.EndPath( process.trigReportData )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True       
+filterMode = True
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:

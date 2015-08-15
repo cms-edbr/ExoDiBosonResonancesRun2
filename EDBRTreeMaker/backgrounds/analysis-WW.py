@@ -105,7 +105,7 @@ if option == 'GEN':
     process.treeDumper.isGen  = True
     process.hadronicV.cut = cms.string('pt > 200. '
                                        '& (userFloat("ak8GenJetsSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8GenJetsSoftDropMass") < 70.)')
+                                       '& (userFloat("ak8GenJetsSoftDropMass") < 110.)')
 
 ### RECO level studies
 if option == 'RECO':
