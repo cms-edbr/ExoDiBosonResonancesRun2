@@ -102,10 +102,8 @@ private:
   //-------------------- HIGH LEVEL TRIGGER ------------------------------------------
   int    elhltbit;
   int    muhltbit;
-  int    matchByDeltaR1;
-  int    matchByDeltaR2;
-  int    matchByPt1;
-  int    matchByPt2;
+  int    matchHlt1;
+  int    matchHlt2;
   double deltaRlep1Obj;
   double deltaRlep2Obj;
   double deltaPtlep1Obj;
@@ -207,10 +205,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   /// HLT info 
   outTree_->Branch("elhltbit"        ,&elhltbit       ,"elhltbit/I"       );
   outTree_->Branch("muhltbit"        ,&muhltbit       ,"muhltbit/I"       );
-  outTree_->Branch("matchByDeltaR1"  ,&matchByDeltaR1 ,"matchByDeltaR1/I" );
-  outTree_->Branch("matchByDeltaR2"  ,&matchByDeltaR2 ,"matchByDeltaR2/I" );
-  outTree_->Branch("matchByPt1"      ,&matchByPt1     ,"matchByPt1/I"     );
-  outTree_->Branch("matchByPt2"      ,&matchByPt2     ,"matchByPt2/I"     );
+  outTree_->Branch("matchHlt1"       ,&matchHlt1      ,"matchHlt1/I"      );
+  outTree_->Branch("matchHlt2"       ,&matchHlt2      ,"matchHlt2/I"      );
   outTree_->Branch("deltaRlep1Obj"   ,&deltaRlep1Obj  ,"deltaRlep1Obj/D"  );
   outTree_->Branch("deltaRlep2Obj"   ,&deltaRlep2Obj  ,"deltaRlep2Obj/D"  );
   outTree_->Branch("deltaPtlep1Obj"  ,&deltaPtlep1Obj ,"deltaPtlep1Obj/D" );
@@ -323,10 +319,9 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ------ analize trigger results ----------//
    Handle<bool> elHlt_handle;
    Handle<bool> muHlt_handle;
-   Handle<ValueMap<bool>  > matchDeltaR_handle;
-   Handle<ValueMap<bool>  > matchPt_handle;
-   Handle<ValueMap<float> > valueDeltaR_handle;
-   Handle<ValueMap<float> > valuePt_handle;
+   Handle<ValueMap<bool> > matchHlt_handle;
+   Handle<ValueMap<float> > deltaPt_handle;
+   Handle<ValueMap<float> >  deltaR_handle;
    iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elHlt_handle);
    iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), muHlt_handle);
    elhltbit = (int)(*elHlt_handle);
@@ -428,18 +423,15 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
                         const Ptr<pat::Muon> mu1Ptr(muons, mu1->userInt("slimmedIndex") );
                         const Ptr<pat::Muon> mu2Ptr(muons, mu2->userInt("slimmedIndex") );
-                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaR"),      valueDeltaR_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaPt"),     valuePt_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingMuons","matchDeltaR"), matchDeltaR_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingMuons","matchPt"),     matchPt_handle);
-                        deltaRlep1Obj  =      (*valueDeltaR_handle)[mu1Ptr];
-                        deltaRlep2Obj  =      (*valueDeltaR_handle)[mu2Ptr];
-                        deltaPtlep1Obj =      (*valuePt_handle)[mu1Ptr];
-                        deltaPtlep2Obj =      (*valuePt_handle)[mu2Ptr];
-                        matchByDeltaR1 = (int)(*matchDeltaR_handle)[mu1Ptr]; 
-                        matchByDeltaR2 = (int)(*matchDeltaR_handle)[mu2Ptr]; 
-                        matchByPt1     = (int)(*matchPt_handle)[mu1Ptr];     
-                        matchByPt2     = (int)(*matchPt_handle)[mu2Ptr];     
+                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaR"),   deltaR_handle);
+                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaPt"),  deltaPt_handle);
+                        iEvent.getByLabel(InputTag("hltMatchingMuons","matchHlt"), matchHlt_handle);
+                        deltaRlep1Obj  =      (*deltaR_handle)[mu1Ptr];
+                        deltaRlep2Obj  =      (*deltaR_handle)[mu2Ptr];
+                        deltaPtlep1Obj =      (*deltaPt_handle)[mu1Ptr];
+                        deltaPtlep2Obj =      (*deltaPt_handle)[mu2Ptr];
+                        matchHlt1      = (int)(*matchHlt_handle)[mu1Ptr]; 
+                        matchHlt2      = (int)(*matchHlt_handle)[mu2Ptr]; 
                         reco::MuonPFIsolation pfIso1  = mu1->pfIsolationR03();
                         reco::MuonPFIsolation pfIso2  = mu2->pfIsolationR03();
                         // isolation with delta beta correction
@@ -464,18 +456,15 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
                         const Ptr<pat::Electron> el1Ptr(electrons, el1->userInt("slimmedIndex") );
                         const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
-                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaR"),      valueDeltaR_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaPt"),     valuePt_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingElectrons","matchDeltaR"), matchDeltaR_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingElectrons","matchPt"),     matchPt_handle);
-                        deltaRlep1Obj  =      (*valueDeltaR_handle)[el1Ptr];
-                        deltaRlep2Obj  =      (*valueDeltaR_handle)[el2Ptr];
-                        deltaPtlep1Obj =      (*valuePt_handle)[el1Ptr];
-                        deltaPtlep2Obj =      (*valuePt_handle)[el2Ptr];
-                        matchByDeltaR1 = (int)(*matchDeltaR_handle)[el1Ptr]; 
-                        matchByDeltaR2 = (int)(*matchDeltaR_handle)[el2Ptr]; 
-                        matchByPt1     = (int)(*matchPt_handle)[el1Ptr];     
-                        matchByPt2     = (int)(*matchPt_handle)[el2Ptr];     
+                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaR"),   deltaR_handle);
+                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaPt"),  deltaPt_handle);
+                        iEvent.getByLabel(InputTag("hltMatchingElectrons","matchHlt"), matchHlt_handle);
+                        deltaRlep1Obj  =      (*deltaR_handle)[el1Ptr];
+                        deltaRlep2Obj  =      (*deltaR_handle)[el2Ptr];
+                        deltaPtlep1Obj =      (*deltaPt_handle)[el1Ptr];
+                        deltaPtlep2Obj =      (*deltaPt_handle)[el2Ptr];
+                        matchHlt1      = (int)(*matchHlt_handle)[el1Ptr]; 
+                        matchHlt2      = (int)(*matchHlt_handle)[el2Ptr]; 
                         eeDeltaR       = reco::deltaR(el1->p4(),el2->p4());
                         ptel1          = el1->pt();
                         ptel2          = el2->pt();
@@ -683,10 +672,8 @@ void EDBRTreeMaker::setDummyValues() {
      metPhi         = -1e4;
      metpt          = -1e4;
      metphi         = -1e4;
-     matchByDeltaR1 = -1e4;
-     matchByDeltaR2 = -1e4;
-     matchByPt1     = -1e4;
-     matchByPt2     = -1e4;
+     matchHlt1      = -1e4;
+     matchHlt2      = -1e4;
      deltaRlep1Obj  = -1e4;
      deltaRlep2Obj  = -1e4;
      deltaPtlep1Obj = -1e4;

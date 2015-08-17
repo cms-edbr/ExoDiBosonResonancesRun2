@@ -140,14 +140,12 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // The goodLepton matching HLT should pass acceptance
     Handle<bool> elHlt_handle;
     Handle<bool> muHlt_handle;
-    Handle<ValueMap<bool> > elMatchDeltaR_handle,  muMatchDeltaR_handle;
-    Handle<ValueMap<bool> > elMatchPt_handle,      muMatchPt_handle;
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),     elHlt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),     muHlt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchDeltaR"), elMatchDeltaR_handle);
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchPt"),     elMatchPt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchDeltaR"), muMatchDeltaR_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchPt"),     muMatchPt_handle);
+    Handle<ValueMap<bool> > elMatchHlt_handle;
+    Handle<ValueMap<bool> > muMatchHlt_handle;
+    iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),  elHlt_handle);
+    iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),  muHlt_handle);
+    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchHlt"), elMatchHlt_handle);
+    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchHlt"), muMatchHlt_handle);
     bool elPassHlt = (*elHlt_handle);
     bool muPassHlt = (*muHlt_handle);
     bool elFlag=false, muFlag=false;
@@ -155,19 +153,17 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const pat::Electron& el = (*goodElectrons)[i];
         const Ptr<pat::Electron> elPtr(electrons, el.userInt("slimmedIndex"));
         bool  acceptance        = el.pt()>115. ? true : false;
-        bool  matchHltByDeltaR  = (*elMatchDeltaR_handle)[elPtr];
-        bool  matchHltByPt      = (*elMatchPt_handle)[elPtr];
-        if ( filter_ and !(elPassHlt and matchHltByDeltaR and matchHltByPt) ) continue; 
+        bool  elMatchHlt        = (*elMatchHlt_handle)[elPtr];
+        if ( filter_ and !(elPassHlt and elMatchHlt) ) continue; 
         if ( filter_ and !acceptance ) continue; 
         elFlag=true;
     }
     for ( size_t i=0; i<goodMuons->size(); ++i ) {
-        const pat::Muon& mu    = (*goodMuons)[i];
+        const pat::Muon& mu     = (*goodMuons)[i];
         const Ptr<pat::Muon> muPtr(muons, mu.userInt("slimmedIndex"));
-        bool  acceptance       = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
-        bool  matchHltByDeltaR = (*muMatchDeltaR_handle)[muPtr];
-        bool  matchHltByPt     = (*muMatchPt_handle)[muPtr];
-        if ( filter_ and !(muPassHlt and matchHltByDeltaR and matchHltByPt) ) continue; 
+        bool  acceptance        = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
+        bool  muMatchHlt        = (*muMatchHlt_handle)[muPtr];
+        if ( filter_ and !(muPassHlt and muMatchHlt) ) continue; 
         if ( filter_ and !acceptance ) continue; 
         muFlag=true;
     }

@@ -39,7 +39,6 @@ class HLTmatchValueMap : public edm::EDProducer {
       edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> hltObjects_;
       edm::EDGetTokenT<candidateCollection> leptonToken_;
       double maxDeltaR_;
-      double maxDeltaPt_;
 
       virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
       HLTConfigProvider hltConfig;
@@ -52,14 +51,12 @@ HLTmatchValueMap<T>::HLTmatchValueMap(const edm::ParameterSet& iConfig):
     hltToken_   (consumes<edm::TriggerResults>                   (iConfig.getParameter<edm::InputTag>           ("hltToken"  ) ) ),
     hltObjects_ (consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>           ("hltObjects") ) ),
     leptonToken_(consumes<candidateCollection>                   (iConfig.getParameter<edm::InputTag>           ("leptons"   ) ) ),
-    maxDeltaR_  (                                                 iConfig.getParameter<double>                  ("maxDeltaR"   ) ),
-    maxDeltaPt_ (                                                 iConfig.getParameter<double>                  ("maxDeltaPt"  ) )
+    maxDeltaR_  (                                                 iConfig.getParameter<double>                  ("maxDeltaR"   ) )
 {
     produces<bool>("trigBit");
     produces<edm::ValueMap<float> >("deltaR");
     produces<edm::ValueMap<float> >("deltaPt");
-    produces<edm::ValueMap<bool > >("matchDeltaR");
-    produces<edm::ValueMap<bool > >("matchPt");
+    produces<edm::ValueMap<bool > >("matchHlt");
 }
 
 template <typename T>
@@ -77,6 +74,7 @@ void HLTmatchValueMap<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // translate indices into names
     const TriggerNames &names = iEvent.triggerNames(*trigRes);
 
+    // arrays to store trigger object properties
     std::vector<float>  ptObj;
     std::vector<float> etaObj;
     std::vector<float> phiObj;
@@ -96,66 +94,72 @@ void HLTmatchValueMap<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         }
     }
 
+    // arrays for the ValueMaps
     vector<float> deltaRLepObj;
     vector<float> deltaPtLepObj;
-    vector<bool>  matchDeltaR;
-    vector<bool>  matchPt;
+    vector<bool>  matchHlt;
 
     Handle<candidateCollection>     leptons;
     iEvent.getByToken(leptonToken_, leptons);
     typename candidateCollection::const_iterator lep, endLoop = leptons->end();
     for (lep = leptons->begin(); lep != endLoop; ++lep) {
-        float pt  = lep->pt();
-        float eta = lep->eta();
-        float phi = lep->phi();
+        float pt   = lep->pt();
+        float eta  = lep->eta();
+        float phi  = lep->phi();
+        float dR   = 9999.;
+        float dPt  = 9999.;
+        bool match = false;
         if ( numObj ){
-            int closest=0;
-            for(int i=1; i<numObj; i++){
-                int temp = deltaR( eta, phi, etaObj[closest], phiObj[closest] ) <
-                           deltaR( eta, phi, etaObj[i],       phiObj[i]       ) ? closest : i;
-                closest  = temp;
+            // arrays for the matched objects
+            std::vector<float>  ptMatchedObj;
+            std::vector<float> etaMatchedObj;
+            std::vector<float> phiMatchedObj;
+            int matchedObj = 0; 
+            for(int i=0; i<numObj; i++){
+                dR = deltaR( eta, phi, etaObj[i], phiObj[i] ); 
+                if ( dR > maxDeltaR_ ) continue;
+                 ptMatchedObj.push_back(  ptObj[i] );
+                etaMatchedObj.push_back( etaObj[i] );
+                phiMatchedObj.push_back( phiObj[i] );
+                matchedObj++;
             }
-            float dR  = deltaR( eta, phi, etaObj[closest], phiObj[closest] ); 
-            float dPt = fabs(pt-ptObj[closest])/pt; 
-            bool matchBydR = dR  < maxDeltaR_  ? true : false;
-            bool matchByPt = dPt < maxDeltaPt_ ? true : false;
-            deltaRLepObj.push_back( dR );
-            deltaPtLepObj.push_back(dPt);
-            matchDeltaR.push_back( matchBydR );
-            matchPt.push_back(     matchByPt );
+            if ( matchedObj ){
+                int closest=0; 
+                for(int i=0; i<matchedObj; i++){
+                    // find closest object ranked by pt
+                    int temp = fabs(pt - ptMatchedObj[closest])/pt < 
+                               fabs(pt - ptMatchedObj[i])/pt       ? closest : i; 
+                    closest  = temp;
+                }
+                dR  = deltaR(eta, phi, etaMatchedObj[closest], phiMatchedObj[closest]); 
+                dPt = fabs(pt - ptMatchedObj[closest]) / pt; 
+                match = true;
+            }
         }
-        else {
-            deltaRLepObj.push_back( 9999.);
-            deltaPtLepObj.push_back(9999.);
-            matchDeltaR.push_back( false );
-            matchPt.push_back(     false );
-        }
+        deltaRLepObj.push_back(  dR  );
+        deltaPtLepObj.push_back( dPt );
+        matchHlt.push_back(    match );
     }
 
     auto_ptr<ValueMap<float> >      dRMap(new ValueMap<float>());
     auto_ptr<ValueMap<float> >     dPtMap(new ValueMap<float>());
-    auto_ptr<ValueMap<bool > > matchDRMap(new ValueMap<bool >());
-    auto_ptr<ValueMap<bool > > matchPtMap(new ValueMap<bool >());
+    auto_ptr<ValueMap<bool > >   matchMap(new ValueMap<bool >());
 
     ValueMap<float>::Filler      dRFiller(      *dRMap );
     ValueMap<float>::Filler     dPtFiller(     *dPtMap );
-    ValueMap<bool >::Filler matchDRFiller( *matchDRMap );
-    ValueMap<bool >::Filler matchPtFiller( *matchPtMap );
+    ValueMap<bool >::Filler   matchFiller(   *matchMap );
 
-         dRFiller.insert( leptons,  deltaRLepObj.begin(),  deltaRLepObj.end() );
-        dPtFiller.insert( leptons, deltaPtLepObj.begin(), deltaPtLepObj.end() );
-    matchDRFiller.insert( leptons,   matchDeltaR.begin(),   matchDeltaR.end() );
-    matchPtFiller.insert( leptons,       matchPt.begin(),       matchPt.end() );
+       dRFiller.insert( leptons,  deltaRLepObj.begin(),  deltaRLepObj.end() );
+      dPtFiller.insert( leptons, deltaPtLepObj.begin(), deltaPtLepObj.end() );
+    matchFiller.insert( leptons,      matchHlt.begin(),      matchHlt.end() );
 
-         dRFiller.fill();
-        dPtFiller.fill();
-    matchDRFiller.fill(); 
-    matchPtFiller.fill();
+       dRFiller.fill();
+      dPtFiller.fill();
+    matchFiller.fill(); 
     
-    iEvent.put( dRMap,      "deltaR"      );
-    iEvent.put( dPtMap,     "deltaPt"     );
-    iEvent.put( matchDRMap, "matchDeltaR" );
-    iEvent.put( matchPtMap, "matchPt"     );
+    iEvent.put( dRMap,    "deltaR"   );
+    iEvent.put( dPtMap,   "deltaPt"  );
+    iEvent.put( matchMap, "matchHlt" );
 }
 
 template <typename T>
