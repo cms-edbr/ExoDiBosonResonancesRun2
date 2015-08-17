@@ -140,8 +140,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // The goodLepton matching HLT should pass acceptance
     Handle<bool> elHlt_handle;
     Handle<bool> muHlt_handle;
-    Handle<ValueMap<bool> > elMatchHlt_handle,  muMatchHlt_handle;
-    Handle<ValueMap<bool> > elMatchPt_handle,      muMatchPt_handle;
+    Handle<ValueMap<bool> > elMatchHlt_handle;
+    Handle<ValueMap<bool> > muMatchHlt_handle;
     iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),  elHlt_handle);
     iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),  muHlt_handle);
     iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchHlt"), elMatchHlt_handle);
