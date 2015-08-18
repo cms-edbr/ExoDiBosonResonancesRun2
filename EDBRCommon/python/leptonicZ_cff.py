@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 Ztomumu = cms.EDProducer(   "CandViewCombiner",
-                            decay = cms.string("goodLeptons:Muons@+ goodLeptons:Muons@-"),
+                            decay = cms.string("goodMuons@+ goodMuons@-"),
                             cut = cms.string("") )
 
 Ztoee = cms.EDProducer(     "CandViewCombiner",
-                            decay = cms.string("goodLeptons:Electrons@+ goodLeptons:Electrons@-"),
+                            decay = cms.string("goodElectrons@+ goodElectrons@-"),
                             cut = cms.string("") )
 
 leptonicV = cms.EDProducer( "CandViewMerger",
