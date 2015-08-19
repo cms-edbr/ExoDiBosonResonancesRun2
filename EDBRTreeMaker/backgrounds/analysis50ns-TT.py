@@ -19,8 +19,8 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-#SAMPLE="TT" 
-SAMPLE="WW" 
+SAMPLE="TT" 
+#SAMPLE="WW" 
 #SAMPLE="WZ" 
 #SAMPLE="ZZ" 
 

@@ -73,9 +73,9 @@ private:
   double metpt, metphi;
 
   //---------------------- JETS ------------------------------------------------------
-  int numjets;
-  double tau1, tau2, tau3, tau21;
-  double ptjet1,   etajet1,  phijet1;
+  int    numjets;
+  double tau1,     tau2,     tau3,     tau21;
+  double etjet1,   ptjet1,   etajet1,  phijet1;
   double massjet1, softjet1, prunedjet1;
 
   //-------------------- LEPTONS -----------------------------------------------------
@@ -277,6 +277,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("ptlep1"          ,&ptlep1         ,"ptlep1/D"         );
   outTree_->Branch("ptlep2"          ,&ptlep2         ,"ptlep2/D"         );
   outTree_->Branch("ptjet1"          ,&ptjet1         ,"ptjet1/D"         );
+  outTree_->Branch("etjet1"          ,&etjet1         ,"etjet1/D"         );
   outTree_->Branch("etalep1"         ,&etalep1        ,"etalep1/D"        );
   outTree_->Branch("etalep2"         ,&etalep2        ,"etalep2/D"        );
   outTree_->Branch("etajet1"         ,&etajet1        ,"etajet1/D"        );
@@ -401,6 +402,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    tau2         = hadronicV.userFloat("NjettinessAK8:tau2");
                    tau3         = hadronicV.userFloat("NjettinessAK8:tau3");
                    tau21        = tau2/tau1;
+                   etjet1       = hadronicV.et();
                    ptjet1       = hadronicV.pt();
                    etajet1      = hadronicV.eta();
                    phijet1      = hadronicV.phi();
@@ -560,6 +562,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    tau2 = hadronicV.userFloat("NjettinessAK8:tau2");
                    tau3 = hadronicV.userFloat("NjettinessAK8:tau3");
                    tau21 = tau2/tau1;
+                   etjet1 = hadronicV.et();
                    ptjet1 = hadronicV.pt();
                    etajet1 = hadronicV.eta();
                    phijet1 = hadronicV.phi();
@@ -662,6 +665,7 @@ void EDBRTreeMaker::setDummyValues() {
      miniIso1       = -1e4;
      miniIso2       = -1e4;
      numjets        = -1e4; 
+     etjet1         = -1e4;
      ptjet1         = -1e4;
      etajet1        = -1e4;
      phijet1        = -1e4;
