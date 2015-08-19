@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Original Author:  Jose Cupertino Ruiz Vargas
@@ -22,10 +21,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//
-// class declaration
-//
 
 class LeptonicVdaughters : public edm::EDProducer {
    public:
@@ -57,33 +52,30 @@ LeptonicVdaughters::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto_ptr< vector<pat::Muon> >     Muons(     new vector<pat::Muon>     );
     auto_ptr< vector<pat::Electron> > Electrons( new vector<pat::Electron> );
 
-    // handle leptonicV collection
+    // LeptonicV
     Handle<reco::CandidateCollection>  leptonicV_handle;
     iEvent.getByToken(collectionToken, leptonicV_handle);
 
-    size_t mult = leptonicV_handle->size();
+    const reco::Candidate& leptonicV = (*leptonicV_handle)[0];
 
-    for (size_t i=0; i<mult; i++){
-         const reco::Candidate& leptonicV = (*leptonicV_handle)[i];
-         if ( leptonicV.daughter(0)->isMuon() && 
-              leptonicV.daughter(1)->isMuon()    ) {
-              const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
-              const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
-              Muons->push_back( *mu1 );
-              Muons->push_back( *mu2 );
-         }
-         if ( leptonicV.daughter(0)->isElectron() && 
-              leptonicV.daughter(1)->isElectron()    ) {
-              const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
-              const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
-              Electrons->push_back( *el1 );
-              Electrons->push_back( *el2 );
-         }
+    if ( leptonicV.daughter(0)->isMuon() && 
+         leptonicV.daughter(1)->isMuon()    ) {
+         const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
+         const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
+         Muons->push_back( *mu1 );
+         Muons->push_back( *mu2 );
+    }
+
+    if ( leptonicV.daughter(0)->isElectron() && 
+         leptonicV.daughter(1)->isElectron()    ) {
+         const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
+         const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+         Electrons->push_back( *el1 );
+         Electrons->push_back( *el2 );
     }
 
     iEvent.put(Electrons, "Electrons");
     iEvent.put(Muons,     "Muons"    );
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(LeptonicVdaughters);

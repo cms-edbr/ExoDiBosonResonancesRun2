@@ -9,16 +9,16 @@ goodJets = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 ### Cleaning
 # We want to make sure that the jets are not the electrons or muons done previously
 
-leptonicVdaughters = cms.EDProducer("LeptonicVdaughters", src = cms.InputTag("leptonicV"))
+bestLeptonicVdaughters = cms.EDProducer("LeptonicVdaughters", src = cms.InputTag("bestLeptonicV"))
 
 import PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi as jetCleaner_cfi
 
 cleanJets = jetCleaner_cfi.cleanPatJets.clone()
 cleanJets.src = "goodJets"
-cleanJets.checkOverlaps.muons.src = "leptonicVdaughters:Muons"
+cleanJets.checkOverlaps.muons.src = "bestLeptonicVdaughters:Muons"
 cleanJets.checkOverlaps.muons.deltaR = 0.8
 cleanJets.checkOverlaps.muons.requireNoOverlaps = True
-cleanJets.checkOverlaps.electrons.src = "leptonicVdaughters:Electrons"
+cleanJets.checkOverlaps.electrons.src = "bestLeptonicVdaughters:Electrons"
 cleanJets.checkOverlaps.electrons.deltaR = 0.8
 cleanJets.checkOverlaps.electrons.requireNoOverlaps = True
 cleanJets.checkOverlaps.photons = cms.PSet()
@@ -26,4 +26,4 @@ cleanJets.checkOverlaps.taus = cms.PSet()
 cleanJets.checkOverlaps.tkIsoElectrons = cms.PSet()
 cleanJets.finalCut = "pt > 20 & abs(eta) < 2.4"
 
-fatJetsSequence = cms.Sequence(leptonicVdaughters + goodJets + cleanJets)
+fatJetsSequence = cms.Sequence(bestLeptonicVdaughters + goodJets + cleanJets)
