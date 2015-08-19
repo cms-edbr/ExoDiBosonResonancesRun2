@@ -104,8 +104,12 @@ process.hadronicVFilter = cms.EDFilter(   "CandViewCountFilter",
                                           minNumber = cms.uint32(1),
                                           filter = cms.bool(True) )
 
+process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
+                                          src = cms.InputTag("hadronicV"),
+                                          maxNumber = cms.uint32(1) )
+
 process.graviton = cms.EDProducer(        "CandViewCombiner",
-                                          decay = cms.string("bestLeptonicV hadronicV"),
+                                          decay = cms.string("bestLeptonicV bestHadronicV"),
                                           checkCharge = cms.bool(False),
                                           cut = cms.string("mass > 400"),
                                           roles = cms.vstring('leptonicV', 'hadronicV') )
@@ -151,14 +155,15 @@ if option == 'RECO':
 
 #***************************************** SEQUENCES **********************************************# 
 
-process.leptonSequence = cms.Sequence(    process.leptonicVSequence + 
+process.leptonSequence = cms.Sequence(    process.leptonicVSequence +
                                           process.leptonicVFilter   +
                                           process.leptonicVSelector + 
                                           process.bestLeptonicV     )
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence   +
                                           process.hadronicV         +
-                                          process.hadronicVFilter   )
+                                          process.hadronicVFilter   +
+                                          process.bestHadronicV     )
 
 process.gravitonSequence = cms.Sequence(  process.graviton          +
                                           process.gravitonFilter    )

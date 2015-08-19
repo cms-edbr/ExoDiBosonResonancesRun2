@@ -104,8 +104,12 @@ process.hadronicVFilter = cms.EDFilter(   "CandViewCountFilter",
                                           minNumber = cms.uint32(1),
                                           filter = cms.bool(True) )
 
+process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
+                                          src = cms.InputTag("hadronicV"),
+                                          maxNumber = cms.uint32(1) )
+
 process.graviton = cms.EDProducer(        "CandViewCombiner",
-                                          decay = cms.string("bestLeptonicV hadronicV"),
+                                          decay = cms.string("bestLeptonicV bestHadronicV"),
                                           checkCharge = cms.bool(False),
                                           cut = cms.string("mass > 400"),
                                           roles = cms.vstring('leptonicV', 'hadronicV') )
@@ -158,7 +162,8 @@ process.leptonSequence = cms.Sequence(    process.leptonicVSequence +
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence   +
                                           process.hadronicV         +
-                                          process.hadronicVFilter   )
+                                          process.hadronicVFilter   +
+                                          process.bestHadronicV     )
 
 process.gravitonSequence = cms.Sequence(  process.graviton          +
                                           process.gravitonFilter    )
@@ -202,7 +207,7 @@ process.endpath = cms.EndPath( process.trigReportAnalyzer )
 # True : Events are filtered before the analyzer. TTree is filled with good valudes only             #
 # False: Events are filtered inside the analyzed. TTree is filled with dummy values when numCands==0 #
 #                                                                                                    #
-filterMode = True
+filterMode = True       
 ### If you're running in signal, you may want to not filter at this level
 ### but only later at the tree analysis.
 if filterMode == False:
