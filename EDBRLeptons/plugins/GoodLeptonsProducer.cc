@@ -94,7 +94,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(heepV60Token_,      heepV60_handle);
     // Cuts to be masked
     std::vector<std::string> maskCuts;
-    maskCuts.push_back("GsfEleTrkPtIsoCut_0"), maskCuts.push_back("GsfEleEmHadD1IsoRhoCut_0");
+    maskCuts.push_back("GsfEleTrkPtIsoCut_0"); 
+    maskCuts.push_back("GsfEleEmHadD1IsoRhoCut_0");
 
     // output collections
     auto_ptr< vector<pat::Electron> > goodElectrons( new vector<pat::Electron> );
