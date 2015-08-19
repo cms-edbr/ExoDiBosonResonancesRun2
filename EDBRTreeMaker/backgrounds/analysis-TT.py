@@ -6,7 +6,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # find the global tag in the DAS under the Configs for given dataset
-process.GlobalTag.globaltag = 'MCRUN2_74_V9A::All'
+process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
@@ -19,13 +19,13 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-#SAMPLE="TT" 
-SAMPLE="WW" 
+SAMPLE="TT" 
+#SAMPLE="WW" 
 #SAMPLE="WZ" 
 #SAMPLE="ZZ" 
 
 ### Source
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X50ns."+SAMPLE)
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
 process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -38,10 +38,10 @@ configXsecs = {  "TT" : 831.76,
                  "ZZ" :  15.4 ,
               }
 
-configNevents = {"TT" : 19665194,
-                 "WW" :   989608,
-                 "WZ" :   996920,
-                 "ZZ" :   998848,
+configNevents = {"TT" : 19899500,
+                 "WW" :   994416,
+                 "WZ" :   991232,
+                 "ZZ" :   996168,
                 }
 
 usedXsec = configXsecs[SAMPLE]

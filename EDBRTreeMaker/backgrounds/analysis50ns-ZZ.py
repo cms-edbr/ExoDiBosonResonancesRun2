@@ -19,6 +19,7 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
+#SAMPLE="TT" 
 #SAMPLE="WW" 
 #SAMPLE="WZ" 
 SAMPLE="ZZ" 
@@ -31,14 +32,16 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
-configXsecs = {  "WW" : 118.7,
-                 "WZ" :  66.1, 
-                 "ZZ" :  15.4,
+configXsecs = {  "TT" : 831.76,
+                 "WW" : 118.7 ,
+                 "WZ" :  66.1 , 
+                 "ZZ" :  15.4 ,
               }
 
-configNevents = {"WW" : 989608,
-                 "WZ" : 996920,
-                 "ZZ" : 998848,
+configNevents = {"TT" : 19665194,
+                 "WW" :   989608,
+                 "WZ" :   996920,
+                 "ZZ" :   998848,
                 }
 
 usedXsec = configXsecs[SAMPLE]
