@@ -213,6 +213,8 @@ filterMode = True
 if filterMode == False:
     process.hltFilter.triggerConditions = ('*',)
     process.goodLeptons.filter = False
+    process.goodElectrons.cut = ""
+    process.goodMuons.cut = ""
     process.leptonicVSelector.cut = '70. < mass < 110.'
     process.graviton.cut = ''
 #                                                                                                    #
