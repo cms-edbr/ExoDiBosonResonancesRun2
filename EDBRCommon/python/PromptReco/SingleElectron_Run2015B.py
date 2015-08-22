@@ -24,7 +24,7 @@ readFiles.extend( [
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/498/00000/8064CCF6-ED28-E511-87D2-02163E014437.root',
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/499/00000/70310B47-F728-E511-B2EF-02163E0118A2.root',
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/500/00000/0273C876-0E29-E511-8B38-02163E012712.root',
-       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/521/00000/D28AB765-6629-E511-8AAD-02163E0133D1.root',
+       '/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/521/00000/D28AB765-6629-E511-8AAD-02163E0133D1.root',
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/522/00000/805EB9CD-6129-E511-BF1C-02163E0129A3.root',
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/548/00000/B6D08898-232A-E511-A833-02163E011DDE.root',
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/251/559/00000/AA62F6DD-A62C-E511-A8EC-02163E013791.root',
@@ -66,9 +66,25 @@ readFiles.extend( [
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/102/00000/06E11C1F-DA2F-E511-B04A-02163E0117FF.root',
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/116/00000/2EE8BBD0-7730-E511-95F5-02163E013560.root',
        #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/126/00000/7E4ACB62-6E31-E511-858C-02163E0133F0.root',
-       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/126/00000/AA0C0594-CA30-E511-BD15-02163E0123C0.root' 
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/126/00000/AA0C0594-CA30-E511-BD15-02163E0123C0.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/488/00000/B4D62F1C-EE35-E511-BAFE-02163E01477B.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/489/00000/686DE8AC-3334-E511-BAF8-02163E0144F6.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/490/00000/E2682AAA-3334-E511-9706-02163E012B10.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/492/00000/16665670-4734-E511-9940-02163E013901.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/496/00000/2CA28248-CC35-E511-BB41-02163E01258B.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/499/00000/DC5562FB-CB35-E511-99EB-02163E0125D6.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/252/501/00000/A27F94C6-CA35-E511-82EC-02163E01459D.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/571/00000/1C77574A-F13D-E511-9CD6-02163E013473.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/578/00000/78DD4869-F63D-E511-B425-02163E01289E.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/596/00000/821E01AC-053E-E511-8B0B-02163E01289E.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/607/00000/863448CE-0E3E-E511-B24F-02163E0128F0.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/608/00000/FE15468F-0F3E-E511-9A77-02163E011B3C.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/611/00000/B8127DE6-103E-E511-A5FB-02163E013542.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/612/00000/C0E78833-123E-E511-9E55-02163E014316.root',
+       #'/store/data/Run2015B/SingleElectron/MINIAOD/PromptReco-v1/000/253/620/00000/C21CA147-763F-E511-A201-02163E0143B7.root' 
        ] );
 
 
 secFiles.extend( [
                ] )
+
