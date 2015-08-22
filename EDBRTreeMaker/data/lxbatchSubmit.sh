@@ -14,7 +14,8 @@
 #            bsub -q 1nd -M 10000 -J job1 < lxbatchSubmit.sh
 
 export X509_USER_PROXY=/afs/cern.ch/user/j/jruizvar/x509up_u9472
-cd /afs/cern.ch/work/j/jruizvar/private/Summer15/50ns/CMSSW_7_4_9_patch1/src/ExoDiBosonResonances/EDBRTreeMaker/data
+cd /afs/cern.ch/work/j/jruizvar/private/Summer15/50ns/CMSSW_7_4_10_patch1/src/ExoDiBosonResonances/EDBRTreeMaker/data
+
 eval `scramv1 runtime -sh`
 
 #cmsRun analysis-SingleElectron_Run2015B.py
