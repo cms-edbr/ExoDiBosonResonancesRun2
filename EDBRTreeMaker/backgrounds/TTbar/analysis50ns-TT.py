@@ -24,7 +24,7 @@ SAMPLE = str(sys.argv[2])
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X50ns.TTbar."+SAMPLE)
-process.maxEvents.input = 100
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
