@@ -35,11 +35,11 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
 
 goodElectrons = cms.EDFilter("PATElectronSelector",
                                        src = cms.InputTag("goodLeptons:Electrons"),
-                                       cut = cms.string("pt > 40"))
+                                       cut = cms.string("pt > 35"))
 
 goodMuons = cms.EDFilter("PATMuonSelector",
                                        src = cms.InputTag("goodLeptons:Muons"),
-                                       cut = cms.string("pt > 40 && abs(eta) < 2.4"))
+                                       cut = cms.string("pt > 20 && abs(eta) < 2.4"))
 
 goodLeptonsProducer = cms.Sequence(    goodOfflinePrimaryVertex       +
                                        electronsMiniIsolationValueMap +
