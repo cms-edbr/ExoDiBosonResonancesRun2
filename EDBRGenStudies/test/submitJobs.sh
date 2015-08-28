@@ -1,0 +1,13 @@
+#cmsRun genStudy.py BulkGravToZZToZlepZhad_M-600  &> BulkG-600.log  &
+#cmsRun genStudy.py BulkGravToZZToZlepZhad_M-800  &> BulkG-800.log  &
+#cmsRun genStudy.py BulkGravToZZToZlepZhad_M-1000 &> BulkG-1000.log &
+#cmsRun genStudy.py BulkGravToZZToZlepZhad_M-1200 &> BulkG-1200.log &
+#cmsRun genStudy.py BulkGravToZZToZlepZhad_M-1400 &> BulkG-1400.log &
+#cmsRun genStudy.py BulkGravToZZToZlepZhad_M-1600 &> BulkG-1600.log &
+#cmsRun genStudy.py BulkGravToZZToZlepZhad_M-1800 &> BulkG-1800.log &
+cmsRun genStudy.py BulkGravToZZToZlepZhad_M-2000 &> BulkG-2000.log &
+cmsRun genStudy.py BulkGravToZZToZlepZhad_M-2500 &> BulkG-2500.log &
+cmsRun genStudy.py BulkGravToZZToZlepZhad_M-3000 &> BulkG-3000.log &
+cmsRun genStudy.py BulkGravToZZToZlepZhad_M-3500 &> BulkG-3500.log &
+cmsRun genStudy.py BulkGravToZZToZlepZhad_M-4000 &> BulkG-4000.log &
+cmsRun genStudy.py BulkGravToZZToZlepZhad_M-4500 &> BulkG-4500.log &
