@@ -67,7 +67,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay = cms.string("bestLeptonicV bestHadronicV"),
                                           checkCharge = cms.bool(False),
-                                          cut = cms.string("mass > 400"),
+                                          cut = cms.string(" "),
                                           roles = cms.vstring('leptonicV', 'hadronicV') )
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
