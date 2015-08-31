@@ -122,9 +122,7 @@ if option == 'GEN':
 if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
-    process.hadronicV.cut = cms.string('pt > 200. '
-                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 110.)')
+    process.hadronicV.cut = cms.string(" ")
 
 #***************************************** SEQUENCES **********************************************# 
 
