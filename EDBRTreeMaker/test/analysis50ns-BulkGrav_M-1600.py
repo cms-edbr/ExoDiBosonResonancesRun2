@@ -83,7 +83,7 @@ process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 #process.load("ExoDiBosonResonances.EDBRCommon.hadronicW_cff")
 
 WBOSONCUT = "pt > 200. & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50."
-ZBOSONCUT = "pt > 200. & 70. < mass < 110."
+ZBOSONCUT = "pt > 20. & 70. < mass < 110."
 
 process.leptonicVFilter = cms.EDFilter(   "CandViewCountFilter",
                                           src = cms.InputTag("leptonicV"),
