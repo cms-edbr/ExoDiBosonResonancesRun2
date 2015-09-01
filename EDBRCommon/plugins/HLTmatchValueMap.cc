@@ -126,9 +126,9 @@ void HLTmatchValueMap<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             if ( matchedObj ){
                 int closest=0; 
                 for(int i=0; i<matchedObj; i++){
-                    // find closest object ranked by pt
-                    int temp = fabs(pt - ptMatchedObj[closest])/pt < 
-                               fabs(pt - ptMatchedObj[i])/pt       ? closest : i; 
+                    // find closest object ranked by deltaR 
+                    int temp = deltaR(eta, phi, etaMatchedObj[closest], phiMatchedObj[closest]) < 
+                               deltaR(eta, phi, etaMatchedObj[i], phiMatchedObj[i]) ? closest : i;   
                     closest  = temp;
                 }
                 dR  = deltaR(eta, phi, etaMatchedObj[closest], phiMatchedObj[closest]); 

@@ -56,7 +56,7 @@ process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 #process.load("ExoDiBosonResonances.EDBRCommon.hadronicW_cff")
 
 WBOSONCUT = "pt > 200. & sqrt(2.0*daughter(0).pt()*daughter(1).pt()*(1.0-cos(daughter(0).phi()-daughter(1).phi()))) > 50."
-ZBOSONCUT = "pt > 200. & 70. < mass < 110."
+ZBOSONCUT = "pt > 20. & 70. < mass < 110."
 
 process.leptonicVFilter = cms.EDFilter(   "CandViewCountFilter",
                                           src = cms.InputTag("leptonicV"),
@@ -84,7 +84,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay = cms.string("bestLeptonicV bestHadronicV"),
                                           checkCharge = cms.bool(False),
-                                          cut = cms.string("mass > 400"),
+                                          cut = cms.string(" "),
                                           roles = cms.vstring('leptonicV', 'hadronicV') )
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
@@ -96,7 +96,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                     ),
                                           originalNEvents = cms.int32   (  usedNevents               ),
                                           crossSectionPb  = cms.double  (  usedXsec                  ),
-                                          targetLumiInvPb = cms.double  (  40.028                    ),
+                                          targetLumiInvPb = cms.double  (  40.863                    ),
                                           EDBRChannel     = cms.string  (  CHANNEL                   ),
                                           gravitonSrc     = cms.string  ( "graviton"                 ),
                                           metSrc          = cms.string  ( "slimmedMETs"              ),
@@ -122,9 +122,7 @@ if option == 'GEN':
 if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
-    process.hadronicV.cut = cms.string('pt > 200. '
-                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") > 50.) '
-                                       '& (userFloat("ak8PFJetsCHSSoftDropMass") < 110.)')
+    process.hadronicV.cut = cms.string(" ")
 
 #***************************************** SEQUENCES **********************************************# 
 
