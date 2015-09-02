@@ -3,8 +3,8 @@ from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
 
 goodJets = cms.EDFilter("PFJetIDSelectionFunctorFilter",
                         filterParams = pfJetIDSelector.clone(),
-                        src = cms.InputTag("slimmedJetsAK8")
-                        )
+                        src = cms.InputTag("slimmedJetsAK8"),
+                        filter = cms.bool(True) )
 
 ### Cleaning
 # We want to make sure that the jets are not the electrons or muons done previously

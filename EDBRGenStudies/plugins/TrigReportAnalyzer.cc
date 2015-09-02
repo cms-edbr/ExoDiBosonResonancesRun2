@@ -46,24 +46,26 @@ TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
   hadronicZ_(iConfig.getParameter<edm::InputTag>("hadronicZ"))
 {
   edm::Service<TFileService> fs;
-  wfMu = fs->make<TH1I>("wfMu","", 7, 0, 7);
-  wfEl = fs->make<TH1I>("wfEl","", 7, 0, 7);
+  wfMu = fs->make<TH1I>("wfMu","", 8, 0, 8);
+  wfEl = fs->make<TH1I>("wfEl","", 8, 0, 8);
   TAxis *axisMu = wfMu->GetXaxis();  
   axisMu->SetBinLabel(1,"Begin");
   axisMu->SetBinLabel(2,"HLT");
   axisMu->SetBinLabel(3,"Vertex");
   axisMu->SetBinLabel(4,"Leptons");
   axisMu->SetBinLabel(5,"Dilepton");
-  axisMu->SetBinLabel(6,"V-jet");
-  axisMu->SetBinLabel(7,"Graviton");
+  axisMu->SetBinLabel(6,"JetID");
+  axisMu->SetBinLabel(7,"JetClean");
+  axisMu->SetBinLabel(8,"Graviton");
   TAxis *axisEl = wfEl->GetXaxis();  
   axisEl->SetBinLabel(1,"Begin");
   axisEl->SetBinLabel(2,"HLT");
   axisEl->SetBinLabel(3,"Vertex");
   axisEl->SetBinLabel(4,"Leptons");
   axisEl->SetBinLabel(5,"Dilepton");
-  axisEl->SetBinLabel(6,"V-jet");
-  axisEl->SetBinLabel(7,"Graviton");
+  axisEl->SetBinLabel(6,"JetID");
+  axisEl->SetBinLabel(7,"JetClean");
+  axisEl->SetBinLabel(8,"Graviton");
 
   genTree = fs->make<TTree>("genTree", "physical variables at GEN level");
   genTree->Branch("run",          &run,          "run/I");
@@ -114,9 +116,10 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             case  7: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); break;
             case 16: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); break;
             case 17: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); break;
-            case 23: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); break;
-            case 26: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("V-jet",1); break;
-            case 27: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("V-jet",1); wfMu->Fill("Graviton",1); break;
+            case 20: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); break;
+            case 22: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("JetID",1); break;
+            case 25: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("JetID",1); wfMu->Fill("JetClean",1); break;
+            case 26: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Dilepton",1); wfMu->Fill("JetID",1); wfMu->Fill("JetClean",1); wfMu->Fill("Graviton",1); break;
         }
      }
      // cut flow for electrons
@@ -126,9 +129,10 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             case  7: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); break;
             case 16: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); break;
             case 17: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); break;
-            case 23: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); break;
-            case 26: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("V-jet",1); break;
-            case 27: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("V-jet",1); wfEl->Fill("Graviton",1); break;
+            case 20: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); break;
+            case 22: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("JetID",1); break;
+            case 25: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("JetID",1); wfEl->Fill("JetClean",1); break;
+            case 26: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Dilepton",1); wfEl->Fill("JetID",1); wfEl->Fill("JetClean",1); wfEl->Fill("Graviton",1); break;
         }
      }
    }

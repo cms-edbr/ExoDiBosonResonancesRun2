@@ -55,11 +55,6 @@ process.bestLeptonicV = cms.EDFilter(    "LargestPtCandSelector",
                                           src = cms.InputTag("leptonicVSelector"),
                                           maxNumber = cms.uint32(1) )
 
-process.hadronicVFilter = cms.EDFilter(   "CandViewCountFilter",
-                                          src = cms.InputTag("hadronicV"),
-                                          minNumber = cms.uint32(1),
-                                          filter = cms.bool(True) )
-
 process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
                                           src = cms.InputTag("hadronicV"),
                                           maxNumber = cms.uint32(1) )
@@ -116,7 +111,6 @@ process.leptonSequence = cms.Sequence(    process.leptonicVSequence +
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence   +
                                           process.hadronicV         +
-                                          process.hadronicVFilter   +
                                           process.bestHadronicV     )
 
 process.gravitonSequence = cms.Sequence(  process.graviton          +
