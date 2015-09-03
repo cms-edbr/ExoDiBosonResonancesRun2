@@ -392,6 +392,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    ptVhad       = hadronicV.pt();
                    yVhad        = hadronicV.eta();
                    phiVhad      = hadronicV.phi();
+                   massVhad     = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
                    tau1         = hadronicV.userFloat("NjettinessAK8:tau1");
                    tau2         = hadronicV.userFloat("NjettinessAK8:tau2");
                    tau3         = hadronicV.userFloat("NjettinessAK8:tau3");
@@ -597,7 +598,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
            }// close switch
 
-           massVhad     = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
 
        }// close not isGen
        
