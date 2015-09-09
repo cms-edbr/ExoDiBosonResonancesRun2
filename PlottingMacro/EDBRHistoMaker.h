@@ -334,18 +334,17 @@ void EDBRHistoMaker::createAllHistos() {
   /// Much simpler to create histos now: just add them to
   /// hs with hs.setHisto(name,nbins,min,max);
   hs.setHisto("nVtx", 40, -0.5, 39.5);
-  hs.setHisto("ptZll",80,0,1600); // 20 GeV bins
-  hs.setHisto("ptZjj",80,0,1600); // 20 GeV bins
+  hs.setHisto("ptZll",50,0,1000); // 20 GeV bins
+  hs.setHisto("ptZjj",50,0,1000); // 20 GeV bins
   hs.setHisto("yZll",56,-2.8,2.8);
   hs.setHisto("yZjj",56,-2.8,2.8);
   hs.setHisto("phiZll",74,-3.7,3.7);
   hs.setHisto("phiZjj",74,-3.7,3.7);
   hs.setHisto("massZll",50,50,150); // 2 GeV bins 
-  hs.setHisto("massZjj",50,30,130); // 2 GeV bins  
+  hs.setHisto("massZjj",35,0,140); // 2 GeV bins  
   hs.setHisto("tau21",50,0,1);
-  hs.setHisto("ptlep1",120,0,1200); 
-  hs.setHisto("ptlep1",120,0,1200);
-  hs.setHisto("ptlep2",60,0,600);
+  hs.setHisto("ptlep1",40,0,800); 
+  hs.setHisto("ptlep2",50,0,500);
   hs.setHisto("ptjet1",120,0,1200);
   hs.setHisto("etalep1",50,-2.5,2.5);
   hs.setHisto("etalep2",50,-2.5,2.5);
@@ -464,9 +463,11 @@ bool EDBRHistoMaker::eventInSignalRegion(){
 bool EDBRHistoMaker::eventPassesRegionCut(){
   bool isInSideband = eventInSidebandRegion();
   bool isInSignal   = eventInSignalRegion();
-  bool passesRegion = ((isInSideband and wantSideband_) or
-		       (isInSignal and wantSignal_)) ;
-  if(wantFullRange_) passesRegion=true;
+  bool passesRegion = ( isInSideband and wantSideband_) or 
+                      ( isInSignal   and wantSignal_  )  ;
+  if(wantFullRange_) passesRegion = true;
+  if(!wantSideband_ and isInSideband) passesRegion = false;
+  if(!wantSignal_   and isInSignal)   passesRegion = false;
   return passesRegion;
 }
 
@@ -544,7 +545,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
     // Single / Double jet ...) 
 
     // Remember: bool eventPassesCut(double ptZ_threshold, double ptlep1_threshold );
- //   if(eventPassesCut(200, 20)){
+    if(eventPassesCut(20, 20)){
       
       // In case we need particular events
       //if(candMass>2400.0)
@@ -584,7 +585,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["lep"])->Fill(lep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["region"])->Fill(region,actualWeight);//printf("line number %i\n",__LINE__);
       
-//      }//end if eventPassesCut
+      }//end if eventPassesCut
     
   }//end loop over entries
   
