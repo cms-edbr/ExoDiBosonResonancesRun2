@@ -70,10 +70,20 @@ TMathText* makeCMSPreliminaryTop(int energy = 7, double x = 0.15, double y = 0.9
   return tex;
 }
 
-/*
 TMathText* makeCMSLumi(double lumi = 5.0, double x = 0.666, double y = 0.72) {
   char buffer[256];
-  sprintf(buffer,"\\int L dt = %4.1lf fb^{-1}",lumi);
+  sprintf(buffer,"\\int L dt = %4.2lf pb^{-1}",lumi);
+  TMathText* tex = new TMathText(x,y,buffer);
+  tex->SetNDC();
+  tex->SetTextFont(42);
+  tex->SetTextSize(0.030);
+  tex->Draw();
+  return tex;
+}
+/*
+TMathText* makeCMSLumi(int energy = 7,double lumi = 5.0, double x = 0.666, double y = 0.72) {
+  char buffer[256];
+  sprintf(buffer,"\\sqrt{s} = %i TeV,  \\int L dt = %4.2lf pb^{-1}",energy,lumi);
   TMathText* tex = new TMathText(x,y,buffer);
   tex->SetNDC();
   tex->SetTextFont(42);
@@ -82,17 +92,6 @@ TMathText* makeCMSLumi(double lumi = 5.0, double x = 0.666, double y = 0.72) {
   return tex;
 }
 */
-TMathText* makeCMSLumi(int energy = 7,double lumi = 5.0, double x = 0.666, double y = 0.72) {
-  char buffer[256];
-  sprintf(buffer,"\\sqrt{s} = %i TeV,  \\int L dt = %4.1lf fb^{-1}",energy,lumi);
-  TMathText* tex = new TMathText(x,y,buffer);
-  tex->SetNDC();
-  tex->SetTextFont(42);
-  tex->SetTextSize(0.030);
-  tex->Draw();
-  return tex;
-}
-
 TMathText* makeChannelLabel(int nJets, int flavour, bool isZZchannel, double x = 0.75, double y = 0.94) {
   char buffer[256];
   char c;

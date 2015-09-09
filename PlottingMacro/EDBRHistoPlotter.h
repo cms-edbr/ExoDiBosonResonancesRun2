@@ -477,7 +477,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
 
   hs->Draw("HIST");
   hs->GetXaxis()->SetTitle(histoName.c_str());
-  hs->GetYaxis()->SetTitle("Normalized to Luminosity");
+  hs->GetYaxis()->SetTitle("Events");
   hs->GetYaxis()->SetTitleOffset(1.15);
   hs->GetYaxis()->CenterTitle();
   double maximumMC = 1.15 * sumMC->GetMaximum();
@@ -510,7 +510,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   sumMC->Draw("HISTO SAME");
 
   if (histoName.find("candMass") != std::string::npos) {
-    double limInt0 = 600.0;
+    double limInt0 = 400.0;
     //double limInt1 = 1400.0; //Not used right now
     double limInt2 = 2400.0;
     int binInt0 = sumMC->FindBin(limInt0);
@@ -526,15 +526,15 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
 
   // For the legend, we have to tokenize the name "histos_XXX.root"
-  TLegend* leg = new TLegend(0.58, 0.75, 0.93, 0.9);
+  TLegend* leg = new TLegend(0.62, 0.61, 0.86, 0.88);
   leg->SetMargin(0.4);
+  leg->SetTextSize(0.038);
   if (isDataPresent_)
     leg->AddEntry(sumDATA, "Data", "p");
-  for (size_t i = 0; i != histosMC.size(); ++i)
+  for (int i = histosMC.size()-1; i != -1; --i)
     leg->AddEntry(histosMC.at(i), labels.at(i).c_str(), "f");
   if (histosMCSig.size() > 0) {
     char rescalingLabel[64];
-
     for (size_t i = 0; i != histosMCSig.size(); ++i) {
       sprintf(rescalingLabel, " (x%g)", kFactorsSig_.at(i));
       std::string rescalingStr(rescalingLabel);
@@ -547,10 +547,12 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   leg->Draw();
 
   // Nice labels
-  TMathText* l = makeCMSPreliminaryTop(13, 0.10, 0.935);
+  TMathText* t = makeCMSPreliminaryTop(13, 0.15, 0.93);
+  TMathText* c = makeChannelLabel(1, flavour_, true, 0.2, 0.83);
+  TMathText* l = makeCMSLumi(40.86, 0.2, 0.76);
+  t->Draw();
+  c->Draw();
   l->Draw();
-  //l = makeCMSLumi(13, 19.8, 0.5, 0.935);
-  //l = makeChannelLabel(wantNXJets_, flavour_, isZZchannel_);
   
   /*
   //============ Save the full background histogram ============
