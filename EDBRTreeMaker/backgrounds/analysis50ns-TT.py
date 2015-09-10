@@ -148,7 +148,7 @@ if option=='RECO':
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
     process.analysis.replace(process.leptonSequence, 
                              process.hltSequence              +
-                             process.egmGsfElectronIDSequence + 
+                             process.egmGsfElectronIDs        + 
                              process.goodLeptonsProducer      +  
                              process.leptonSequence           ) 
 
