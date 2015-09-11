@@ -4,9 +4,9 @@ process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 # find the global tag in the DAS under the Configs for given dataset
-process.GlobalTag.globaltag = 'MCRUN2_74_V9A::All'
+process.GlobalTag.globaltag = '74X_mcRun2_startup_v2'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
@@ -20,7 +20,7 @@ VZ_JetMET       = False        # True
 # choose the sample                                                                     
 
 import sys
-SAMPLE = str(sys.argv[2]) 
+SAMPLE = str(sys.argv[2])
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X50ns.TTbar."+SAMPLE)
@@ -72,13 +72,15 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                     ),
+                                          isData          = cms.bool    (  False                     ),
                                           originalNEvents = cms.int32   (  19665194                  ),
                                           crossSectionPb  = cms.double  (  831.76                    ),
                                           targetLumiInvPb = cms.double  (  40.863                    ),
                                           EDBRChannel     = cms.string  (  CHANNEL                   ),
                                           gravitonSrc     = cms.string  ( "graviton"                 ),
                                           metSrc          = cms.string  ( "slimmedMETs"              ),
-                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ))
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ),
+                                          payload         = cms.string  ( "AK8PFchs"                 ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 
