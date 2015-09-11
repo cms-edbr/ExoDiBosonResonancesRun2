@@ -4,9 +4,9 @@ process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 # find the global tag in the DAS under the Configs for given dataset
-process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
+process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
@@ -19,19 +19,19 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-#SAMPLE="BulkGravToZZToZlepZhad_M-600" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-800" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-1000" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-1200" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-1400" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-1600" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-1800" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-2000" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-2500" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-3000" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-3500" 
-SAMPLE="BulkGravToZZToZlepZhad_M-4000" 
-#SAMPLE="BulkGravToZZToZlepZhad_M-4500" 
+#SAMPLE="BulkGravToZZToZlepZhad_M-600"
+#SAMPLE="BulkGravToZZToZlepZhad_M-800"
+#SAMPLE="BulkGravToZZToZlepZhad_M-1000"
+#SAMPLE="BulkGravToZZToZlepZhad_M-1200"
+#SAMPLE="BulkGravToZZToZlepZhad_M-1400"
+#SAMPLE="BulkGravToZZToZlepZhad_M-1600"
+#SAMPLE="BulkGravToZZToZlepZhad_M-1800"
+#SAMPLE="BulkGravToZZToZlepZhad_M-2000"
+#SAMPLE="BulkGravToZZToZlepZhad_M-2500"
+#SAMPLE="BulkGravToZZToZlepZhad_M-3000"
+#SAMPLE="BulkGravToZZToZlepZhad_M-3500"
+SAMPLE="BulkGravToZZToZlepZhad_M-4000"
+#SAMPLE="BulkGravToZZToZlepZhad_M-4500"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
@@ -116,13 +116,15 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                     ),
+                                          isData          = cms.bool    (  False                     ),
                                           originalNEvents = cms.int32   (  usedNevents               ),
                                           crossSectionPb  = cms.double  (  usedXsec                  ),
                                           targetLumiInvPb = cms.double  (  40.863                    ),
                                           EDBRChannel     = cms.string  (  CHANNEL                   ),
                                           gravitonSrc     = cms.string  ( "graviton"                 ),
                                           metSrc          = cms.string  ( "slimmedMETs"              ),
-                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ))
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ),
+                                          payload         = cms.string  ( "AK8PFchs"                 ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 
