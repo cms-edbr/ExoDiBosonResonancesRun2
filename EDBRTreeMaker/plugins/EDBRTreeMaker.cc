@@ -19,12 +19,18 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+
+#include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
 
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
@@ -53,8 +59,16 @@ private:
 //******************************************************************
 //************************* MEMBER DATA ****************************
 //******************************************************************
-  edm::Service<TFileService> fs;
-  TTree* outTree_;
+
+  /// Parameters to steer the treeDumper
+  bool isGen_;
+  bool isData_;
+  int originalNEvents_;
+  double crossSectionPb_;
+  double targetLumiInvPb_;
+  std::string EDBRChannel_;
+  std::string gravitonSrc_, metSrc_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   //------------------------ GENERAL ----------------------------------------------
   int nVtx;
@@ -74,9 +88,14 @@ private:
 
   //---------------------- JETS ------------------------------------------------------
   int    numjets;
-  double tau1,     tau2,     tau3,     tau21;
-  double etjet1,   ptjet1,   etajet1,  phijet1;
+  double tau1,     tau2,     tau3,       tau21;
+  double etjet1,   ptjet1,   etajet1,    phijet1;
   double massjet1, softjet1, prunedjet1;
+
+  //Recipe to apply JEC to the pruned jet mass:
+  //https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recipes_to_apply_JEC_on_the_prun
+  std::string payload_;
+  double prunedMassCorrection( double, double, const pat::Jet&, edm::ESHandle<JetCorrectorParametersCollection> ); 
 
   //-------------------- LEPTONS -----------------------------------------------------
   double ptlep1,   ptlep2;
@@ -91,14 +110,6 @@ private:
   double candMass;
   double candTMass; // transverse mass
 
-  /// Parameters to steer the treeDumper
-  bool isGen_;
-  int originalNEvents_;
-  double crossSectionPb_;
-  double targetLumiInvPb_;
-  std::string EDBRChannel_;
-  std::string gravitonSrc_, metSrc_;
-
   //-------------------- HIGH LEVEL TRIGGER ------------------------------------------
   int    elhltbit;
   int    muhltbit;
@@ -108,9 +119,6 @@ private:
   double deltaRlep2Obj;
   double deltaPtlep1Obj;
   double deltaPtlep2Obj;
-
-  // Vertex collection
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   // Electron ID 
   double d01,            d02;
@@ -144,20 +152,26 @@ private:
   int    trackerMu1,     trackerMu2;
 
   void setDummyValues();
+
+  edm::Service<TFileService> fs;
+  TTree* outTree_;
+
 };
 
 //
 // constructors and destructor
 //
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
-  isGen_          (                                   iConfig.getParameter<bool>          ( "isGen"           ) ),
-  originalNEvents_(                                   iConfig.getParameter<int>           ( "originalNEvents" ) ),
-  crossSectionPb_ (                                   iConfig.getParameter<double>        ( "crossSectionPb"  ) ),
-  targetLumiInvPb_(                                   iConfig.getParameter<double>        ( "targetLumiInvPb" ) ),
-  EDBRChannel_    (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"     ) ),
-  gravitonSrc_    (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"     ) ),
-  metSrc_         (                                   iConfig.getParameter<std::string>   ( "metSrc"          ) ),
-  vertexToken_    ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"        ) ) )
+  isGen_             (                                   iConfig.getParameter<bool>          ( "isGen"                ) ),
+  isData_            (                                   iConfig.getParameter<bool>          ( "isData"               ) ),
+  originalNEvents_   (                                   iConfig.getParameter<int>           ( "originalNEvents"      ) ),
+  crossSectionPb_    (                                   iConfig.getParameter<double>        ( "crossSectionPb"       ) ),
+  targetLumiInvPb_   (                                   iConfig.getParameter<double>        ( "targetLumiInvPb"      ) ),
+  EDBRChannel_       (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"          ) ),
+  gravitonSrc_       (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"          ) ),
+  metSrc_            (                                   iConfig.getParameter<std::string>   ( "metSrc"               ) ),
+  vertexToken_       ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"             ) ) ),
+  payload_           (                                   iConfig.getParameter<std::string>   ( "payload"              ) )
 {
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -173,7 +187,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
        << ". Please check EDBRTreeMaker.cc for allowed values.";
     throw ex;
   }
-  
+
   //now do what ever initialization is needed
   outTree_ = fs->make<TTree>("EDBRCandidates","EDBR Candidates");
 
@@ -317,17 +331,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    setDummyValues(); //Initalize variables with dummy values
 
-   // ------ analize trigger results ----------//
-   Handle<bool> elHlt_handle;
-   Handle<bool> muHlt_handle;
-   Handle<ValueMap<bool> > matchHlt_handle;
-   Handle<ValueMap<float> > deltaPt_handle;
-   Handle<ValueMap<float> >  deltaR_handle;
-   iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elHlt_handle);
-   iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), muHlt_handle);
-   elhltbit = (int)(*elHlt_handle);
-   muhltbit = (int)(*muHlt_handle);
-
    Handle<View<reco::Candidate> > gravitons;
    iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
    numCands = gravitons->size();
@@ -363,54 +366,70 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
            // Effective area constants
            EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath() );
-           // The rho
+           
+           // Energy density
            Handle< double > rhoHandle;
            iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
            rho = (float)(*rhoHandle);
+
+           // Jet Energy Corrections
+           edm::ESHandle<JetCorrectorParametersCollection>  JetCorParColl;
+           iSetup.get<JetCorrectionsRecord>().get(payload_, JetCorParColl); 
  
            //we put the definitions inside the channel
            switch(channel){
                case VZ_CHANNEL:{
-                   const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
+                   // ------ analize trigger results ----------//
+                   Handle<bool> elHlt_handle;
+                   Handle<bool> muHlt_handle;
+                   Handle<ValueMap<bool> > matchHlt_handle;
+                   Handle<ValueMap<float> > deltaPt_handle;
+                   Handle<ValueMap<float> >  deltaR_handle;
+                   iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elHlt_handle);
+                   iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), muHlt_handle);
+                   elhltbit = (int)(*elHlt_handle);
+                   muhltbit = (int)(*muHlt_handle);
+
                    //**************DEFINITIONS *********************************** 
+                   const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
                    // candidate
-                   candMass     = graviton.mass();
+                   candMass       = graviton.mass();
                    // leptons
-                   ptVlep       = leptonicV.pt();
-                   yVlep        = leptonicV.eta();
-                   phiVlep      = leptonicV.phi();
-                   massVlep     = leptonicV.mass();
-                   mtVlep       = leptonicV.mt();
-                   ptlep1       = leptonicV.daughter(0)->pt();
-                   ptlep2       = leptonicV.daughter(1)->pt();
-                   etalep1      = leptonicV.daughter(0)->eta();
-                   etalep2      = leptonicV.daughter(1)->eta();
-                   philep1      = leptonicV.daughter(0)->phi();
-                   philep2      = leptonicV.daughter(1)->phi();
-                   lep      = abs(leptonicV.daughter(0)->pdgId());
+                   ptVlep         = leptonicV.pt();
+                   yVlep          = leptonicV.eta();
+                   phiVlep        = leptonicV.phi();
+                   massVlep       = leptonicV.mass();
+                   mtVlep         = leptonicV.mt();
+                   ptlep1         = leptonicV.daughter(0)->pt();
+                   ptlep2         = leptonicV.daughter(1)->pt();
+                   etalep1        = leptonicV.daughter(0)->eta();
+                   etalep2        = leptonicV.daughter(1)->eta();
+                   philep1        = leptonicV.daughter(0)->phi();
+                   philep2        = leptonicV.daughter(1)->phi();
+                   lep        = abs(leptonicV.daughter(0)->pdgId());
                    // hadrons
-                   ptVhad       = hadronicV.pt();
-                   yVhad        = hadronicV.eta();
-                   phiVhad      = hadronicV.phi();
-                   massVhad     = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
-                   tau1         = hadronicV.userFloat("NjettinessAK8:tau1");
-                   tau2         = hadronicV.userFloat("NjettinessAK8:tau2");
-                   tau3         = hadronicV.userFloat("NjettinessAK8:tau3");
-                   tau21        = tau2/tau1;
-                   etjet1       = hadronicV.et();
-                   ptjet1       = hadronicV.pt();
-                   etajet1      = hadronicV.eta();
-                   phijet1      = hadronicV.phi();
-                   massjet1     = hadronicV.mass();
-                   softjet1     = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
-                   prunedjet1   = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
+                   ptVhad         = hadronicV.pt();
+                   yVhad          = hadronicV.eta();
+                   phiVhad        = hadronicV.phi();
+                   tau1           = hadronicV.userFloat("NjettinessAK8:tau1");
+                   tau2           = hadronicV.userFloat("NjettinessAK8:tau2");
+                   tau3           = hadronicV.userFloat("NjettinessAK8:tau3");
+                   tau21          = tau2/tau1;
+                   etjet1         = hadronicV.et();
+                   ptjet1         = hadronicV.pt();
+                   etajet1        = hadronicV.eta();
+                   phijet1        = hadronicV.phi();
+                   massjet1       = hadronicV.mass();
+                   softjet1       = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
+                   prunedjet1     = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
+                   massVhad       = prunedjet1 * prunedMassCorrection( rho, nVtx, hadronicV, JetCorParColl );
                    // deltas
-                   deltaRleplep = deltaR(etalep1,philep1,etalep2,philep2);
-                   double drl1j = deltaR(etalep1,philep1,etajet1,phijet1);
-                   double drl2j = deltaR(etalep2,philep2,etajet1,phijet1);
-                   deltaRlepjet = std::min(drl1j,drl2j);
-                   delPhilepmet = deltaPhi(philep1, metPhi);
-                   delPhijetmet = deltaPhi(phijet1, metPhi);
+                   deltaRleplep   = deltaR(etalep1,philep1,etalep2,philep2);
+                   double drl1j   = deltaR(etalep1,philep1,etajet1,phijet1);
+                   double drl2j   = deltaR(etalep2,philep2,etajet1,phijet1);
+                   deltaRlepjet   = std::min(drl1j,drl2j);
+                   delPhilepmet   = deltaPhi(philep1, metPhi);
+                   delPhijetmet   = deltaPhi(phijet1, metPhi);
                    //*****************************************************************//
                    //************************* ID for muons **************************//
                    //*****************************************************************//
@@ -631,6 +650,32 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 }
 
+double EDBRTreeMaker::prunedMassCorrection( double rho,
+                                            double nVtx,
+                                            const pat::Jet& jet, 
+                                            edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl ) {
+     std::vector<std::string> jecAK8PayloadNames;
+     jecAK8PayloadNames.push_back("L2Relative");
+     jecAK8PayloadNames.push_back("L3Absolute");
+     if(isData_)
+     jecAK8PayloadNames.push_back("L2L3Residual");
+     std::vector<JetCorrectorParameters> vPar;
+     for ( std::vector<std::string>::const_iterator payloadBegin = jecAK8PayloadNames.begin(), 
+                                                    payloadEnd   = jecAK8PayloadNames.end()  , 
+                                                    ipayload     = payloadBegin; 
+                                                    ipayload    != payloadEnd; 
+                                                  ++ipayload )  vPar.push_back( (*JetCorParColl)[*ipayload] );
+     // Make the FactorizedJetCorrector
+     std::shared_ptr<FactorizedJetCorrector> jecAK8 = std::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) ); 
+     jecAK8->setRho   ( rho                         );
+     jecAK8->setNPV   ( nVtx                        );
+     jecAK8->setJetA  ( jet.jetArea()               );
+     jecAK8->setJetPt ( jet.correctedP4(0).pt()     );
+     jecAK8->setJetEta( jet.correctedP4(0).eta()    );
+     jecAK8->setJetE  ( jet.correctedP4(0).energy() );
+     return jecAK8->getCorrection();
+}
+
 void EDBRTreeMaker::setDummyValues() {
      nVtx           = -1e4;
      triggerWeight  = -1e4;
@@ -735,15 +780,9 @@ void EDBRTreeMaker::setDummyValues() {
      highPtMu2      = -1e4;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void EDBRTreeMaker::beginJob()
-{
-}
+void EDBRTreeMaker::beginJob(){ }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void EDBRTreeMaker::endJob() {
-  std::cout << "EDBRTreeMaker endJob()..." << std::endl;
-}
+void EDBRTreeMaker::endJob(){ }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EDBRTreeMaker);

@@ -6,7 +6,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 # find the global tag in the DAS under the Configs for given dataset
-process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+process.GlobalTag.globaltag = '74X_dataRun2_v2'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 #                                                                                                    #
@@ -19,8 +19,8 @@ VZ_JetMET       = False        # True
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-SAMPLE="SingleMuon_Run2015B" 
-#SAMPLE="SingleElectron_Run2015B" 
+SAMPLE="SingleMuon_Run2015B"
+#SAMPLE="SingleElectron_Run2015B"
 
 ### Source
 process.load("ExoDiBosonResonances.EDBRCommon.PromptReco."+SAMPLE)
@@ -89,13 +89,15 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                     ),
+                                          isData          = cms.bool    (  True                      ),
                                           originalNEvents = cms.int32   (  usedNevents               ),
                                           crossSectionPb  = cms.double  (  usedXsec                  ),
                                           targetLumiInvPb = cms.double  (  40.863                    ),
                                           EDBRChannel     = cms.string  (  CHANNEL                   ),
                                           gravitonSrc     = cms.string  ( "graviton"                 ),
                                           metSrc          = cms.string  ( "slimmedMETs"              ),
-                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ))
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ),
+                                          payload         = cms.string  ( "AK8PFchs"                 ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 

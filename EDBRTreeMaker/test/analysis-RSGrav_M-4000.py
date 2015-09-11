@@ -4,7 +4,7 @@ process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 # find the global tag in the DAS under the Configs for given dataset
 process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 
@@ -116,6 +116,8 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           originalNEvents = cms.int32   (  usedNevents                                                                ),
                                           crossSectionPb  = cms.double  (  usedXsec                                                                   ),
                                           targetLumiInvPb = cms.double  (  40.028                                                                     ),
+                                           isData          = cms.bool    (  False                     ),
+
                                           EDBRChannel     = cms.string  (  CHANNEL                                                                    ),
                                           gravitonSrc     = cms.string  ( "graviton"                                                                  ),
                                           metSrc          = cms.string  ( "slimmedMETs"                                                               ),
