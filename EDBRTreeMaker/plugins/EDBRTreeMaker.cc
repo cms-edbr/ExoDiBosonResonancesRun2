@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -91,7 +92,7 @@ private:
   double etjet1,   ptjet1,   etajet1,    phijet1;
   double massjet1, softjet1, prunedjet1;
 
-  //Recipe to apply JEC to the pruned jet mass are documented here:
+  //Recipe to apply JEC to the pruned jet mass:
   //https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recipes_to_apply_JEC_on_the_prun
   std::string payload_;
   double prunedMassCorrection( double, double, const pat::Jet&, edm::ESHandle<JetCorrectorParametersCollection> ); 
