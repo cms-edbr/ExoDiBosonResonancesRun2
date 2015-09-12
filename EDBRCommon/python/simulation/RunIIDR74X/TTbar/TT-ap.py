@@ -1,15 +1,10 @@
-import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms 
 
-maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring()
-source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-readFiles.extend( [
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/7650E958-450C-E511-81EA-6C3BE5B59200.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/76FCDA35-D30D-E511-9A3D-000F530E4644.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/78DC7115-A40C-E511-BA70-0002C94CD1EA.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/7A4C19FF-A50C-E511-A655-0002C94CDA06.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/7C88B39D-E30C-E511-BCE6-0025905964BC.root',
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) ) 
+readFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring() 
+source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles) 
+readFiles.extend( [ 
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/7E9511EF-100D-E511-9ADA-20CF3027A560.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/7E9CD672-E40C-E511-994D-0025905A60F8.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/803B0174-D10C-E511-9E0D-0025B3E066A4.root',

@@ -1,10 +1,10 @@
-import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms 
 
-maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring()
-source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-readFiles.extend( [
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) ) 
+readFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring() 
+source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles) 
+readFiles.extend( [ 
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/E4FAF6F4-360D-E511-BEE1-0026189438DD.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/E68C7D7D-D00C-E511-9220-0002C94CDDEC.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/E6FD3BEF-9D0C-E511-8B51-0CC47A4D9980.root',

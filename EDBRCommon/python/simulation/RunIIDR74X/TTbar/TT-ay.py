@@ -1,10 +1,10 @@
-import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms 
 
-maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring()
-source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-readFiles.extend( [
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) ) 
+readFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring() 
+source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles) 
+readFiles.extend( [ 
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/60000/A6D26970-0E0D-E511-ADE0-90B11C2AA388.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/60000/AEC41DF9-0E0D-E511-9E70-90B11C2C93B1.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/60000/B095B358-500D-E511-89EC-00259073E3D6.root',
@@ -19,9 +19,4 @@ readFiles.extend( [
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/60000/F6390C3F-4F0D-E511-8624-0CC47A4DEDA2.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/004FAEDE-700D-E511-97BF-00266CFAE304.root',
        '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/0408FDC0-C80D-E511-BD56-20CF305616F0.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/04C304A4-370D-E511-BFB2-003048FFD760.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/085327A2-370D-E511-9304-0025905A6104.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/0EF306F5-360D-E511-9570-0025905A6132.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/10660502-700D-E511-8566-00266CF9AD20.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/141F74F1-360D-E511-9280-0025905A48F2.root',
-       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/14A5D745-710D-E511-86F2-008CFA001F78.root' ] );
+       '/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/70000/04C304A4-370D-E511-BFB2-003048FFD760.root' ] );
