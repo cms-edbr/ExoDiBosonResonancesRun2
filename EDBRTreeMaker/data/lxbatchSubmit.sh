@@ -18,5 +18,5 @@ cd /afs/cern.ch/work/j/jruizvar/private/Summer15/50ns/CMSSW_7_4_12/src/ExoDiBoso
 
 eval `scramv1 runtime -sh`
 
-#cmsRun analysis-SingleElectron_Run2015B.py
-cmsRun analysis-SingleMuon_Run2015B.py
+#cmsRun analysis50ns-SingleElectron_Run2015B.py
+cmsRun analysis50ns-SingleMuon_Run2015B.py
