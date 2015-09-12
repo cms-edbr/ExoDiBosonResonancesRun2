@@ -3,9 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-# find the global tag in the DAS under the Configs for given dataset
 process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
