@@ -28,12 +28,12 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
-configXsecs = {   "SingleMuon_Run2015B"         : 1.0,
-                  "SingleElectron_Run2015B"     : 1.0,
+configXsecs = {   "SingleMuon_Run2015C"         : 1.0,
+                  "SingleElectron_Run2015C"     : 1.0,
               }
 
-configNevents = { "SingleMuon_Run2015B"         : 1,
-                  "SingleElectron_Run2015B"     : 1,
+configNevents = { "SingleMuon_Run2015C"         : 1,
+                  "SingleElectron_Run2015C"     : 1,
                 }
 
 usedXsec = configXsecs[SAMPLE]
