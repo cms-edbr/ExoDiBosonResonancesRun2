@@ -5,7 +5,6 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/mc/RunIISpring15DR74/WZ_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/B273A3F7-8306-E511-8BF3-0002C94D5612.root',
        '/store/mc/RunIISpring15DR74/WZ_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/BACDDDF7-1906-E511-8E8C-0CC47A13D2BE.root',
        '/store/mc/RunIISpring15DR74/WZ_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/DA2F33AF-4708-E511-9984-A0040420FE80.root',
        '/store/mc/RunIISpring15DR74/WZ_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/60000/0EA5CF2F-1A06-E511-82CF-002590D9D9F6.root',
