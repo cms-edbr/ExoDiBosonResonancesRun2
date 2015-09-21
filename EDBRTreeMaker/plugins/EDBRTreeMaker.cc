@@ -372,7 +372,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            const reco::Vertex& vertex = (*vertices)[0];
   
            // Effective area constants
-           EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/PHYS14/effAreaElectrons_cone03_pfNeuHadronsAndPhotons.txt").fullPath() );
+           EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_50ns.txt").fullPath() );
            
            // Energy density
            Handle< double > rhoHandle;
