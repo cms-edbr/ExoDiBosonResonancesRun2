@@ -60,7 +60,7 @@ private:
 //************************* MEMBER DATA ****************************
 //******************************************************************
 
-  /// Parameters to steer the treeDumper
+  // Parameters to steer the treeDumper
   bool isGen_;
   bool isData_;
   int originalNEvents_;
@@ -88,9 +88,12 @@ private:
 
   //---------------------- JETS ------------------------------------------------------
   int    numjets;
-  double tau1,     tau2,     tau3,       tau21;
-  double etjet1,   ptjet1,   etajet1,    phijet1;
-  double massjet1, softjet1, prunedjet1;
+  double tau1,      tau2,     tau3,       tau21;
+  double etjet1,    ptjet1,   etajet1,    phijet1;
+  double massjet1,  softjet1, prunedjet1;
+  double nhfjet1,   chfjet1;       // neutral and charged hadron energy fraction
+  double nemfjet1,  cemfjet1;      // neutral and charged EM fraction
+  int    nmultjet1, cmultjet1;     // neutral and charged multiplicity
 
   //Recipe to apply JEC to the pruned jet mass:
   //https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recipes_to_apply_JEC_on_the_prun
@@ -158,9 +161,6 @@ private:
 
 };
 
-//
-// constructors and destructor
-//
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   isGen_             (                                   iConfig.getParameter<bool>          ( "isGen"                ) ),
   isData_            (                                   iConfig.getParameter<bool>          ( "isData"               ) ),
@@ -188,10 +188,9 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
     throw ex;
   }
 
-  //now do what ever initialization is needed
   outTree_ = fs->make<TTree>("EDBRCandidates","EDBR Candidates");
 
-  /// Basic event quantities
+  // Basic event quantities
   outTree_->Branch("event"           ,&nevent         ,"event/I"          );
   outTree_->Branch("run"             ,&run            ,"run/I"            );
   outTree_->Branch("lumisec"         ,&lumisec        ,"lumisec/I"        );
@@ -216,7 +215,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("candMass"        ,&candMass       ,"candMass/D"       );
   outTree_->Branch("candTMass"       ,&candTMass      ,"candTMass/D"      );
 
-  /// HLT info 
+  // HLT info 
   outTree_->Branch("elhltbit"        ,&elhltbit       ,"elhltbit/I"       );
   outTree_->Branch("muhltbit"        ,&muhltbit       ,"muhltbit/I"       );
   outTree_->Branch("matchHlt1"       ,&matchHlt1      ,"matchHlt1/I"      );
@@ -226,13 +225,13 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("deltaPtlep1Obj"  ,&deltaPtlep1Obj ,"deltaPtlep1Obj/D" );
   outTree_->Branch("deltaPtlep2Obj"  ,&deltaPtlep2Obj ,"deltaPtlep2Obj/D" );
  
-  /// Muon ID quantities ID quantities
+  // Muon ID quantities
   outTree_->Branch("trackerMu1"      ,&trackerMu1     ,"trackerMu1/I"     );
   outTree_->Branch("trackerMu2"      ,&trackerMu2     ,"trackerMu2/I"     );
   outTree_->Branch("highPtMu1"       ,&highPtMu1      ,"highPtMu1/I"      );
   outTree_->Branch("highPtMu2"       ,&highPtMu2      ,"highPtMu2/I"      );
 
-  /// Electron ID quantities
+  // Electron ID quantities
   outTree_->Branch("barrel1"         ,&barrel1        ,"barrel1/I"        );
   outTree_->Branch("barrel2"         ,&barrel2        ,"barrel2/I"        );
   outTree_->Branch("endcap1"         ,&endcap1        ,"endcap1/I"        );
@@ -286,7 +285,15 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("miniIso1"        ,&miniIso1       ,"miniIso1/D"       );
   outTree_->Branch("miniIso2"        ,&miniIso2       ,"miniIso2/D"       );
   
-  /// Generic kinematic quantities
+  // Jet ID quantities
+  outTree_->Branch("nhfjet1"         ,&nhfjet1        ,"nhfjet1/D"        );
+  outTree_->Branch("chfjet1"         ,&chfjet1        ,"chfjet1/D"        );
+  outTree_->Branch("nemfjet1"        ,&nemfjet1       ,"nemfjet1/D"       );
+  outTree_->Branch("cemfjet1"        ,&cemfjet1       ,"cemfjet1/D"       );
+  outTree_->Branch("nmultjet1"       ,&nmultjet1      ,"nmultjet1/I"      );
+  outTree_->Branch("cmultjet1"       ,&cmultjet1      ,"cmultjet1/I"      );
+
+  // Generic kinematic quantities
   outTree_->Branch("numjets"         ,&numjets        ,"numjets/I"        );
   outTree_->Branch("ptlep1"          ,&ptlep1         ,"ptlep1/D"         );
   outTree_->Branch("ptlep2"          ,&ptlep2         ,"ptlep2/D"         );
@@ -305,7 +312,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("metpt"           ,&metpt          ,"metpt/D"          );
   outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
 
-  /// Other quantities
+  // Other quantities
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
   outTree_->Branch("lumiWeight"      ,&lumiWeight     ,"lumiWeight/D"     );
   outTree_->Branch("pileupWeight"    ,&pileupWeight   ,"pileupWeight/D"   );
@@ -343,7 +350,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        iEvent.getByLabel(metSrc_.c_str(), metHandle);
        const reco::Candidate& metCand = metHandle->at(0);
        
-       /// All the quantities which depend on RECO could go here
+       // All the quantities which depend on RECO could go here
        if(not isGen_) {
            // electrons and muons
            Handle<View<pat::Electron> > electrons;
@@ -423,6 +430,15 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    softjet1       = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
                    prunedjet1     = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
                    massVhad       = prunedjet1 * prunedMassCorrection( rho, nVtx, hadronicV, JetCorParColl );
+                   //*****************************************************************//
+                   //***************************** Jet ID ****************************//
+                   //*****************************************************************//
+                   nhfjet1        = hadronicV.neutralHadronEnergyFraction();
+                   chfjet1        = hadronicV.chargedHadronEnergyFraction();
+                   nemfjet1       = hadronicV.neutralEmEnergyFraction();
+                   cemfjet1       = hadronicV.chargedEmEnergyFraction();
+                   nmultjet1      = hadronicV.neutralMultiplicity();
+                   cmultjet1      = hadronicV.chargedMultiplicity();
                    // deltas
                    deltaRleplep   = deltaR(etalep1,philep1,etalep2,philep2);
                    double drl1j   = deltaR(etalep1,philep1,etajet1,phijet1);
@@ -711,6 +727,12 @@ void EDBRTreeMaker::setDummyValues() {
      massjet1       = -1e4;
      softjet1       = -1e4;
      prunedjet1     = -1e4;
+     nhfjet1        = -1e4;
+     chfjet1        = -1e4;
+     nemfjet1       = -1e4;
+     cemfjet1       = -1e4;
+     nmultjet1      = -1e4;
+     cmultjet1      = -1e4;
      met            = -1e4;
      metPhi         = -1e4;
      metpt          = -1e4;
