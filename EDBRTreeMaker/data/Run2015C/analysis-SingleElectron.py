@@ -37,7 +37,7 @@ process.load("ExoDiBosonResonances.EDBRCommon.PromptReco.Run2015C.SingleElectron
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(
-    filename = '../../Cert_246908-256869_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
+    filename = '../Cert_246908-256869_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
