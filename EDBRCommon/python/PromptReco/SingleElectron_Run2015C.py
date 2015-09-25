@@ -141,7 +141,7 @@ readFiles.extend( [
        '/store/data/Run2015C/SingleElectron/MINIAOD/PromptReco-v1/000/254/906/00000/7E24A081-DB4B-E511-B5AD-02163E0133A9.root',
        '/store/data/Run2015C/SingleElectron/MINIAOD/PromptReco-v1/000/254/907/00000/62D7A215-E54B-E511-8973-02163E011D26.root',
        #'/store/data/Run2015C/SingleElectron/MINIAOD/PromptReco-v1/000/254/913/00000/2C0374FC-EB4B-E511-874D-02163E01424D.root',
-       #'/store/data/Run2015C/SingleElectron/MINIAOD/PromptReco-v1/000/254/914/00000/604D500A-ED4B-E511-A91F-02163E01354B.root' 
+       '/store/data/Run2015C/SingleElectron/MINIAOD/PromptReco-v1/000/254/914/00000/604D500A-ED4B-E511-A91F-02163E01354B.root' 
        ] );
 
 
