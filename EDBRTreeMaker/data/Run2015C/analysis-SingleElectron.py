@@ -21,11 +21,9 @@ VZ_JetMET       = False        # True
 isBlinded = True # False
 
 if isBlinded == True :
-     JETMASSCUT = '(userFloat("ak8PFJetsCHSPrunedMass") > 20.) & '  
-                  '(userFloat("ak8PFJetsCHSPrunedMass") < 60.)'    
+     JETMASSCUT = 'userFloat("ak8PFJetsCHSPrunedMass") > 20. & userFloat("ak8PFJetsCHSPrunedMass") < 60.'    
 else :
-     JETMASSCUT = '(userFloat("ak8PFJetsCHSPrunedMass") > 20.) & '  
-                  '(userFloat("ak8PFJetsCHSPrunedMass") < 95.)'    
+     JETMASSCUT = 'userFloat("ak8PFJetsCHSPrunedMass") > 20. & userFloat("ak8PFJetsCHSPrunedMass") < 95.'    
 
 #*********************************** POOL SOURCE ****************************************************#
 
@@ -158,5 +156,5 @@ print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_"+SAMPLE+".root")
+                                   fileName = cms.string("treeEDBR_SingleElectron_Run2015C.root")
                                   )
