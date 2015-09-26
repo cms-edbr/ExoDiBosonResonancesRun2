@@ -8,7 +8,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
+process.GlobalTag.globaltag = '74X_dataRun2_v2'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
                                                                                                     
@@ -18,7 +18,7 @@ VZ_JetMET       = False        # True
                                                                                                    
 #*************************************** BLIND ANALYSIS *********************************************#
 
-isBlinded = False
+isBlinded = True # False
 
 if isBlinded == True :
      JETMASSCUT = 'userFloat("ak8PFJetsCHSPrunedMass") > 20. & userFloat("ak8PFJetsCHSPrunedMass") < 60.'    
@@ -27,52 +27,15 @@ else :
 
 #*********************************** POOL SOURCE ****************************************************#
 
-import sys
-SAMPLE = str(sys.argv[2])
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X.Diboson."+SAMPLE)
+process.load("ExoDiBosonResonances.EDBRCommon.PromptReco.Run2015C.SingleMuon_Run2015C")
 
-configXsecs = {  "WW-aa" : 118.7 ,
-                 "WW-ab" : 118.7 ,
-                 "WW-ac" : 118.7 ,
-                 "WW-ad" : 118.7 ,
-                 "WW-ae" : 118.7 ,
-                 "WW-af" : 118.7 ,
-                 "WZ-aa" :  66.1 , 
-                 "WZ-ab" :  66.1 , 
-                 "WZ-ac" :  66.1 , 
-                 "WZ-ad" :  66.1 , 
-                 "WZ-ae" :  66.1 , 
-                 "WZ-af" :  66.1 , 
-                 "ZZ-aa" :  15.4 ,
-                 "ZZ-ab" :  15.4 ,
-                 "ZZ-ac" :  15.4 ,
-                 "ZZ-ad" :  15.4 ,
-                 "ZZ-ae" :  15.4 ,
-                 "ZZ-af" :  15.4 ,
-              }
+#************************************* JSON file ***************************************************#
+# https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
+# last modified 25-Sep-2015 
 
-configNevents = {"WW-aa" : 994416,
-                 "WW-ab" : 994416,
-                 "WW-ac" : 994416,
-                 "WW-ad" : 994416,
-                 "WW-ae" : 994416,
-                 "WW-af" : 994416,
-                 "WZ-aa" : 991232,
-                 "WZ-ab" : 991232,
-                 "WZ-ac" : 991232,
-                 "WZ-ad" : 991232,
-                 "WZ-ae" : 991232,
-                 "WZ-af" : 991232,
-                 "ZZ-aa" : 996168,
-                 "ZZ-ab" : 996168,
-                 "ZZ-ac" : 996168,
-                 "ZZ-ad" : 996168,
-                 "ZZ-ae" : 996168,
-                 "ZZ-af" : 996168,
-                }
-
-usedXsec    = configXsecs[SAMPLE]
-usedNevents = configNevents[SAMPLE]
+import FWCore.PythonUtilities.LumiList as LumiList
+process.source.lumisToProcess = LumiList.LumiList(
+    filename = '../Cert_246908-256869_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
@@ -112,9 +75,9 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                        ),
-                                          isData          = cms.bool    (  False                        ),
-                                          originalNEvents = cms.int32   (  usedNevents                  ),
-                                          crossSectionPb  = cms.double  (  usedXsec                     ),
+                                          isData          = cms.bool    (  True                         ),
+                                          originalNEvents = cms.int32   (  1                            ),
+                                          crossSectionPb  = cms.double  (  1.                           ),
                                           targetLumiInvPb = cms.double  (  122.86                       ),
                                           EDBRChannel     = cms.string  (  CHANNEL                      ),
                                           gravitonSrc     = cms.string  ( "graviton"                    ),
@@ -193,5 +156,5 @@ print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_"+SAMPLE+".root")
+                                   fileName = cms.string("treeEDBR_SingleMuon_Run2015C.root")
                                   )

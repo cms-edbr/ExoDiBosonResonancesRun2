@@ -224,7 +224,7 @@ readFiles.extend( [
        '/store/data/Run2015C/SingleMuon/MINIAOD/PromptReco-v1/000/254/906/00000/2A365D2E-D74B-E511-9D09-02163E012539.root',
        '/store/data/Run2015C/SingleMuon/MINIAOD/PromptReco-v1/000/254/907/00000/A691DFDA-E44B-E511-9DE5-02163E013437.root',
        #'/store/data/Run2015C/SingleMuon/MINIAOD/PromptReco-v1/000/254/913/00000/8ED818F8-EB4B-E511-8407-02163E011BB9.root',
-       #'/store/data/Run2015C/SingleMuon/MINIAOD/PromptReco-v1/000/254/914/00000/64A95AB9-EC4B-E511-B302-02163E011CEF.root' 
+       '/store/data/Run2015C/SingleMuon/MINIAOD/PromptReco-v1/000/254/914/00000/64A95AB9-EC4B-E511-B302-02163E011CEF.root' 
        ] );
 
 
