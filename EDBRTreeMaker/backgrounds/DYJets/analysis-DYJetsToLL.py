@@ -110,7 +110,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isData          = cms.bool    (  False                     ),
                                           originalNEvents = cms.int32   (  usedNevents               ),
                                           crossSectionPb  = cms.double  (  usedXsec                  ),
-                                          targetLumiInvPb = cms.double  (  15.48                     ),
+                                          targetLumiInvPb = cms.double  (  122.86                    ),
                                           EDBRChannel     = cms.string  (  CHANNEL                   ),
                                           gravitonSrc     = cms.string  ( "graviton"                 ),
                                           metSrc          = cms.string  ( "slimmedMETs"              ),
@@ -137,7 +137,7 @@ if option == 'GEN':
 if option == 'RECO':
     process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
     process.load("ExoDiBosonResonances.EDBRCommon.goodMET_cff")
-    process.hadronicV.cut = cms.string(" ")
+    process.hadronicV.cut = cms.string('userFloat("ak8PFJetsCHSPrunedMass") > 20.')
 
 #***************************************** SEQUENCES **********************************************# 
 
