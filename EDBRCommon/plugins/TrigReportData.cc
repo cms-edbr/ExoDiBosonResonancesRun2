@@ -48,7 +48,7 @@ TrigReportData::TrigReportData(const edm::ParameterSet& iConfig):
   axis->SetBinLabel(4,"Leptons");
   axis->SetBinLabel(5,"Zpeak");
   axis->SetBinLabel(6,"JetID");
-  axis->SetBinLabel(7,"JetClean");
+  axis->SetBinLabel(7,"JetMass");
   axis->SetBinLabel(8,"Graviton");
 
   evTree = fs->make<TTree>("evTree", "basic event information");
@@ -80,9 +80,9 @@ void TrigReportData::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       case 13: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
       case 14: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
       case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); break;
-      case 19: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); break;
-      case 23: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetClean",1); break;
-      case 24: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetClean",1); cutFlow->Fill("Graviton",1); break;
+      case 20: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); break;
+      case 23: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetMass",1); break;
+      case 24: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetMass",1); cutFlow->Fill("Graviton",1); break;
   }
 }
 

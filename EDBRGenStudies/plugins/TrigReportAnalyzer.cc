@@ -55,7 +55,7 @@ TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
   axisMu->SetBinLabel(4,"Leptons");
   axisMu->SetBinLabel(5,"Zpeak");
   axisMu->SetBinLabel(6,"JetID");
-  axisMu->SetBinLabel(7,"JetClean");
+  axisMu->SetBinLabel(7,"JetMass");
   axisMu->SetBinLabel(8,"Graviton");
   TAxis *axisEl = wfEl->GetXaxis();  
   axisEl->SetBinLabel(1,"Begin");
@@ -64,7 +64,7 @@ TrigReportAnalyzer::TrigReportAnalyzer(const edm::ParameterSet& iConfig):
   axisEl->SetBinLabel(4,"Leptons");
   axisEl->SetBinLabel(5,"Zpeak");
   axisEl->SetBinLabel(6,"JetID");
-  axisEl->SetBinLabel(7,"JetClean");
+  axisEl->SetBinLabel(7,"JetMass");
   axisEl->SetBinLabel(8,"Graviton");
 
   genTree = fs->make<TTree>("genTree", "physical variables at GEN level");
@@ -117,9 +117,9 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             case 15: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); break;
             case 16: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); break;
             case 19: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); break;
-            case 21: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); break;
-            case 25: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetClean",1); break;
-            case 26: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetClean",1); wfMu->Fill("Graviton",1); break;
+            case 22: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); break;
+            case 25: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetMass",1); break;
+            case 26: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetMass",1); wfMu->Fill("Graviton",1); break;
         }
      }
      // cut flow for electrons
@@ -130,9 +130,9 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             case 15: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); break;
             case 16: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); break;
             case 19: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); break;
-            case 21: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); break;
-            case 25: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetClean",1); break;
-            case 26: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetClean",1); wfEl->Fill("Graviton",1); break;
+            case 22: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); break;
+            case 25: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetMass",1); break;
+            case 26: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetMass",1); wfEl->Fill("Graviton",1); break;
         }
      }
    }
