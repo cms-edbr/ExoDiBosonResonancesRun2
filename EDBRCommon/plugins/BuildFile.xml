@@ -1,4 +1,5 @@
 <use name="CommonTools/UtilAlgos"/>
+<use name="CondFormats/JetMETObjects"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/Common"/>
@@ -7,5 +8,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="JetMETCorrections/Objects"/>
 <use name="root"/>
 <flags EDM_PLUGIN="1"/>
