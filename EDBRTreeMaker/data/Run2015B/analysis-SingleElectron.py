@@ -8,7 +8,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
+process.GlobalTag.globaltag = '74X_dataRun2_v2'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
                                                                                                     
@@ -18,7 +18,7 @@ VZ_JetMET       = False        # True
                                                                                                    
 #*************************************** BLIND ANALYSIS *********************************************#
 
-isBlinded = False
+isBlinded = True # False
 
 if isBlinded == True :
      JETMASSCUT = 'userFloat("ak8PFJetsCHSCorrPrunedMass") > 20. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 60.'    
@@ -27,51 +27,22 @@ else :
 
 #*********************************** POOL SOURCE ****************************************************#
 
-import sys
-SAMPLE = str(sys.argv[2])
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X.DYJetsToLL."+SAMPLE)
+process.load("ExoDiBosonResonances.EDBRCommon.PromptReco.Run2015B.SingleElectron_Run2015B")
 
-configXsecs = {  "HT-100to200-aa" : 139.4,
-                 "HT-100to200-ab" : 139.4,
-                 "HT-100to200-ac" : 139.4,
-                 "HT-100to200-ad" : 139.4,
-                 "HT-100to200-ae" : 139.4,
-                 "HT-100to200-af" : 139.4,
-                 "HT-200to400-aa" : 42.75,
-                 "HT-200to400-ab" : 42.75,
-                 "HT-200to400-ac" : 42.75,
-                 "HT-400to600-aa" : 5.497,
-                 "HT-400to600-ab" : 5.497,
-                 "HT-400to600-ac" : 5.497,
-                 "HT-600toInf-aa" : 2.21,
-                 "HT-600toInf-ab" : 2.21,
-                 "HT-600toInf-ac" : 2.21,
-              }
+#************************************* JSON file ***************************************************#
+# https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
+# last modified 25-Sep-2015 
 
-configNevents = {"HT-100to200-aa" : 2625679,
-                 "HT-100to200-ab" : 2625679,
-                 "HT-100to200-ac" : 2625679,
-                 "HT-100to200-ad" : 2625679,
-                 "HT-100to200-ae" : 2625679,
-                 "HT-100to200-af" : 2625679,
-                 "HT-200to400-aa" : 955972,
-                 "HT-200to400-ab" : 955972,
-                 "HT-200to400-ac" : 955972,
-                 "HT-400to600-aa" : 1048047,
-                 "HT-400to600-ab" : 1048047,
-                 "HT-400to600-ac" : 1048047,
-                 "HT-600toInf-aa" : 987977,
-                 "HT-600toInf-ab" : 987977,
-                 "HT-600toInf-ac" : 987977,
-                }
-
-usedXsec    = configXsecs[SAMPLE]
-usedNevents = configNevents[SAMPLE]
+import FWCore.PythonUtilities.LumiList as LumiList
+process.source.lumisToProcess = LumiList.LumiList(
+    filename = 'Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
 process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
+
+process.corrJetsProducer.isData = True
 
 process.leptonicVFilter = cms.EDFilter(   "CandViewCountFilter",
                                           src             = cms.InputTag( "leptonicV"                   ),
@@ -106,8 +77,8 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                        ),
-                                          originalNEvents = cms.int32   (  usedNevents                  ),
-                                          crossSectionPb  = cms.double  (  usedXsec                     ),
+                                          originalNEvents = cms.int32   (  1                            ),
+                                          crossSectionPb  = cms.double  (  1.                           ),
                                           targetLumiInvPb = cms.double  (  1000.                        ),
                                           EDBRChannel     = cms.string  (  CHANNEL                      ),
                                           gravitonSrc     = cms.string  ( "graviton"                    ),
@@ -185,5 +156,5 @@ print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_"+SAMPLE+".root")
+                                   fileName = cms.string("treeEDBR_SingleElectron_Run2015B.root")
                                   )

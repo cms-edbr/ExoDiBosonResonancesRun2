@@ -21,9 +21,9 @@ VZ_JetMET       = False        # True
 isBlinded = False
 
 if isBlinded == True :
-     JETMASSCUT = 'userFloat("ak8PFJetsCHSPrunedMass") > 20. & userFloat("ak8PFJetsCHSPrunedMass") < 60.'    
+     JETMASSCUT = 'userFloat("ak8PFJetsCHSCorrPrunedMass") > 20. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 60.'    
 else :
-     JETMASSCUT = 'userFloat("ak8PFJetsCHSPrunedMass") > 20. & userFloat("ak8PFJetsCHSPrunedMass") < 95.'    
+     JETMASSCUT = 'userFloat("ak8PFJetsCHSCorrPrunedMass") > 20. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 95.'    
 
 #*********************************** POOL SOURCE ****************************************************#
 
@@ -112,15 +112,13 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                        ),
-                                          isData          = cms.bool    (  False                        ),
                                           originalNEvents = cms.int32   (  usedNevents                  ),
                                           crossSectionPb  = cms.double  (  usedXsec                     ),
-                                          targetLumiInvPb = cms.double  (  122.86                       ),
+                                          targetLumiInvPb = cms.double  (  1000.                        ),
                                           EDBRChannel     = cms.string  (  CHANNEL                      ),
                                           gravitonSrc     = cms.string  ( "graviton"                    ),
                                           metSrc          = cms.string  ( "slimmedMETs"                 ),
-                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex"    ),
-                                          payload         = cms.string  ( "AK8PFchs"                    ))
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex"    ))
 
 #***************************************** SEQUENCES **********************************************# 
 process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
@@ -142,7 +140,7 @@ process.leptonSequence = cms.Sequence(    process.hltSequence              +
                                           process.bestLeptonicV            )
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence          +
-                                          process.hadronicV                +
+                                          process.hadronicVSequence        +
                                           process.bestHadronicV            )
 
 process.gravitonSequence = cms.Sequence(  process.graviton                 +

@@ -19,18 +19,12 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-
-#include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
 
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
@@ -42,10 +36,6 @@
 #include "TString.h"
 #include "TTree.h"
 
-//
-// class declaration
-//
-
 class EDBRTreeMaker : public edm::EDAnalyzer {
 public:
   explicit EDBRTreeMaker(const edm::ParameterSet&);
@@ -56,13 +46,8 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
 
-//******************************************************************
-//************************* MEMBER DATA ****************************
-//******************************************************************
-
   // Parameters to steer the treeDumper
   bool isGen_;
-  bool isData_;
   int originalNEvents_;
   double crossSectionPb_;
   double targetLumiInvPb_;
@@ -94,11 +79,6 @@ private:
   double nhfjet1,   chfjet1;       // neutral and charged hadron energy fraction
   double nemfjet1,  cemfjet1;      // neutral and charged EM fraction
   int    nmultjet1, cmultjet1;     // neutral and charged multiplicity
-
-  //Recipe to apply JEC to the pruned jet mass:
-  //https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recipes_to_apply_JEC_on_the_prun
-  std::string payload_;
-  double prunedMassCorrection( double, double, const pat::Jet&, edm::ESHandle<JetCorrectorParametersCollection> ); 
 
   //-------------------- LEPTONS -----------------------------------------------------
   double ptlep1,   ptlep2;
@@ -163,15 +143,13 @@ private:
 
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   isGen_             (                                   iConfig.getParameter<bool>          ( "isGen"                ) ),
-  isData_            (                                   iConfig.getParameter<bool>          ( "isData"               ) ),
   originalNEvents_   (                                   iConfig.getParameter<int>           ( "originalNEvents"      ) ),
   crossSectionPb_    (                                   iConfig.getParameter<double>        ( "crossSectionPb"       ) ),
   targetLumiInvPb_   (                                   iConfig.getParameter<double>        ( "targetLumiInvPb"      ) ),
   EDBRChannel_       (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"          ) ),
   gravitonSrc_       (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"          ) ),
   metSrc_            (                                   iConfig.getParameter<std::string>   ( "metSrc"               ) ),
-  vertexToken_       ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"             ) ) ),
-  payload_           (                                   iConfig.getParameter<std::string>   ( "payload"              ) )
+  vertexToken_       ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"             ) ) )
 {
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -326,9 +304,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
 
 EDBRTreeMaker::~EDBRTreeMaker() {}
 
-// ------------ method called for each event  ------------
-void
-EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -379,10 +355,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
            rho = (float)(*rhoHandle);
 
-           // Jet Energy Corrections
-           edm::ESHandle<JetCorrectorParametersCollection>  JetCorParColl;
-           iSetup.get<JetCorrectionsRecord>().get(payload_, JetCorParColl); 
- 
            //we put the definitions inside the channel
            switch(channel){
                case VZ_CHANNEL:{
@@ -429,7 +401,7 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                    massjet1       = hadronicV.mass();
                    softjet1       = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
                    prunedjet1     = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
-                   massVhad       = prunedjet1 * prunedMassCorrection( rho, nVtx, hadronicV, JetCorParColl );
+                   massVhad       = hadronicV.userFloat("ak8PFJetsCHSCorrPrunedMass");
                    //*****************************************************************//
                    //***************************** Jet ID ****************************//
                    //*****************************************************************//
@@ -664,32 +636,6 @@ EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        outTree_->Fill();
        //return; // skip event if there is no resonance candidate
    }
-}
-
-double EDBRTreeMaker::prunedMassCorrection( double rho,
-                                            double nVtx,
-                                            const pat::Jet& jet, 
-                                            edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl ) {
-     std::vector<std::string> jecAK8PayloadNames;
-     jecAK8PayloadNames.push_back("L2Relative");
-     jecAK8PayloadNames.push_back("L3Absolute");
-     if(isData_)
-     jecAK8PayloadNames.push_back("L2L3Residual");
-     std::vector<JetCorrectorParameters> vPar;
-     for ( std::vector<std::string>::const_iterator payloadBegin = jecAK8PayloadNames.begin(), 
-                                                    payloadEnd   = jecAK8PayloadNames.end()  , 
-                                                    ipayload     = payloadBegin; 
-                                                    ipayload    != payloadEnd; 
-                                                  ++ipayload )  vPar.push_back( (*JetCorParColl)[*ipayload] );
-     // Make the FactorizedJetCorrector
-     std::shared_ptr<FactorizedJetCorrector> jecAK8 = std::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) ); 
-     jecAK8->setRho   ( rho                         );
-     jecAK8->setNPV   ( nVtx                        );
-     jecAK8->setJetA  ( jet.jetArea()               );
-     jecAK8->setJetPt ( jet.correctedP4(0).pt()     );
-     jecAK8->setJetEta( jet.correctedP4(0).eta()    );
-     jecAK8->setJetE  ( jet.correctedP4(0).energy() );
-     return jecAK8->getCorrection();
 }
 
 void EDBRTreeMaker::setDummyValues() {

@@ -14,7 +14,7 @@
 #            bsub -q 8nh -M 2000 -J SingleMaf < submitJob.sh
 
 export X509_USER_PROXY=/afs/cern.ch/user/j/jruizvar/x509up_u9472
-cd /afs/cern.ch/work/j/jruizvar/private/Fall15/25ns/CMSSW_7_4_12_patch4/src/ExoDiBosonResonances/EDBRTreeMaker/data/Run2015D/SingleMuon
+cd /afs/cern.ch/work/j/jruizvar/private/Fall15/25ns/CMSSW_7_4_13/src/ExoDiBosonResonances/EDBRTreeMaker/data/Run2015D/SingleMuon
 eval `scramv1 runtime -sh`
 
 cmsRun analysis-SingleMuon.py SingleMuon_Run2015D-af
