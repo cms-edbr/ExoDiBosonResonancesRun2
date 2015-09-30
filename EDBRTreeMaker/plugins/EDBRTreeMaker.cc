@@ -621,11 +621,11 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        lumiWeight = targetEvents/originalNEvents_;
 
        /// FIXME: these should NOT be hardcoded
-       if(massVhad < 40 or massVhad > 95)
+       if(massVhad < 40 or massVhad > 105)
 	   reg = -1;
-       if(massVhad > 40 and massVhad < 60)
+       if(massVhad > 40 and massVhad < 65)
 	   reg = 0;
-       if(massVhad > 60 and massVhad < 95)
+       if(massVhad > 65 and massVhad < 105)
 	   reg = 1;
    
        outTree_->Fill();
