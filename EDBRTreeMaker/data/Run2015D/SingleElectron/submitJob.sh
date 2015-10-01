@@ -11,10 +11,10 @@
 #            cp /tmp/x509up_u9472 $HOME
 #
 #         3) Submission example to the 8 hours queue with 2 MB memory limit 
-#            bsub -q 8nh -M 2000 -J SingleEaj < submitJob.sh
+#            bsub -q 8nh -M 2000 -J SingleEam < submitJob.sh
 
 export X509_USER_PROXY=/afs/cern.ch/user/j/jruizvar/x509up_u9472
 cd /afs/cern.ch/work/j/jruizvar/private/Fall15/25ns/CMSSW_7_4_14/src/ExoDiBosonResonances/EDBRTreeMaker/data/Run2015D/SingleElectron
 eval `scramv1 runtime -sh`
 
-cmsRun analysis-SingleElectron.py SingleElectron_Run2015D-aj
+cmsRun analysis-SingleElectron.py SingleElectron_Run2015D-am
