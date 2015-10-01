@@ -65,18 +65,6 @@ usedNevents = configNevents[SAMPLE]
 process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 
-ZBOSONCUT = "pt > 20. & 70. < mass < 110."
-
-process.leptonicVFilter = cms.EDFilter(   "CandViewCountFilter",
-                                          src = cms.InputTag("leptonicV"),
-                                          minNumber = cms.uint32(1),
-                                          filter = cms.bool(True) )
-
-process.leptonicVSelector = cms.EDFilter( "CandViewSelector",
-                                          src = cms.InputTag("leptonicV"),
-                                          cut = cms.string( ZBOSONCUT ),
-                                          filter = cms.bool(True) )
-
 process.bestLeptonicV = cms.EDFilter(    "LargestPtCandSelector",
                                           src = cms.InputTag("leptonicVSelector"),
                                           maxNumber = cms.uint32(1) )
@@ -130,8 +118,6 @@ if option == 'RECO':
 #***************************************** SEQUENCES **********************************************# 
 
 process.leptonSequence = cms.Sequence(    process.leptonicVSequence + 
-                                          process.leptonicVFilter   +
-                                          process.leptonicVSelector + 
                                           process.bestLeptonicV     )
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence   +
