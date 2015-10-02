@@ -333,7 +333,7 @@ void EDBRHistoMaker::createAllHistos() {
   /// in the beginning of this file.
   /// Much simpler to create histos now: just add them to
   /// hs with hs.setHisto(name,nbins,min,max);
-  hs.setHisto("nVtx", 40, -0.5, 39.5);
+  hs.setHisto("nVtx", 40,0,40);
   hs.setHisto("ptZll",50,0,1000); // 20 GeV bins
   hs.setHisto("ptZjj",50,0,1000); // 20 GeV bins
   hs.setHisto("yZll",56,-2.8,2.8);
@@ -341,11 +341,11 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("phiZll",74,-3.7,3.7);
   hs.setHisto("phiZjj",74,-3.7,3.7);
   hs.setHisto("massZll",50,50,150); // 2 GeV bins 
-  hs.setHisto("massZjj",35,0,140); // 2 GeV bins  
+  hs.setHisto("massZjj",50,30,130); // 2 GeV bins  
   hs.setHisto("tau21",50,0,1);
   hs.setHisto("ptlep1",40,0,800); 
   hs.setHisto("ptlep2",50,0,500);
-  hs.setHisto("ptjet1",120,0,1200);
+  hs.setHisto("ptjet1",50,0,1000);
   hs.setHisto("etalep1",50,-2.5,2.5);
   hs.setHisto("etalep2",50,-2.5,2.5);
   hs.setHisto("etajet1",50,-2.5,2.5);
@@ -353,13 +353,13 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("philep2",74,-3.7,3.7);
   hs.setHisto("phijet1",74,-3.7,3.7);
   hs.setHisto("lep",30,-0.5,29.5);
-  hs.setHisto("region",3,-1.5,1.5); 
+  hs.setHisto("region",5,-1.5,3.5); 
   hs.setHisto("triggerWeight",50,0,5); 
   hs.setHisto("lumiWeight",70,0,7);
   hs.setHisto("pileupWeight",70,0,7);
   hs.setHisto("deltaRleplep",70,0,3.5); 
   hs.setHisto("deltaRlepjet",70,0,7); 
-  hs.setHisto("candMass", 56,200,3000); // 50 GeV bins...
+  hs.setHisto("candMass", 40,100,2100); // 50 GeV bins...
   //but to have the signal spread around 4 bins maybe we want 25 GeV bins?
   
   char buffer[256];

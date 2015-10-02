@@ -438,7 +438,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
 
   for (size_t i = 0; i != filesMCSig.size(); ++i) {
-    TH1D* histo = (TH1D*)(filesMCSig.at(i)->Get(histoName.c_str())->Clone(labelsSig.at(i).c_str()));
+    TH1D* histo     = (TH1D*)(filesMCSig.at(i)->Get(histoName.c_str())->Clone(labelsSig.at(i).c_str()));
     TH1D* histoOrig = (TH1D*)(filesMCSig.at(i)->Get(histoName.c_str())->Clone(labelsSig.at(i).c_str()));
     histo->SetDirectory(0);
     histo->SetLineColor(getLineColor(i));
@@ -538,8 +538,9 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
     for (size_t i = 0; i != histosMCSig.size(); ++i) {
       sprintf(rescalingLabel, " (x%g)", kFactorsSig_.at(i));
       std::string rescalingStr(rescalingLabel);
-      if (kFactorsSig_.at(i) != 1.0)leg->AddEntry(histosMCSig.at(i), (labelsSig.at(i) + rescalingStr).c_str(), "lf");
-      else leg->AddEntry(histosMCSig.at(i), (labelsSig.at(i)).c_str(), "lf");
+      //if (kFactorsSig_.at(i) != 1.0)leg->AddEntry(histosMCSig.at(i), (labelsSig.at(i) + rescalingStr).c_str(), "lf");
+      if (false)leg->AddEntry(histosMCSig.at(i), (labelsSig.at(i) + rescalingStr).c_str(), "lf");
+      else leg->AddEntry(histosMCSigOrig.at(i), (labelsSig.at(i)).c_str(), "f");
     }
   }
 
@@ -549,7 +550,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   // Nice labels
   TMathText* t = makeCMSPreliminaryTop(13, 0.15, 0.93);
   TMathText* c = makeChannelLabel(1, flavour_, true, 0.2, 0.83);
-  TMathText* l = makeCMSLumi(40.86, 0.2, 0.76);
+  TMathText* l = makeCMSLumi(166.94, 0.2, 0.76);
   t->Draw();
   c->Draw();
   l->Draw();

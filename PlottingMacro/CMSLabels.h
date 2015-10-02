@@ -72,7 +72,7 @@ TMathText* makeCMSPreliminaryTop(int energy = 7, double x = 0.15, double y = 0.9
 
 TMathText* makeCMSLumi(double lumi = 5.0, double x = 0.666, double y = 0.72) {
   char buffer[256];
-  sprintf(buffer,"\\int L dt = %4.2lf pb^{-1}",lumi);
+  sprintf(buffer,"\\int L dt = %4.2lf\\, pb^{-1}",lumi);
   TMathText* tex = new TMathText(x,y,buffer);
   tex->SetNDC();
   tex->SetTextFont(42);
@@ -94,7 +94,7 @@ TMathText* makeCMSLumi(int energy = 7,double lumi = 5.0, double x = 0.666, doubl
 */
 TMathText* makeChannelLabel(int nJets, int flavour, bool isZZchannel, double x = 0.75, double y = 0.94) {
   char buffer[256];
-  char c;
+  char c='X';
   if(nJets==1)
     c='1';
   if(nJets==2)
