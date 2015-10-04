@@ -19,8 +19,8 @@ void loopPlot(){
   
   //#####################EDIT THE OPTIONS##############################
   /// Boolean flags to steer the histogram making
-  bool wantElectrons = true; // Will make histograms for electrons
-  bool wantMuons     = false; // Will make histograms for muons
+  bool wantElectrons = false; // Will make histograms for electrons
+  bool wantMuons     = true; // Will make histograms for muons
   bool wantSideband  = true; // Will make histograms for sideband region
   bool wantSignal    = true; // Will make histograms for signal region
   bool wantFullRange = true; // Will not check signal or sideband, ie, pick all jet mass range
@@ -32,9 +32,9 @@ void loopPlot(){
   /// Luminosity value in fb^-1
   /// Scale histograms (line 403 EDBRHistoPloter.h) 
   /// Use lumiValue = 1. if actualWeights (lines 562-585 EDBRHistoMaker.h) were consistently defined in the EDBRTreeMaker 
-  double lumiValue = 1.; 
+  double lumiValue = 166.9/1000.; 
   /// Should we scale the histograms to data?
-  bool scaleToData = true;
+  bool scaleToData = false;
   // Should we scale only wjets to make total MC = DATA?
   bool scaleOnlyWJets = false;
   /// Should we plot the Data/Bkg and Data-Bkg/Error ratios?
@@ -48,7 +48,7 @@ void loopPlot(){
   std::string pathToTrees="../trees/";
 
   /// Path to wherever you want to put the histograms (figures) in.
-  std::string outputDir = "../plots_ElectronChannel";
+  std::string outputDir = "../plots_MuonChannel";
  
 
   /// Setup names of data files for trees.
@@ -60,9 +60,12 @@ void loopPlot(){
 				 "DoubleMuParked_Run2012C_22Jan2013",
 				 "DoubleMuParked_Run2012D_22Jan2013"};
   */
-  const int nDATA=2;//set to zero if you don't want to plot
-  std::string dataLabels[nDATA]={"SingleMuon_Run2015B",
-                                 "SingleElectron_Run2015B"};
+  const int nDATA=4;//set to zero if you don't want to plot
+  //std::string dataLabels[nDATA]={ };
+  std::string dataLabels[nDATA]={"SingleMuon_Run2015C",
+                                 "SingleMuon_Run2015D",
+                                 "SingleElectron_Run2015C",
+                                 "SingleElectron_Run2015D"};
   std::vector<std::string> fData;
   
   for(int ii=0;ii<nDATA;ii++){
@@ -95,12 +98,10 @@ void loopPlot(){
 
   /// Setup names of MC signal files for trees.
   const int nMCSig=0;//set to zero if you don't want to plot
+  //std::string mcLabelsSig[nMCSig]={"BulkGrav_-M_1200"};
   std::string mcLabelsSig[nMCSig]={};
-  //std::string mcLabelsSig[nMCSig]={//"BulkGravToZZToZlepZhad_M-1000",
-  //                                 "BulkGrav_M_2000"
-  //                                };
-  double kFactorsSig_array[nMCSig]={};
-  //double kFactorsSig_array[nMCSig] = {1e6};
+  //double kFactorsSig_array[nMCSig] = {0.5e5};
+  double kFactorsSig_array[nMCSig] = {};
 
   std::vector<double> kFactorsMCSig;
   for (int index=0; index<nMCSig; index++)
@@ -295,10 +296,8 @@ void loopPlot(){
   
   ////// {"BulkG_WW_lvjj_c1p0_M600_xww","BulkG_WW_lvjj_c1p0_M1000_xww","BulkG_WW_lvjj_c1p0_M1500_xww"};
   std::vector<int> fColorsMCSig;
-  //  fColorsMCSig.push_back(kPink);
-  fColorsMCSig.push_back(kOrange+7);
-  fColorsMCSig.push_back(kMagenta);
-  fColorsMCSig.push_back(kBlue+3);
+  //fColorsMCSig.push_back(kMagenta-7);
+  fColorsMCSig.push_back(kYellow-5);
   
   plotter->setFillColor(fColorsMC);
   plotter->setLineColor(fColorsMCSig);

@@ -5,8 +5,5 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/62DAD8D0-E560-E511-9EA7-02163E0136F7.root',
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/7AA9AED2-E560-E511-B13A-02163E011E27.root',
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/7EE4C2CA-E560-E511-B0DB-02163E0145FA.root',
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/84861ECC-E560-E511-91A1-02163E01387D.root',
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/A29FDCCC-E560-E511-9203-02163E0119F5.root' ] )
+       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/729/00000/501934F6-4260-E511-A0AC-02163E011826.root',
+       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/729/00000/601CA4F1-4160-E511-B728-02163E014144.root' ] )
