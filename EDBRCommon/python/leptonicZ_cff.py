@@ -19,7 +19,7 @@ leptonicVFilter = cms.EDFilter(   "CandViewCountFilter",
 
 leptonicVSelector = cms.EDFilter( "CandViewSelector",
                                    src = cms.InputTag("leptonicV"),
-                                   cut = cms.string( "pt > 170. & 70. < mass < 110."),
+                                   cut = cms.string( "pt > 200. & 70. < mass < 110."),
                                    filter = cms.bool(True) )
 
 leptonicVSequence = cms.Sequence(  Ztoee             + 

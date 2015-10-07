@@ -21,9 +21,9 @@ VZ_JetMET       = False        # True
 isBlinded = True # False
 
 if isBlinded == True :
-     JETMASSCUT = 'userFloat("ak8PFJetsCHSCorrPrunedMass") > 40. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 65.'    
+     JETMASSCUT = 'pt>200. & userFloat("ak8PFJetsCHSCorrPrunedMass") > 40. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 65.'    
 else :
-     JETMASSCUT = 'userFloat("ak8PFJetsCHSCorrPrunedMass") > 40. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 105.'    
+     JETMASSCUT = 'pt>200. & userFloat("ak8PFJetsCHSCorrPrunedMass") > 40. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 105.'    
 
 #*********************************** POOL SOURCE ****************************************************#
 
