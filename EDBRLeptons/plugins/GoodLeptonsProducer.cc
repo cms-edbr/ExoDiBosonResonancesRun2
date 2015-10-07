@@ -138,37 +138,23 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         goodMuons->push_back(               *cloneMu  );
     }
 
-    // The goodLepton matching HLT should pass acceptance
-    Handle<bool> elHlt_handle;
-    Handle<bool> muHlt_handle;
-    Handle<ValueMap<bool> > elMatchHlt_handle;
-    Handle<ValueMap<bool> > muMatchHlt_handle;
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "trigBit"),  elHlt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "trigBit"),  muHlt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingElectrons", "matchHlt"), elMatchHlt_handle);
-    iEvent.getByLabel(InputTag("hltMatchingMuons",     "matchHlt"), muMatchHlt_handle);
-    bool elPassHlt = (*elHlt_handle);
-    bool muPassHlt = (*muHlt_handle);
+    // leading lepton acceptance 
     bool elFlag=false, muFlag=false;
     for ( size_t i=0; i<goodElectrons->size(); ++i ) {
         const pat::Electron& el = (*goodElectrons)[i];
         const Ptr<pat::Electron> elPtr(electrons, el.userInt("slimmedIndex"));
-        bool  acceptance        = el.pt()>115. ? true : false;
-        bool  elMatchHlt        = (*elMatchHlt_handle)[elPtr];
-        if ( filter_ and !(elPassHlt and elMatchHlt) ) continue; 
+        bool  acceptance = el.pt()>115. ? true : false;
         if ( filter_ and !acceptance ) continue; 
         elFlag=true;
     }
     for ( size_t i=0; i<goodMuons->size(); ++i ) {
-        const pat::Muon& mu     = (*goodMuons)[i];
+        const pat::Muon& mu = (*goodMuons)[i];
         const Ptr<pat::Muon> muPtr(muons, mu.userInt("slimmedIndex"));
-        bool  acceptance        = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
-        bool  muMatchHlt        = (*muMatchHlt_handle)[muPtr];
-        if ( filter_ and !(muPassHlt and muMatchHlt) ) continue; 
+        bool  acceptance = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
         if ( filter_ and !acceptance ) continue; 
         muFlag=true;
     }
-    // If there is no goodLepton passing the acceptance, clear the collection
+    // If there is no leading lepton passing the acceptance, clear the collection
     if ( !elFlag ) goodElectrons->clear();
     if ( !muFlag ) goodMuons->clear();
 
