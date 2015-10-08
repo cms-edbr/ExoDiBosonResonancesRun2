@@ -93,7 +93,7 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     Handle<ValueMap<vid::CutFlowResult> > heepV60_handle;
     iEvent.getByToken(heepV60Token_,      heepV60_handle);
     // Cuts to be masked
-    std::vector<std::string> maskCuts;
+    vector<string> maskCuts;
     maskCuts.push_back("GsfEleTrkPtIsoCut_0"); 
     maskCuts.push_back("GsfEleEmHadD1IsoRhoCut_0");
 
