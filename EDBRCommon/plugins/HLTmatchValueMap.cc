@@ -132,7 +132,7 @@ void HLTmatchValueMap<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                     closest  = temp;
                 }
                 dR  = deltaR(eta, phi, etaMatchedObj[closest], phiMatchedObj[closest]); 
-                dPt = fabs(pt - ptMatchedObj[closest]) / pt; 
+                dPt = pt - ptMatchedObj[closest] / pt; 
                 match = true;
             }
         }

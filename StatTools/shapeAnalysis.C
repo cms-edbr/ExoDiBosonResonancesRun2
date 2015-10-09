@@ -1,32 +1,19 @@
 //
-//        Require pre-compiled PDFs library  
+//        Requires pre-compiled PDFs library  
 //
-//        Usage:
+//        Requires ROOT 6.04/02 (or above) to take advantage of R__LOAD_LIBRARY
+//        https://root.cern.ch/root/html604/notes/release-notes.html#interpreter  
+//
+//        Examples of usage:
 // 
-//        root -l 
+//        root -b -q 'shapeAnalysis.C("EHP", 1000)'
+//        root -b -q 'shapeAnalysis.C("ELP", 1000)'
+//        root -b -q 'shapeAnalysis.C("MHP", 1000)'
+//        root -b -q 'shapeAnalysis.C("MLP", 1000)'
 //
-//        gSystem->Load("PDFs/HWWLVJRooPdfs_cxx.so")
-//        gSystem->Load("PDFs/PdfDiagonalizer_cc.so")
-//
-//        .x shapeAnalysis.C("EHP", 1000)
-//        .x shapeAnalysis.C("ELP", 1000)
-//        .x shapeAnalysis.C("MHP", 1000)
-//        .x shapeAnalysis.C("MLP", 1000)
 
-//        .x shapeAnalysis.C("EHP", 2000)
-//        .x shapeAnalysis.C("ELP", 2000)
-//        .x shapeAnalysis.C("MHP", 2000)
-//        .x shapeAnalysis.C("MLP", 2000)
-
-//        .x shapeAnalysis.C("EHP", 3000)
-//        .x shapeAnalysis.C("ELP", 3000)
-//        .x shapeAnalysis.C("MHP", 3000)
-//        .x shapeAnalysis.C("MLP", 3000)
-
-//        .x shapeAnalysis.C("EHP", 4000)
-//        .x shapeAnalysis.C("ELP", 4000)
-//        .x shapeAnalysis.C("MHP", 4000)
-//        .x shapeAnalysis.C("MLP", 4000)
+R__LOAD_LIBRARY(PDFs/HWWLVJRooPdfs_cxx.so)
+R__LOAD_LIBRARY(PDFs/PdfDiagonalizer_cc.so)
 
 void shapeAnalysis(std::string key, Int_t mass)
 {
@@ -36,23 +23,23 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooMsgService::instance().setGlobalKillBelow(FATAL);
 
   RooRealVar candMass("candMass","M_{ZZ}", 700.,4800., "GeV");
-  RooRealVar massVhad("massVhad","M_{j}" ,  50., 110., "GeV");
+  RooRealVar massVhad("massVhad","M_{j}" ,  40., 105., "GeV");
   RooRealVar tau21("tau21","tau21",          0.,   1.       );
   RooRealVar lep("lep","lep",                10,   15       );
   RooRealVar lumiWeight("lumiWeight", "pure weight", 0., 10.);
 
-  massVhad.setRange("signalRegion",   70., 110.);
-  massVhad.setRange("sidebandRegion", 50.,  70.);
+  massVhad.setRange("signalRegion",   65., 105.);
+  massVhad.setRange("sidebandRegion", 40.,  65.);
 
   std::map<std::string, std::string> selection;
-  selection["EHP"] = "lep<12 && tau21<0.5";
-  selection["MHP"] = "lep>12 && tau21<0.5";
-  selection["ELP"] = "lep<12 && tau21>0.5 && tau21<0.75";
-  selection["MLP"] = "lep>12 && tau21>0.5 && tau21<0.75";
+  selection["EHP"] = "lep<12 && tau21<0.6";
+  selection["MHP"] = "lep>12 && tau21<0.6";
+  selection["ELP"] = "lep<12 && tau21>0.6 && tau21<0.75";
+  selection["MLP"] = "lep>12 && tau21>0.6 && tau21<0.75";
 
   TCut selectedCategory = selection[key].c_str();
-  TCut sideband = "massVhad<70." + selectedCategory;
-  TCut nomselec = "massVhad>70." + selectedCategory;
+  TCut sideband = "massVhad<65." + selectedCategory;
+  TCut nomselec = "massVhad>65." + selectedCategory;
 
   //*******************************************************//
   //                                                       //     
@@ -60,11 +47,11 @@ void shapeAnalysis(std::string key, Int_t mass)
   //                                                       //     
   //*******************************************************//
 
-  TFile *data = TFile::Open("treeEDBR_PseudoData.root");
-  TTree *treeData;
-  data->GetObject("treeDumper/EDBRCandidates",treeData);
+  TChain treeData("treeDumper/EDBRCandidates");
+  treeData.Add("../trees/treeEDBR_SingleMuon_Run2015D.root"); 
+  treeData.Add("../trees/treeEDBR_SingleElectron_Run2015D.root"); 
 
-  RooDataSet sbObs("sbObs","sbObs",RooArgSet(massVhad,tau21,lep,lumiWeight),Cut(sideband),WeightVar(lumiWeight),Import(*treeData));
+  RooDataSet sbObs("sbObs","sbObs",RooArgSet(massVhad,tau21,lep),Cut(sideband),Import(treeData));
 
   // FIXME to subtract subdominant backgrounds
 
@@ -94,16 +81,18 @@ void shapeAnalysis(std::string key, Int_t mass)
   //                                                       //     
   //*******************************************************//
 
-  TFile *mcdata = TFile::Open("treeEDBR_DYJetsToLL_HT-100toInf_PHYS14.root");
-  TTree *treeMC;
-  mcdata->GetObject("treeDumper/EDBRCandidates",treeMC);
+  TChain treeMC("treeDumper/EDBRCandidates");
+  treeMC.Add("../trees/treeEDBR_DYJetsToLL_HT-100to200.root");
+  treeMC.Add("../trees/treeEDBR_DYJetsToLL_HT-200to400.root");
+  treeMC.Add("../trees/treeEDBR_DYJetsToLL_HT-400to600.root");
+  treeMC.Add("../trees/treeEDBR_DYJetsToLL_HT-600toInf.root");
 
-  // PseudoData in Sideband region
-  RooDataSet sbData("sbData","sbData",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),Cut(sideband),WeightVar(lumiWeight),Import(*treeData));
+  // Data in Sideband region
+  RooDataSet sbData("sbData","sbData",RooArgSet(candMass,massVhad,tau21,lep),Cut(sideband),Import(treeData));
 
   // MC datasets in Signal and Sideband regions
-  RooDataSet nsBkg("nsBkg",  "nsBkg", RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),Cut(nomselec),WeightVar(lumiWeight),Import(*treeMC));
-  RooDataSet sbBkg("sbBkg",  "sbBkg", RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),Cut(sideband),WeightVar(lumiWeight),Import(*treeMC));
+  RooDataSet nsBkg("nsBkg",  "nsBkg", RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),Cut(nomselec),WeightVar(lumiWeight),Import(treeMC));
+  RooDataSet sbBkg("sbBkg",  "sbBkg", RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),Cut(sideband),WeightVar(lumiWeight),Import(treeMC));
 
   // Declare PDFs (3 levelled-exponentials) 
   RooRealVar s0("s0","slope of the exp0",500.,1.,1.e3);
@@ -140,30 +129,56 @@ void shapeAnalysis(std::string key, Int_t mass)
   //*******************************************************//
 
   std::map<Int_t, std::string> inputFile;
-  inputFile[1000] = "treeEDBR_RSGravToZZ_kMpl01_M-1000_PHYS14.root";
-  inputFile[2000] = "treeEDBR_RSGravToZZ_kMpl01_M-2000_PHYS14.root";
-  inputFile[3000] = "treeEDBR_RSGravToZZ_kMpl01_M-3000_PHYS14.root";
-  inputFile[4000] = "treeEDBR_RSGravToZZ_kMpl01_M-4000_PHYS14.root";
+  inputFile[600]  = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-600.root";
+  inputFile[800]  = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-800.root";
+  inputFile[1000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
+  inputFile[1200] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
+  inputFile[1400] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
+  inputFile[1600] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
+  inputFile[1800] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
+  inputFile[2000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
+  inputFile[2500] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
+  inputFile[3000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
+  inputFile[3500] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
+  inputFile[4000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
+  inputFile[4500] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
 
   std::map<Int_t, Double_t> low;
+  low[600]  =  400.;
+  low[800]  =  600.;
   low[1000] =  800.;
+  low[1200] = 1000.;
+  low[1400] = 1200.;
+  low[1600] = 1300.;
+  low[1800] = 1500.;
   low[2000] = 1700.;
+  low[2500] = 2100.;
   low[3000] = 2400.;
+  low[3500] = 2900.;
   low[4000] = 3200.;
+  low[4500] = 3700.;
 
   std::map<Int_t, Double_t> upp;
+  upp[600]  =  800.;
+  upp[800]  = 1000.;
   upp[1000] = 1200.;
+  upp[1200] = 1400.;
+  upp[1400] = 1600.;
+  upp[1600] = 1900.;
+  upp[1800] = 2100.;
   upp[2000] = 2300.;
+  upp[2500] = 2900.;
   upp[3000] = 3500.;
+  upp[3500] = 4000.;
   upp[4000] = 4800.;
+  upp[4500] = 5300.;
 
-  TFile *f1= TFile::Open(inputFile[mass].c_str());
-  TTree *t1;
-  f1->GetObject("treeDumper/EDBRCandidates",t1);
-  RooDataSet dsSig("dsSig","dsSig",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),Cut(nomselec),WeightVar(lumiWeight),Import(*t1));
+  TChain bulkG("treeDumper/EDBRCandidates");
+  bulkG.Add(inputFile[mass].c_str());
+  RooDataSet dsSig("dsSig","dsSig",RooArgSet(candMass,massVhad,tau21,lep,lumiWeight),Cut(nomselec),WeightVar(lumiWeight),Import(bulkG));
 
   // Double Crystall ball
-  RooRealVar mean("mean","mean of the Crystal Ball",mass,700.,4800.);
+  RooRealVar mean("mean","mean of the Crystal Ball",mass,400.,4800.);
   RooRealVar sigma("sigma","Crystal Ball sigma",50.,10.,100.);
   RooRealVar alphaL("alphaL","alpha left",  1., 0.1, 5.);
   RooRealVar alphaR("alphaR","alpha right", 2., 0.1, 5.);
@@ -178,13 +193,22 @@ void shapeAnalysis(std::string key, Int_t mass)
   nL.setConstant(true);
   nR.setConstant(true);
 
-  // Number of generated signal events
+  // Number of signal events entering hltFilter
   std::map<Int_t, Int_t> nEvents;
-  nEvents[1000] = 2823;
-  nEvents[2000] = 2733;
-  nEvents[3000] = 2726;
-  nEvents[4000] = 2860;
-  nEvents[4500] = 199385;
+  nEvents[600]  = 32338;
+  nEvents[800]  = 32400;
+  nEvents[1000] = 31320;
+  nEvents[1200] = 31983;
+  nEvents[1400] = 32361;
+  nEvents[1600] = 32444;
+  nEvents[1800] = 32525;
+  nEvents[2000] = 32541;
+  nEvents[2500] = 32344;
+  nEvents[3000] = 31977;
+  nEvents[3500] = 32409;
+  nEvents[4000] = 32448;
+  nEvents[4500] = 32292;
+
   // selection efficiency
   Double_t sel_eff = (Double_t)dsSig.numEntries()/nEvents[mass];
   Double_t sig_xs_fb = 1.;         // signal cross section in fb
