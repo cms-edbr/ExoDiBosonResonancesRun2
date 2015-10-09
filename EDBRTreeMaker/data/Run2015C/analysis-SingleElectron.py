@@ -10,6 +10,25 @@ process.MessageLogger.cerr.FwkReport.limit = 99999999
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = '74X_dataRun2_v2'
 
+# Use private JECs since the GTs are not updated
+usePrivateSQlite = True 
+if usePrivateSQlite:
+    import os
+    dataBasePath = os.path.expandvars("../Summer15_25nsV5_DATA.db")
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    process.jec = cms.ESSource("PoolDBESSource",
+        CondDBSetup,
+        connect = cms.string("sqlite:"+dataBasePath),
+        toGet =  cms.VPSet(
+            cms.PSet(
+                record = cms.string("JetCorrectionsRecord"),
+                tag = cms.string("JetCorrectorParametersCollection_Summer15_25nsV5_DATA_AK8PFchs"),
+                label= cms.untracked.string("AK8PFchs")
+            ),
+        )
+    )
+    process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
+
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
                                                                                                     
 CHANNEL         = "VZ_CHANNEL" # VZnu_CHANNEL
