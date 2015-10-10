@@ -52,11 +52,11 @@ process.load("ExoDiBosonResonances.EDBRCommon.PromptReco.Run2015D.SingleMuon."+S
 
 #************************************* JSON file ***************************************************#
 # https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
-# last modified 25-Sep-2015 
+# last modified 09-Oct-2015 
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(
-    filename = '../../Cert_246908-257599_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
+    filename = '../../Cert_246908-258159_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
