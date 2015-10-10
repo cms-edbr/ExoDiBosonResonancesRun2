@@ -41,12 +41,12 @@ void puWeights(){
   //wdata.plotOn(plot, LineColor(kRed), Binning(xbins));
   //plot->Draw();
   
-  TH1* hRatio = wdata.createHistogram("hRatio",nVtx,Binning(xbins));
+  TH1* pileupWeights = wdata.createHistogram("pileupWeights",nVtx,Binning(xbins));
   TH1* hMC = vtxMC.createHistogram("hMC",nVtx,Binning(xbins));
-  hRatio->Divide(hMC);
+  pileupWeights->Divide(hMC);
   
   temp->cd();
-  hRatio->Write();
+  pileupWeights->Write();
   temp->Close();
   delete temp;
 }
