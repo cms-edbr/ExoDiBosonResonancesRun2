@@ -6,8 +6,8 @@ void puWeights(){
   using namespace RooFit;
   
   float inix= 0.;
-  float finx= 45.;
-  int nbinx = 15.; 
+  float finx= 40.;
+  int nbinx = 40.; 
    
   TChain treeMC("treeDumper/EDBRCandidates");
   treeMC.Add("treeEDBR_DYJets_ToLL.root");
@@ -39,6 +39,7 @@ void puWeights(){
   RooBinning xbins(nbinx, inix, finx);
   
   //RooPlot *plot = nVtx.frame();
+  //vtxData.plotOn(plot, LineColor(kBlue), Binning(xbins));
   //vtxMC.plotOn(plot, Binning(xbins));
   //wdata.plotOn(plot, LineColor(kRed), Binning(xbins));
   //plot->Draw();
@@ -51,4 +52,5 @@ void puWeights(){
   pileupWeights->Write();
   temp->Close();
   delete temp;
+ 
 }
