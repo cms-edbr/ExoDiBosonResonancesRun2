@@ -5,11 +5,15 @@ void puWeights(){
   TFile *temp = new TFile("pileupWeights.root", "RECREATE");
   using namespace RooFit;
   
-  float weightData = 1000./209.8;
   float inix= 0.;
   float finx= 45.;
   int nbinx = 15.; 
    
+  TChain treeMC("treeDumper/EDBRCandidates");
+  treeMC.Add("treeEDBR_DYJets_ToLL.root");
+  treeMC.Add("treeEDBR_Di_boson.root");
+  treeMC.Add("treeEDBR_T_T.root");
+
   TChain treeData("treeDumper/EDBRCandidates");
   treeData.Add("treeEDBR_SingleMuon_Run2015D.root"); 
   treeData.Add("treeEDBR_SingleElectron_Run2015D.root");
@@ -18,21 +22,19 @@ void puWeights(){
   RooRealVar lumiWeight("lumiWeight", "pure weight", 0., 10.);
   RooRealVar massVhad("massVhad", "jet mass", 0., 110.);
   
-  RooDataSet vtxData("vtxData","vtxData",RooArgSet(nVtx),Import(treeData));
+  RooDataSet vtxMC(  "vtxMC",   "vtxMC",  RooArgSet(nVtx,massVhad,lumiWeight),Cut("massVhad<105"),WeightVar(lumiWeight),Import(treeMC)  );
+  RooDataSet vtxData("vtxData", "vtxData",RooArgSet(nVtx,massVhad           ),Cut("massVhad<105"),                      Import(treeData));
+
+  // Normalize data to MC
+  Double_t weightData = vtxMC.sumEntries() / vtxData.numEntries();
+
   RooRealVar x("x","x",weightData,0.,10.);
   RooFormulaVar wFunc("w","event weight","x",x);
   RooRealVar* w = (RooRealVar*) vtxData.addColumn(wFunc) ;
   
   RooDataSet wdata(vtxData.GetName(), vtxData.GetTitle(), &vtxData, *vtxData.get(),0,w->GetName());
-  wdata.Print();
-  
-  TChain treeMC("treeDumper/EDBRCandidates");
-  treeMC.Add("treeEDBR_DYJets_ToLL.root");
-  treeMC.Add("treeEDBR_Di_boson.root");
-  treeMC.Add("treeEDBR_T_T.root");
-  
-  RooDataSet vtxMC("vtxMC","vtxMC",RooArgSet(nVtx,lumiWeight,massVhad),Cut("massVhad<65"),WeightVar(lumiWeight),Import(treeMC));
   vtxMC.Print();
+  wdata.Print();
   
   RooBinning xbins(nbinx, inix, finx);
   
