@@ -2,12 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring()
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/645/00000/24A8604E-F967-E511-8294-02163E012273.root',
-       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/645/00000/2EF0BE43-F967-E511-851D-02163E0141CC.root',
-       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/645/00000/3E029A37-F967-E511-8B44-02163E01221B.root',
-       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/645/00000/3E3E3885-F967-E511-910E-02163E0141BE.root',
-       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/645/00000/4CC8F74B-F967-E511-BE79-02163E01442C.root',
-       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/645/00000/54088B24-FF67-E511-BEFB-02163E01412D.root' ] )
+       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/751/00000/2E971528-8A68-E511-9BB5-02163E011983.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/751/00000/4EA0A63B-8A68-E511-B151-02163E0127DE.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/751/00000/6CC8323C-8A68-E511-8A78-02163E0118A6.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/751/00000/6CD99171-8A68-E511-987B-02163E014765.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v3/000/257/751/00000/7656701B-8A68-E511-B404-02163E01416A.root' ] )

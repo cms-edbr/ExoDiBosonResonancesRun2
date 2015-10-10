@@ -2,9 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring()
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/0A26F9D0-E560-E511-B29A-02163E013918.root',
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/201CB0C7-E560-E511-BB1F-02163E013425.root',
-       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/2E82FAEF-E560-E511-A95B-02163E01410D.root' ] )
+       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/A29FDCCC-E560-E511-9203-02163E0119F5.root',
+       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/B8C5F5D6-E560-E511-BB13-02163E0128B2.root',
+       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/CCA86CD2-E560-E511-95CC-02163E014331.root',
+       '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v3/000/256/843/00000/DCE67AC6-E560-E511-9C15-02163E0135A8.root' ] )
