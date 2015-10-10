@@ -37,6 +37,12 @@ configXsecs = {  "HT-100to200-aa" : 139.4,
                  "HT-600toInf-aa" : 2.21,
                  "HT-600toInf-ab" : 2.21,
                  "HT-600toInf-ac" : 2.21,
+                 "HT-600toInf-ad" : 2.21,
+                 "HT-600toInf-ae" : 2.21,
+                 "HT-600toInf-af" : 2.21,
+                 "HT-600toInf-ag" : 2.21,
+                 "HT-600toInf-ah" : 2.21,
+                 "HT-600toInf-ai" : 2.21,
               }
 
 configNevents = {"HT-100to200-aa" : 2625679,
@@ -54,6 +60,12 @@ configNevents = {"HT-100to200-aa" : 2625679,
                  "HT-600toInf-aa" : 987977,
                  "HT-600toInf-ab" : 987977,
                  "HT-600toInf-ac" : 987977,
+                 "HT-600toInf-ad" : 987977,
+                 "HT-600toInf-ae" : 987977,
+                 "HT-600toInf-af" : 987977,
+                 "HT-600toInf-ag" : 987977,
+                 "HT-600toInf-ah" : 987977,
+                 "HT-600toInf-ai" : 987977,
                 }
 
 usedXsec    = configXsecs[SAMPLE]
