@@ -3,7 +3,7 @@
 # Submit SingleMuon jobs to lxbatch
 #
 
-sed -i '20 s/Run2015D-bb/Run2015D-aa/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMaa < submitJob.sh
+sed -i '20 s/Run2015D-ck/Run2015D-aa/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMaa < submitJob.sh
 sed -i '20 s/Run2015D-aa/Run2015D-ab/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMab < submitJob.sh
 sed -i '20 s/Run2015D-ab/Run2015D-ac/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMac < submitJob.sh
 sed -i '20 s/Run2015D-ac/Run2015D-ad/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMad < submitJob.sh
@@ -31,3 +31,38 @@ sed -i '20 s/Run2015D-ax/Run2015D-ay/' submitJob.sh; bsub -q 8nh -M 2000 -J Sing
 sed -i '20 s/Run2015D-ay/Run2015D-az/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMaz < submitJob.sh
 sed -i '20 s/Run2015D-az/Run2015D-ba/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMba < submitJob.sh
 sed -i '20 s/Run2015D-ba/Run2015D-bb/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbb < submitJob.sh
+sed -i '20 s/Run2015D-bb/Run2015D-bc/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbc < submitJob.sh
+sed -i '20 s/Run2015D-bc/Run2015D-bd/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbd < submitJob.sh
+sed -i '20 s/Run2015D-bd/Run2015D-be/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbe < submitJob.sh
+sed -i '20 s/Run2015D-be/Run2015D-bf/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbf < submitJob.sh
+sed -i '20 s/Run2015D-bf/Run2015D-bg/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbg < submitJob.sh
+sed -i '20 s/Run2015D-bg/Run2015D-bh/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbh < submitJob.sh
+sed -i '20 s/Run2015D-bh/Run2015D-bi/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbi < submitJob.sh
+sed -i '20 s/Run2015D-bi/Run2015D-bj/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbj < submitJob.sh
+sed -i '20 s/Run2015D-bj/Run2015D-bk/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbk < submitJob.sh
+sed -i '20 s/Run2015D-bk/Run2015D-bl/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbl < submitJob.sh
+sed -i '20 s/Run2015D-bl/Run2015D-bm/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbm < submitJob.sh
+sed -i '20 s/Run2015D-bm/Run2015D-bn/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbn < submitJob.sh
+sed -i '20 s/Run2015D-bn/Run2015D-bo/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbo < submitJob.sh
+sed -i '20 s/Run2015D-bo/Run2015D-bp/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbp < submitJob.sh
+sed -i '20 s/Run2015D-bp/Run2015D-bq/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbq < submitJob.sh
+sed -i '20 s/Run2015D-bq/Run2015D-br/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbr < submitJob.sh
+sed -i '20 s/Run2015D-br/Run2015D-bs/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbs < submitJob.sh
+sed -i '20 s/Run2015D-bs/Run2015D-bt/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbt < submitJob.sh
+sed -i '20 s/Run2015D-bt/Run2015D-bu/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbu < submitJob.sh
+sed -i '20 s/Run2015D-bu/Run2015D-bv/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbv < submitJob.sh
+sed -i '20 s/Run2015D-bv/Run2015D-bw/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbw < submitJob.sh
+sed -i '20 s/Run2015D-bw/Run2015D-bx/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbx < submitJob.sh
+sed -i '20 s/Run2015D-bx/Run2015D-by/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMby < submitJob.sh
+sed -i '20 s/Run2015D-by/Run2015D-bz/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMbz < submitJob.sh
+sed -i '20 s/Run2015D-bz/Run2015D-ca/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMca < submitJob.sh
+sed -i '20 s/Run2015D-ca/Run2015D-cb/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMcb < submitJob.sh
+sed -i '20 s/Run2015D-cb/Run2015D-cc/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMcc < submitJob.sh
+sed -i '20 s/Run2015D-cc/Run2015D-cd/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMcd < submitJob.sh
+sed -i '20 s/Run2015D-cd/Run2015D-ce/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMce < submitJob.sh
+sed -i '20 s/Run2015D-ce/Run2015D-cf/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMcf < submitJob.sh
+sed -i '20 s/Run2015D-cf/Run2015D-cg/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMcg < submitJob.sh
+sed -i '20 s/Run2015D-cg/Run2015D-ch/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMch < submitJob.sh
+sed -i '20 s/Run2015D-ch/Run2015D-ci/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMci < submitJob.sh
+sed -i '20 s/Run2015D-ci/Run2015D-cj/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMcj < submitJob.sh
+sed -i '20 s/Run2015D-cj/Run2015D-ck/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleMck < submitJob.sh
