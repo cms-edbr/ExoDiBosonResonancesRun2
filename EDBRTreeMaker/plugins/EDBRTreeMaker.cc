@@ -48,11 +48,14 @@ private:
 
   // Parameters to steer the treeDumper
   bool isGen_;
+  bool isData_;
   int originalNEvents_;
   double crossSectionPb_;
   double targetLumiInvPb_;
   std::string EDBRChannel_;
-  std::string gravitonSrc_, metSrc_;
+  std::string gravitonSrc_;
+  std::string metSrc_;
+  edm::FileInPath puWeights_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   //------------------------ GENERAL ----------------------------------------------
@@ -142,15 +145,22 @@ private:
 };
 
 EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
-  isGen_             (                                   iConfig.getParameter<bool>          ( "isGen"                ) ),
-  originalNEvents_   (                                   iConfig.getParameter<int>           ( "originalNEvents"      ) ),
-  crossSectionPb_    (                                   iConfig.getParameter<double>        ( "crossSectionPb"       ) ),
-  targetLumiInvPb_   (                                   iConfig.getParameter<double>        ( "targetLumiInvPb"      ) ),
-  EDBRChannel_       (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"          ) ),
-  gravitonSrc_       (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"          ) ),
-  metSrc_            (                                   iConfig.getParameter<std::string>   ( "metSrc"               ) ),
-  vertexToken_       ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"             ) ) )
+  isGen_           (                                   iConfig.getParameter<bool>          ( "isGen"             ) ),
+  originalNEvents_ (                                   iConfig.getParameter<int>           ( "originalNEvents"   ) ),
+  crossSectionPb_  (                                   iConfig.getParameter<double>        ( "crossSectionPb"    ) ),
+  targetLumiInvPb_ (                                   iConfig.getParameter<double>        ( "targetLumiInvPb"   ) ),
+  EDBRChannel_     (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"       ) ),
+  gravitonSrc_     (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"       ) ),
+  metSrc_          (                                   iConfig.getParameter<std::string>   ( "metSrc"            ) ),
+  vertexToken_     ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"          ) ) )
 {
+  if( iConfig.existsAs<bool>("isData") )
+       isData_ = iConfig.getParameter<bool> ("isData");
+  else isData_ = true;
+
+  if( iConfig.existsAs<edm::FileInPath>("puWeights") )
+       puWeights_ = iConfig.getParameter<edm::FileInPath>("puWeights") ;
+
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
   else if(EDBRChannel_ == "VW_CHANNEL")
@@ -615,7 +625,16 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
        /// For the time being, set these to 1
        triggerWeight=1.0;
-       pileupWeight=1.0;
+       
+       if( isData_ )
+           pileupWeight=1.0;
+       else {
+           TFile *f = new TFile( puWeights_.fullPath().c_str() );
+           TH1F *h1 = (TH1F*)f->Get("pileupWeights__nVtx");
+           int  bin = h1->FindBin(nVtx);
+           float content = h1->GetBinContent(bin);
+           pileupWeight = content > 0 ? content : 1.0;
+       }
 
        double targetEvents = targetLumiInvPb_*crossSectionPb_;
        lumiWeight = targetEvents/originalNEvents_;

@@ -59,7 +59,7 @@ sed -i '20 s/Run2015D-bz/Run2015D-ca/' submitJob.sh; bsub -q 8nh -M 2000 -J Sing
 sed -i '20 s/Run2015D-ca/Run2015D-cb/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEcb < submitJob.sh
 sed -i '20 s/Run2015D-cb/Run2015D-cc/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEcc < submitJob.sh
 sed -i '20 s/Run2015D-cc/Run2015D-cd/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEcd < submitJob.sh
-sed -i '20 s/Run2015D-cs/Run2015D-ce/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEce < submitJob.sh
+sed -i '20 s/Run2015D-cd/Run2015D-ce/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEce < submitJob.sh
 sed -i '20 s/Run2015D-ce/Run2015D-cf/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEcf < submitJob.sh
 sed -i '20 s/Run2015D-cf/Run2015D-cg/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEcg < submitJob.sh
 sed -i '20 s/Run2015D-cg/Run2015D-ch/' submitJob.sh; bsub -q 8nh -M 2000 -J SingleEch < submitJob.sh
