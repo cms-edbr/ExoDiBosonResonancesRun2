@@ -8,10 +8,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '74X_dataRun2_v2'
+process.GlobalTag.globaltag = '74X_dataRun2_reMiniAOD_v0'
 
-# Use private JECs since the GTs are not updated
-usePrivateSQlite = True 
+# Use private JECs
+usePrivateSQlite = False 
 if usePrivateSQlite:
     import os
     dataBasePath = os.path.expandvars("../../Summer15_25nsV5_DATA.db")
