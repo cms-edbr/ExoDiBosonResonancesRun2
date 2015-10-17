@@ -633,7 +633,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            TH1F *h1 = (TH1F*)f->Get("pileupWeights__nVtx");
            int  bin = h1->FindBin(nVtx);
            float content = h1->GetBinContent(bin);
-           pileupWeight = content > 0 ? content : 1.0;
+           pileupWeight = content;
        }
 
        double targetEvents = targetLumiInvPb_*crossSectionPb_;

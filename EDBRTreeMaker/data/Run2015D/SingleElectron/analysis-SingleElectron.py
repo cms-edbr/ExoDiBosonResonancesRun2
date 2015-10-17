@@ -37,26 +37,31 @@ VZ_JetMET       = False        # True
                                                                                                    
 #*************************************** BLIND ANALYSIS *********************************************#
 
-isBlinded = True # False
+isBlinded = False
 
 if isBlinded == True :
      JETMASSCUT = 'pt>200. & userFloat("ak8PFJetsCHSCorrPrunedMass") > 40. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 65.'    
 else :
-     JETMASSCUT = 'pt>200. & userFloat("ak8PFJetsCHSCorrPrunedMass") > 40. & userFloat("ak8PFJetsCHSCorrPrunedMass") < 105.'    
+     JETMASSCUT = 'pt>200. & userFloat("ak8PFJetsCHSCorrPrunedMass") > 40.'    
 
 #*********************************** POOL SOURCE ****************************************************#
-
-import sys
-SAMPLE = str(sys.argv[2])
-process.load("ExoDiBosonResonances.EDBRCommon.PromptReco.Run2015D.SingleElectron."+SAMPLE)
+#import sys
+#SAMPLE = str(sys.argv[2])
+#process.load("ExoDiBosonResonances.EDBRCommon.PromptReco.Run2015D.SingleElectron."+SAMPLE)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.source = cms.Source ("PoolSource",
+    fileNames = cms.untracked.vstring(
+         '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v4/000/258/159/00000/0EC56452-186C-E511-8158-02163E0146D5.root',
+    )
+)
 
 #************************************* JSON file ***************************************************#
 # https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
-# last modified 09-Oct-2015 
+# last modified 17-Oct-2015 
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(
-    filename = '../../Cert_246908-258159_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
+    filename = '../../Cert_246908-258714_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
@@ -125,6 +130,11 @@ process.analysis = cms.Path(              process.leptonSequence           +
                                           process.gravitonSequence         +
                                           process.treeDumper               )
 
+#************************************ CHOOSE YOUR HLT     *******************************************#
+
+process.hltFilter.triggerConditions =  ( 'HLT_Ele105_CaloIdVT_GsfTrkIdT_v*', )
+#process.hltFilter.triggerConditions =  ( 'HLT_Mu45_eta2p1_v*', )
+
 #************************************ TRIGGER REPORT DATA *******************************************#
 # Supported for VZ channel only                                   
 
@@ -165,5 +175,5 @@ print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_"+SAMPLE+".root")
+                                   fileName = cms.string("treeEDBR_SingleElectron.root")
                                   )
