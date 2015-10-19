@@ -64,6 +64,7 @@ private:
   int nevent, run, lumisec;
   int channel, lep, reg;
   double triggerWeight, lumiWeight, pileupWeight;
+  double totalWeight;
 
   //------------------------ V quantities ------------------------------------------
   double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep;
@@ -304,6 +305,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
   outTree_->Branch("lumiWeight"      ,&lumiWeight     ,"lumiWeight/D"     );
   outTree_->Branch("pileupWeight"    ,&pileupWeight   ,"pileupWeight/D"   );
+  outTree_->Branch("totalWeight"     ,&totalWeight    ,"totalWeight/D"    );
   outTree_->Branch("deltaRleplep"    ,&deltaRleplep   ,"deltaRleplep/D"   );
   outTree_->Branch("delPhilepmet"    ,&delPhilepmet   ,"delPhilepmet/D"   );
   outTree_->Branch("deltaRlepjet"    ,&deltaRlepjet   ,"deltaRlepjet/D"   );
@@ -639,6 +641,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        double targetEvents = targetLumiInvPb_*crossSectionPb_;
        lumiWeight = targetEvents/originalNEvents_;
 
+       totalWeight = triggerWeight*pileupWeight*lumiWeight;
+
        /// FIXME: these should NOT be hardcoded
        if(massVhad < 40 or massVhad > 105)
 	   reg = -1;
@@ -662,6 +666,7 @@ void EDBRTreeMaker::setDummyValues() {
      triggerWeight  = -1e4;
      pileupWeight   = -1e4;
      lumiWeight     = -1e4;
+     totalWeight    = -1e4;
      candMass       = -1e4;
      ptVlep         = -1e4;
      ptVhad         = -1e4;
