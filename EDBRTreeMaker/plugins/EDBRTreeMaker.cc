@@ -643,13 +643,25 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
        totalWeight = triggerWeight*pileupWeight*lumiWeight;
 
-       /// FIXME: these should NOT be hardcoded
-       if(massVhad < 40 or massVhad > 105)
-	   reg = -1;
-       if(massVhad > 40 and massVhad < 65)
-	   reg = 0;
-       if(massVhad > 65 and massVhad < 105)
-	   reg = 1;
+       // Enumarate regions
+       enum {
+           excluded = -1,
+           lowerSB,
+           lowerSIG,
+           upperSIG,
+           upperSB,
+       }; 
+
+       if( massVhad < 40. )
+	   reg = excluded;
+       if( massVhad > 40.  and  massVhad < 65.  )
+	   reg = lowerSB;
+       if( massVhad > 65.  and  massVhad < 105. )
+	   reg = lowerSIG;
+       if( massVhad > 105. and  massVhad < 145. )
+	   reg = upperSIG;
+       if( massVhad > 145. )
+	   reg = upperSB;
    
        outTree_->Fill();
    }
