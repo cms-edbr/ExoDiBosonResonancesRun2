@@ -18,11 +18,9 @@ VZ_JetMET       = False        # True
                                                                                                    
 #*********************************** POOL SOURCE ****************************************************#
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-process.source = cms.Source ("PoolSource",
-    fileNames = cms.untracked.vstring(
-         '/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/00087FEB-236E-E511-9ACB-003048FF86CA.root')
-)
+import sys
+SAMPLE = str(sys.argv[2])
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X.TTbar."+SAMPLE)
 
 #********************************  MODULES *********************************************************#
 
@@ -51,9 +49,9 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool      (  False                                              ),
                                           isData          = cms.bool      (  False                                              ),
-                                          originalNEvents = cms.int32     (  19806096                                           ),
+                                          originalNEvents = cms.int32     (  19899500                                           ),
                                           crossSectionPb  = cms.double    (  831.76                                             ),
-                                          targetLumiInvPb = cms.double    (  1268.856                                           ),
+                                          targetLumiInvPb = cms.double    (  1000.                                              ),
                                           EDBRChannel     = cms.string    (  CHANNEL                                            ),
                                           gravitonSrc     = cms.string    ( "graviton"                                          ),
                                           metSrc          = cms.string    ( "slimmedMETs"                                       ),
@@ -129,5 +127,5 @@ print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_T_T.root")
+                                   fileName = cms.string("treeEDBR_"+SAMPLE+".root")
                                   )

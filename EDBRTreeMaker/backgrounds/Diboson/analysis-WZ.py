@@ -21,7 +21,7 @@ VZ_JetMET       = False        # True
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/00087FEB-236E-E511-9ACB-003048FF86CA.root')
+         '/store/mc/RunIISpring15MiniAODv2/WZ_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/06181A51-9072-E511-88C0-3306CB18721E.root')
 )
 
 #********************************  MODULES *********************************************************#
@@ -51,8 +51,8 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool      (  False                                              ),
                                           isData          = cms.bool      (  False                                              ),
-                                          originalNEvents = cms.int32     (  19806096                                           ),
-                                          crossSectionPb  = cms.double    (  831.76                                             ),
+                                          originalNEvents = cms.int32     (  978512                                             ),
+                                          crossSectionPb  = cms.double    (  47.13                                              ),
                                           targetLumiInvPb = cms.double    (  1268.856                                           ),
                                           EDBRChannel     = cms.string    (  CHANNEL                                            ),
                                           gravitonSrc     = cms.string    ( "graviton"                                          ),
@@ -129,5 +129,5 @@ print "Hadronic V cut = "+str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_T_T.root")
+                                   fileName = cms.string("treeEDBR_WZ.root")
                                   )
