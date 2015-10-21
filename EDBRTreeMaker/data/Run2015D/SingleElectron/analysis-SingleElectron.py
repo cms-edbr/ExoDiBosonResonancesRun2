@@ -44,10 +44,13 @@ if isBlinded == True :
 else :
      JETMASSCUT = 'pt>200. & userFloat("ak8PFJetsCHSCorrPrunedMass") > 40.'    
 
+#************************************ CHOOSE YOUR HLT     *******************************************#
+
+process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
+process.hltFilter.triggerConditions =  ( "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*", )
+
 #*********************************** POOL SOURCE ****************************************************#
-#import sys
-#SAMPLE = str(sys.argv[2])
-#process.load("ExoDiBosonResonances.EDBRCommon.PromptReco.Run2015D.SingleElectron."+SAMPLE)
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -83,7 +86,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay           = cms.string  ( "bestLeptonicV bestHadronicV" ),
                                           checkCharge     = cms.bool    (  False                        ),
-                                          cut             = cms.string  ( " "                           ),
+                                          cut             = cms.string  ( "mass > 400."                 ),
                                           roles           = cms.vstring ( 'leptonicV', 'hadronicV'      ))
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
@@ -102,7 +105,6 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           vertex          = cms.InputTag( "goodOfflinePrimaryVertex"    ))
 
 #***************************************** SEQUENCES **********************************************# 
-process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
 process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
 
@@ -129,11 +131,6 @@ process.analysis = cms.Path(              process.leptonSequence           +
                                           process.jetSequence              +
                                           process.gravitonSequence         +
                                           process.treeDumper               )
-
-#************************************ CHOOSE YOUR HLT     *******************************************#
-
-process.hltFilter.triggerConditions =  ( 'HLT_Ele105_CaloIdVT_GsfTrkIdT_v*', )
-#process.hltFilter.triggerConditions =  ( 'HLT_Mu45_eta2p1_v*', )
 
 #************************************ TRIGGER REPORT DATA *******************************************#
 # Supported for VZ channel only                                   
@@ -169,9 +166,10 @@ if VZ_JetMET == True :
                                     process.metSequence    )
 
 print "++++++++++ CUTS ++++++++++\n"
-print "Graviton cut = "+str(process.graviton.cut)
-print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
-print "Hadronic V cut = "+str(process.hadronicV.cut)
+print "HLT = "            + str(process.hltFilter.triggerConditions)
+print "Graviton cut = "   + str(process.graviton.cut)
+print "Leptonic V cut = " + str(process.leptonicVSelector.cut)
+print "Hadronic V cut = " + str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",

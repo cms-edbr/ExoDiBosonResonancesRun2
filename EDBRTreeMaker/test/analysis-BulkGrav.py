@@ -7,19 +7,29 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
-#                                                                                                    #
+
 CHANNEL         = "VZ_CHANNEL" # VZnu_CHANNEL
 VZ_semileptonic = True         # False
 VZ_JetMET       = False        # True
-#                                                                                                    #
-#****************************************************************************************************#
+
+#************************************ CHOOSE YOUR HLT     *******************************************#
+
+import sys
+TRIGGER = str(sys.argv[3])
+triggerPath = {
+                "el" : "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
+                "mu" : "HLT_Mu45_eta2p1_v*",
+              }
+usedHLT = triggerPath[TRIGGER]
+
+process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
+process.hltFilter.triggerConditions =  ( usedHLT, )
 
 #*********************************** THE SAMPLES ****************************************************#
 # choose the sample                                                                     
 
-import sys
 SAMPLE = str(sys.argv[2])
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X."+SAMPLE)
+process.load("ExoDiBosonResonances.EDBRCommon.simulation.Spring15MiniAODv2."+SAMPLE)
 #process.maxEvents.input = 1000
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -76,7 +86,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay = cms.string("bestLeptonicV bestHadronicV"),
                                           checkCharge = cms.bool(False),
-                                          cut = cms.string(" "),
+                                          cut = cms.string("mass > 400."),
                                           roles = cms.vstring('leptonicV', 'hadronicV') )
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
@@ -188,9 +198,10 @@ if VZ_JetMET == True :
                                     process.metSequence    )
 
 print "++++++++++ CUTS ++++++++++\n"
-print "Graviton cut = "+str(process.graviton.cut)
-print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
-print "Hadronic V cut = "+str(process.hadronicV.cut)
+print "HLT = "            + str(process.hltFilter.triggerConditions)
+print "Graviton cut = "   + str(process.graviton.cut)
+print "Leptonic V cut = " + str(process.leptonicVSelector.cut)
+print "Hadronic V cut = " + str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
