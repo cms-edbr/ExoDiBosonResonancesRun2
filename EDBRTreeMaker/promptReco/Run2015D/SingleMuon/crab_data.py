@@ -4,7 +4,6 @@ config = Configuration()
 config.section_('General')
 config.General.transferOutputs = True
 config.General.workArea = 'task'
-config.General.transferLogs=True
 
 config.section_('JobType')
 config.JobType.psetName = 'analysis-SingleMuon.py'
