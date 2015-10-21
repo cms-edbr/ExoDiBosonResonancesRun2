@@ -16,12 +16,39 @@ CHANNEL         = "VZ_CHANNEL" # VZnu_CHANNEL
 VZ_semileptonic = True         # False
 VZ_JetMET       = False        # True
                                                                                                    
+#*********************************** CHOOSE SAMPLE **************************************************#
+
+import sys
+SAMPLE = str(sys.argv[2])
+configXsecs = {
+                  "WZ" : 47.13,
+                  "ZZ" : 16.52,
+              }
+configNevents = {
+                  "WZ" : 978512,
+                  "ZZ" : 996944,
+                }
+usedXsec    = configXsecs[SAMPLE]
+usedNevents = configNevents[SAMPLE]
+
+#************************************ CHOOSE YOUR HLT     *******************************************#
+
+TRIGGER = str(sys.argv[3])
+triggerPath = {
+                "el" : "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
+                "mu" : "HLT_Mu45_eta2p1_v*",
+              }
+usedHLT = triggerPath[TRIGGER]
+
+process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
+process.hltFilter.triggerConditions =  ( usedHLT, )
+
 #*********************************** POOL SOURCE ****************************************************#
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/mc/RunIISpring15MiniAODv2/ZZ_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/28E57E8A-4071-E511-B930-0025905C42B6.root')
+         '/store/mc/RunIISpring15MiniAODv2/WZ_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/06181A51-9072-E511-88C0-3306CB18721E.root')
 )
 
 #********************************  MODULES *********************************************************#
@@ -40,7 +67,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay           = cms.string  ( "bestLeptonicV bestHadronicV" ),
                                           checkCharge     = cms.bool    (  False                        ),
-                                          cut             = cms.string  ( " "                           ),
+                                          cut             = cms.string  ( "mass > 400."                 ),
                                           roles           = cms.vstring ( 'leptonicV', 'hadronicV'      ))
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
@@ -51,9 +78,9 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool      (  False                                              ),
                                           isData          = cms.bool      (  False                                              ),
-                                          originalNEvents = cms.int32     (  996944                                             ),
-                                          crossSectionPb  = cms.double    (  16.52                                              ),
-                                          targetLumiInvPb = cms.double    (  1000.                                              ),
+                                          originalNEvents = cms.int32     (  usedNevents                                        ),
+                                          crossSectionPb  = cms.double    (  usedXsec                                           ),
+                                          targetLumiInvPb = cms.double    (  1268.856                                           ),
                                           EDBRChannel     = cms.string    (  CHANNEL                                            ),
                                           gravitonSrc     = cms.string    ( "graviton"                                          ),
                                           metSrc          = cms.string    ( "slimmedMETs"                                       ),
@@ -123,11 +150,12 @@ if VZ_JetMET == True :
                                     process.metSequence    )
 
 print "++++++++++ CUTS ++++++++++\n"
-print "Graviton cut = "+str(process.graviton.cut)
-print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
-print "Hadronic V cut = "+str(process.hadronicV.cut)
+print "HLT = "            + str(process.hltFilter.triggerConditions)
+print "Graviton cut = "   + str(process.graviton.cut)
+print "Leptonic V cut = " + str(process.leptonicVSelector.cut)
+print "Hadronic V cut = " + str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_ZZ.root")
+                                   fileName = cms.string("treeEDBR_Di_boson.root")
                                   )
