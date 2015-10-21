@@ -62,16 +62,16 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter          = cms.bool    (  True                         ))
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          isGen           = cms.bool      (  False                                              ),
-                                          isData          = cms.bool      (  False                                              ),
-                                          originalNEvents = cms.int32     (  19806096                                           ),
-                                          crossSectionPb  = cms.double    (  831.76                                             ),
-                                          targetLumiInvPb = cms.double    (  1268.856                                           ),
-                                          EDBRChannel     = cms.string    (  CHANNEL                                            ),
-                                          gravitonSrc     = cms.string    ( "graviton"                                          ),
-                                          metSrc          = cms.string    ( "slimmedMETs"                                       ),
-                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/StatTools/pileupWeights.root" ),
-                                          vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"                          ))
+                                          isGen           = cms.bool      (  False                      ),
+                                          isData          = cms.bool      (  False                      ),
+                                          originalNEvents = cms.int32     (  19806096                   ),
+                                          crossSectionPb  = cms.double    (  831.76                     ),
+                                          targetLumiInvPb = cms.double    (  1268.856                   ),
+                                          EDBRChannel     = cms.string    (  CHANNEL                    ),
+                                          gravitonSrc     = cms.string    ( "graviton"                  ),
+                                          metSrc          = cms.string    ( "slimmedMETs"               ),
+                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights.root" ),
+                                          vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"  ))
 
 #***************************************** SEQUENCES **********************************************# 
 process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
