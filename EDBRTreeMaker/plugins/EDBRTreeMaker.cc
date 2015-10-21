@@ -632,7 +632,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            pileupWeight=1.0;
        else {
            TFile *f = new TFile( puWeights_.fullPath().c_str() );
-           TH1F *h1 = (TH1F*)f->Get("pileupWeights__nVtx");
+           TH1F *h1 = (TH1F*)f->Get("pileupWeights");
            int  bin = h1->FindBin(nVtx);
            float content = h1->GetBinContent(bin);
            pileupWeight = content;
