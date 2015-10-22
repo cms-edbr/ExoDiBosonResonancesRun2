@@ -3,7 +3,6 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 config.section_('General')
 config.General.transferOutputs = True
-config.General.workArea = 'task'
 
 config.section_('JobType')
 config.JobType.psetName = 'analysis-SingleMuon.py'
