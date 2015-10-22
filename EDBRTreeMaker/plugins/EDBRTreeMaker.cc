@@ -67,7 +67,7 @@ private:
   double totalWeight;
 
   //------------------------ V quantities ------------------------------------------
-  double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep;
+  double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep, massVhadSD;
 
   //------------------------- MET ---------------------------------------------------
   double met, metPhi;
@@ -195,6 +195,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("massVlep"        ,&massVlep       ,"massVlep/D"       );
   outTree_->Branch("mtVlep"          ,&mtVlep         ,"mtVlep/D"         );
   outTree_->Branch("massVhad"        ,&massVhad       ,"massVhad/D"       );
+  outTree_->Branch("massVhadSD"      ,&massVhadSD     ,"massVhadSD/D"     );
   outTree_->Branch("tau1"            ,&tau1           ,"tau1/D"           );
   outTree_->Branch("tau2"            ,&tau2           ,"tau2/D"           );
   outTree_->Branch("tau3"            ,&tau3           ,"tau3/D"           );
@@ -363,6 +364,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            nVtx = vertices->size();
            const reco::Vertex& vertex = (*vertices)[0];
   
+	   // SRR : Just FYI, you can do this once much earlier (in the constructor)
+	   // and the code will run MUCH faster... as it is, this will repeatedly do file
+	   // open requests, and this can bring EOS to its knees if done too quickly. 
+	   //
            // Effective area constants
            EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_50ns.txt").fullPath() );
            
@@ -423,8 +428,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		   auto subjetsSD = hadronicV.subjets("SoftDrop");
 		   if ( subjetsSD.size() >= 2 ) {
 		     auto groomedJet = subjetsSD[0]->p4() + subjetsSD[1]->p4();
-		     rhojet1 = std::pow( groomedJet.mass() / (groomedJet.pt() * 0.8), 2.0);		     
+		     rhojet1 = std::pow( groomedJet.mass() / (groomedJet.pt() * 0.8), 2.0);
+		     massVhadSD     = hadronicV.mass();
 		   }
+
                    //*****************************************************************//
                    //***************************** Jet ID ****************************//
                    //*****************************************************************//
@@ -633,6 +640,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        
        if(isGen_) {
 	   massVhad = hadronicV.userFloat("ak8GenJetsSoftDropMass");
+	   massVhadSD = massVhad;
 	   nVtx = 0;
        }
 
@@ -699,6 +707,7 @@ void EDBRTreeMaker::setDummyValues() {
      phiVhad        = -1e4;
      massVlep       = -1e4;
      massVhad       = -1e4;
+     massVhadSD     = -1e4;
      mtVlep         = -1e4;
      tau1           = -1e4;
      tau2           = -1e4;
