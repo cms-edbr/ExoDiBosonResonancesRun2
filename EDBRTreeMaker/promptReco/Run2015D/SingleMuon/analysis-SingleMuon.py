@@ -51,7 +51,7 @@ process.hltFilter.triggerConditions =  ( "HLT_Mu45_eta2p1_v*", )
 
 #*********************************** POOL SOURCE ****************************************************#
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
          '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root',

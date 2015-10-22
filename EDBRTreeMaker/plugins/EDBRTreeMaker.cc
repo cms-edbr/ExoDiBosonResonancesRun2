@@ -67,7 +67,7 @@ private:
   double totalWeight;
 
   //------------------------ V quantities ------------------------------------------
-  double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep;
+  double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep, massVhadSD;
 
   //------------------------- MET ---------------------------------------------------
   double met, metPhi;
@@ -80,6 +80,7 @@ private:
   double tau1,      tau2,     tau3,       tau21;
   double etjet1,    ptjet1,   etajet1,    phijet1;
   double massjet1,  softjet1, prunedjet1;
+  double rhojet1;                  // SRR : Jet Rho Ratio (m/pt*R)^2
   double nhfjet1,   chfjet1;       // neutral and charged hadron energy fraction
   double nemfjet1,  cemfjet1;      // neutral and charged EM fraction
   int    nmultjet1, cmultjet1;     // neutral and charged multiplicity
@@ -194,6 +195,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("massVlep"        ,&massVlep       ,"massVlep/D"       );
   outTree_->Branch("mtVlep"          ,&mtVlep         ,"mtVlep/D"         );
   outTree_->Branch("massVhad"        ,&massVhad       ,"massVhad/D"       );
+  outTree_->Branch("massVhadSD"      ,&massVhadSD     ,"massVhadSD/D"     );
   outTree_->Branch("tau1"            ,&tau1           ,"tau1/D"           );
   outTree_->Branch("tau2"            ,&tau2           ,"tau2/D"           );
   outTree_->Branch("tau3"            ,&tau3           ,"tau3/D"           );
@@ -288,6 +290,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("ptlep2"          ,&ptlep2         ,"ptlep2/D"         );
   outTree_->Branch("ptjet1"          ,&ptjet1         ,"ptjet1/D"         );
   outTree_->Branch("etjet1"          ,&etjet1         ,"etjet1/D"         );
+  outTree_->Branch("rhojet1"         ,&rhojet1        ,"rhojet1/D"        );
   outTree_->Branch("etalep1"         ,&etalep1        ,"etalep1/D"        );
   outTree_->Branch("etalep2"         ,&etalep2        ,"etalep2/D"        );
   outTree_->Branch("etajet1"         ,&etajet1        ,"etajet1/D"        );
@@ -300,6 +303,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("met"             ,&met            ,"met/D"            );
   outTree_->Branch("metpt"           ,&metpt          ,"metpt/D"          );
   outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
+  
+
 
   // Other quantities
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
@@ -359,6 +364,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            nVtx = vertices->size();
            const reco::Vertex& vertex = (*vertices)[0];
   
+	   // SRR : Just FYI, you can do this once much earlier (in the constructor)
+	   // and the code will run MUCH faster... as it is, this will repeatedly do file
+	   // open requests, and this can bring EOS to its knees if done too quickly. 
+	   //
            // Effective area constants
            EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_50ns.txt").fullPath() );
            
@@ -414,6 +423,15 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    softjet1       = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
                    prunedjet1     = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
                    massVhad       = hadronicV.userFloat("ak8PFJetsCHSCorrPrunedMass");
+		   // SRR : get rho ratio. This assumes the subjets are corrected to L2L3.
+		   // If not, they must be done on-the-fly with a separate jet corrector. 
+		   auto subjetsSD = hadronicV.subjets("SoftDrop");
+		   if ( subjetsSD.size() >= 2 ) {
+		     auto groomedJet = subjetsSD[0]->p4() + subjetsSD[1]->p4();
+		     rhojet1 = std::pow( groomedJet.mass() / (groomedJet.pt() * 0.8), 2.0);
+		     massVhadSD     = hadronicV.mass();
+		   }
+
                    //*****************************************************************//
                    //***************************** Jet ID ****************************//
                    //*****************************************************************//
@@ -622,6 +640,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        
        if(isGen_) {
 	   massVhad = hadronicV.userFloat("ak8GenJetsSoftDropMass");
+	   massVhadSD = massVhad;
 	   nVtx = 0;
        }
 
@@ -688,6 +707,7 @@ void EDBRTreeMaker::setDummyValues() {
      phiVhad        = -1e4;
      massVlep       = -1e4;
      massVhad       = -1e4;
+     massVhadSD     = -1e4;
      mtVlep         = -1e4;
      tau1           = -1e4;
      tau2           = -1e4;
@@ -709,6 +729,7 @@ void EDBRTreeMaker::setDummyValues() {
      massjet1       = -1e4;
      softjet1       = -1e4;
      prunedjet1     = -1e4;
+     rhojet1        = -1e4;
      nhfjet1        = -1e4;
      chfjet1        = -1e4;
      nemfjet1       = -1e4;

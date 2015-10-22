@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "Analysis/PredictedDistribution/interface/PredictedDistribution.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -51,6 +52,9 @@ class EDBRHistoMaker {
   /// This is the tree structure. This comes directly from MakeClass
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
+
+   TFile          *mistagFile; // SRR : Mistag rate file. 
+   TH1D           *mistagRate; // SRR : Mistag rate itself. 
    
    // Declaration of leaf types
    Int_t           event;
@@ -64,6 +68,8 @@ class EDBRHistoMaker {
    Double_t        massVlep;
    Double_t        mtVlep;
    Double_t        massVhad;
+   Double_t        massVhadSD;
+   
    Double_t        tau1;
    Double_t        tau2;
    Double_t        tau3;
@@ -77,6 +83,7 @@ class EDBRHistoMaker {
    Double_t        philep1;
    Double_t        philep2;
    Double_t        phijet1;
+   Double_t        rhojet1;
    Double_t        met;
    Double_t        metPhi;
    Int_t           lep;
@@ -103,6 +110,7 @@ class EDBRHistoMaker {
    TBranch        *b_massVlep;   //!
    TBranch        *b_mtVlep;   //!
    TBranch        *b_massVhad;   //!
+   TBranch        *b_massVhadSD;   //!
    TBranch        *b_tau1;   //!
    TBranch        *b_tau2;   //!
    TBranch        *b_tau3;   //!
@@ -116,6 +124,7 @@ class EDBRHistoMaker {
    TBranch        *b_philep1;   //!
    TBranch        *b_philep2;   //!
    TBranch        *b_phijet1;   //!
+   TBranch        *b_rhojet1;   //!
    TBranch        *b_met;   //!
    TBranch        *b_metPhi;   //!
    TBranch        *b_lep;   //!
@@ -219,6 +228,7 @@ class EDBRHistoMaker {
   std::map<std::string,TH1D*> theHistograms;
   TH2D *hmjmzz; 
   TH1D *hmzzNEW;
+  PredictedDistribution *hmzzPred;
 };
 
 void EDBRHistoMaker::Init(TTree *tree)
@@ -248,6 +258,7 @@ void EDBRHistoMaker::Init(TTree *tree)
    fChain->SetBranchAddress("massVlep", &massVlep, &b_massVlep);
    fChain->SetBranchAddress("mtVlep", &mtVlep, &b_mtVlep);
    fChain->SetBranchAddress("massVhad", &massVhad, &b_massVhad);
+   fChain->SetBranchAddress("massVhadSD", &massVhadSD, &b_massVhadSD);
    fChain->SetBranchAddress("tau1", &tau1, &b_tau1);
    fChain->SetBranchAddress("tau2", &tau2, &b_tau2);
    fChain->SetBranchAddress("tau3", &tau3, &b_tau3);
@@ -261,6 +272,7 @@ void EDBRHistoMaker::Init(TTree *tree)
    fChain->SetBranchAddress("philep1", &philep1, &b_philep1);
    fChain->SetBranchAddress("philep2", &philep2, &b_philep2);
    fChain->SetBranchAddress("phijet1", &phijet1, &b_phijet1);
+   fChain->SetBranchAddress("rhojet1", &rhojet1, &b_rhojet1);
    fChain->SetBranchAddress("met", &met, &b_met);
    fChain->SetBranchAddress("metPhi", &metPhi, &b_metPhi);
    fChain->SetBranchAddress("lep", &lep, &b_lep);
@@ -274,6 +286,7 @@ void EDBRHistoMaker::Init(TTree *tree)
    fChain->SetBranchAddress("deltaRlepjet", &deltaRlepjet, &b_deltaRlepjet);
    fChain->SetBranchAddress("delPhijetmet", &delPhijetmet, &b_delPhijetmet);
    fChain->SetBranchAddress("candMass", &candMass, &b_candMass);
+
 }
 
 EDBRHistoMaker::EDBRHistoMaker(TTree* tree, 
@@ -304,6 +317,7 @@ EDBRHistoMaker::EDBRHistoMaker(TTree* tree,
 EDBRHistoMaker::~EDBRHistoMaker() {
   if (!fChain) return;
   delete fChain->GetCurrentFile();
+  delete hmzzPred; 
 }                  
 
 Int_t EDBRHistoMaker::GetEntry(Long64_t entry) {
@@ -342,6 +356,7 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("phiZjj",74,-3.7,3.7);
   hs.setHisto("massZll",50,50,150); // 2 GeV bins 
   hs.setHisto("massZjj",50,30,130); // 2 GeV bins  
+  hs.setHisto("massZjjSD",50,30,130); // 2 GeV bins  
   hs.setHisto("tau21",50,0,1);
   hs.setHisto("ptlep1",40,0,800); 
   hs.setHisto("ptlep2",50,0,500);
@@ -352,6 +367,7 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("philep1",74,-3.7,3.7);
   hs.setHisto("philep2",74,-3.7,3.7);
   hs.setHisto("phijet1",74,-3.7,3.7);
+  hs.setHisto("rhojet1",50,0,1);
   hs.setHisto("lep",30,-0.5,29.5);
   hs.setHisto("region",5,-1.5,3.5); 
   hs.setHisto("triggerWeight",50,0,5); 
@@ -380,6 +396,18 @@ void EDBRHistoMaker::createAllHistos() {
     theHistograms[hs.vars[i]] = histogram;
   }
 
+
+   // SRR : add the rho-ratio predicted distribution.
+   // Note : The mistag rate file needs to be changed after it is derived
+   // from data. In principle the W and Z mistag rates are very similar since
+   // the quark-gluon content is very similar. 
+   mistagFile = TFile::Open("mistagRate_mod_wjetsmc.root");
+   mistagRate = (TH1D*)mistagFile->Get("rLoMod");
+   hmzzPred = new PredictedDistribution(mistagRate, "hmzzPred", "hmzzPred", 100,0,5000 );
+   hmzzPred->GetTaggableHist()->SetDirectory(0);
+   hmzzPred->GetPredictedHist()->SetDirectory(0);
+   hmzzPred->GetObservedHist()->SetDirectory(0);
+
 }
 
 void EDBRHistoMaker::printAllHistos() {
@@ -400,6 +428,11 @@ void EDBRHistoMaker::saveAllHistos(std::string outFileName) {
     const TH1D* thisHisto = this->theHistograms[name];
     thisHisto->Write();
   }
+  hmzzPred->SetCalculatedErrors();
+  hmzzPred->GetPredictedHist()->Write();
+  hmzzPred->GetObservedHist()->Write();
+  hmzzPred->GetTaggableHist()->Write();
+
   outFile->Close();
 }
 
@@ -570,6 +603,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["philep1"])->Fill(philep1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["philep2"])->Fill(philep2,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["phijet1"])->Fill(phijet1,actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["rhojet1"])->Fill(rhojet1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["ptZll"])->Fill(ptVlep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["ptZjj"])->Fill(ptVhad,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["phiZll"])->Fill(phiVlep,actualWeight);//printf("line number %i\n",__LINE__);
@@ -580,11 +614,20 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["deltaRlepjet"])->Fill(deltaRlepjet,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["massZll"])->Fill(massVlep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["massZjj"])->Fill(massVhad,actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["massZjjSD"])->Fill(massVhadSD,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["tau21"])->Fill(tau21,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["candMass"])->Fill(candMass,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["lep"])->Fill(lep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["region"])->Fill(region,actualWeight);//printf("line number %i\n",__LINE__);
       
+      // SRR : Is the jet tagged or not?
+      bool tagged = (tau21 < 0.6 && massVhadSD > 50. && massVhadSD < 105. );
+      // The "Accumulate" function weights by the second parameter (jetrho1),
+      // keeps track of whether or not the event was tagged (third parameter),
+      // and weights the whole thing by an external weight if necessary
+      // (e.g. for pileup reweighting, MC weights, PDFs, etc). 
+      hmzzPred->Accumulate( candMass, jetrho1, tagged, actualWeight );
+
       }//end if eventPassesCut
     
   }//end loop over entries
