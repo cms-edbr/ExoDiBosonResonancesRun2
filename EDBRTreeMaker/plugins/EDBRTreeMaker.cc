@@ -134,6 +134,7 @@ private:
   int    ecalDriven1,    ecalDriven2;
   int    missingHits1,   missingHits2;
   int    passConVeto1,   passConVeto2;
+  EffectiveAreas effectiveAreas;
 
   // Muon ID 
   int    highPtMu1,      highPtMu2;
@@ -143,6 +144,8 @@ private:
 
   edm::Service<TFileService> fs;
   TTree* outTree_;
+  TFile *f1;
+  TH1F *h1;
 
 };
 
@@ -154,7 +157,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   EDBRChannel_     (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"       ) ),
   gravitonSrc_     (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"       ) ),
   metSrc_          (                                   iConfig.getParameter<std::string>   ( "metSrc"            ) ),
-  vertexToken_     ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"          ) ) )
+  vertexToken_     ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"          ) ) ),
+  effectiveAreas   ( edm::FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt").fullPath())
 {
   if( iConfig.existsAs<bool>("isData") )
        isData_ = iConfig.getParameter<bool> ("isData");
@@ -364,13 +368,6 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            nVtx = vertices->size();
            const reco::Vertex& vertex = (*vertices)[0];
   
-	   // SRR : Just FYI, you can do this once much earlier (in the constructor)
-	   // and the code will run MUCH faster... as it is, this will repeatedly do file
-	   // open requests, and this can bring EOS to its knees if done too quickly. 
-	   //
-           // Effective area constants
-           EffectiveAreas _effectiveAreas( FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_50ns.txt").fullPath() );
-           
            // Energy density
            Handle< double > rhoHandle;
            iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
@@ -513,8 +510,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         // isolation with effective area correction
                         reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
                         reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
-                        double     eA1 = _effectiveAreas.getEffectiveArea( etaSC1 );
-                        double     eA2 = _effectiveAreas.getEffectiveArea( etaSC2 );
+                        double     eA1 = effectiveAreas.getEffectiveArea( etaSC1 );
+                        double     eA2 = effectiveAreas.getEffectiveArea( etaSC2 );
                         double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
                         double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
                         relIso1        = absiso1/el1->pt();
@@ -645,13 +642,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        }
 
        /// For the time being, set these to 1
-       triggerWeight=1.0;
+       triggerWeight = 1.0;
+       pileupWeight = 1.0;
        
-       if( isData_ )
-           pileupWeight=1.0;
-       else {
-           TFile *f = new TFile( puWeights_.fullPath().c_str() );
-           TH1F *h1 = (TH1F*)f->Get("pileupWeights");
+       if( !isData_ ) {
            int  bin = h1->FindBin(nVtx);
            float content = h1->GetBinContent(bin);
            pileupWeight = content;
@@ -805,7 +799,12 @@ void EDBRTreeMaker::setDummyValues() {
      highPtMu2      = -1e4;
 }
 
-void EDBRTreeMaker::beginJob(){ }
+void EDBRTreeMaker::beginJob(){ 
+     if ( !isData_ ){
+        f1 = new TFile( puWeights_.fullPath().c_str() );
+        h1 = (TH1F*)f1->Get("pileupWeights");
+     }
+}
 
 void EDBRTreeMaker::endJob(){ }
 
