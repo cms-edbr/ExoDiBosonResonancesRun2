@@ -64,6 +64,8 @@ class EDBRHistoMaker {
    Double_t        massVlep;
    Double_t        mtVlep;
    Double_t        massVhad;
+   Double_t        massVhadSD;
+   
    Double_t        tau1;
    Double_t        tau2;
    Double_t        tau3;
@@ -77,6 +79,7 @@ class EDBRHistoMaker {
    Double_t        philep1;
    Double_t        philep2;
    Double_t        phijet1;
+   Double_t        rhojet1;
    Double_t        met;
    Double_t        metPhi;
    Int_t           lep;
@@ -116,6 +119,7 @@ class EDBRHistoMaker {
    TBranch        *b_philep1;   //!
    TBranch        *b_philep2;   //!
    TBranch        *b_phijet1;   //!
+   TBranch        *b_rhojet1;   //!
    TBranch        *b_met;   //!
    TBranch        *b_metPhi;   //!
    TBranch        *b_lep;   //!
@@ -261,6 +265,7 @@ void EDBRHistoMaker::Init(TTree *tree)
    fChain->SetBranchAddress("philep1", &philep1, &b_philep1);
    fChain->SetBranchAddress("philep2", &philep2, &b_philep2);
    fChain->SetBranchAddress("phijet1", &phijet1, &b_phijet1);
+   fChain->SetBranchAddress("rhojet1", &rhojet1, &b_rhojet1);
    fChain->SetBranchAddress("met", &met, &b_met);
    fChain->SetBranchAddress("metPhi", &metPhi, &b_metPhi);
    fChain->SetBranchAddress("lep", &lep, &b_lep);
@@ -352,6 +357,7 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("philep1",74,-3.7,3.7);
   hs.setHisto("philep2",74,-3.7,3.7);
   hs.setHisto("phijet1",74,-3.7,3.7);
+  hs.setHisto("rhojet1",50,0,1);
   hs.setHisto("lep",30,-0.5,29.5);
   hs.setHisto("region",5,-1.5,3.5); 
   hs.setHisto("triggerWeight",50,0,5); 
@@ -570,6 +576,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["philep1"])->Fill(philep1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["philep2"])->Fill(philep2,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["phijet1"])->Fill(phijet1,actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["rhojet1"])->Fill(rhojet1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["ptZll"])->Fill(ptVlep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["ptZjj"])->Fill(ptVhad,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["phiZll"])->Fill(phiVlep,actualWeight);//printf("line number %i\n",__LINE__);

@@ -80,6 +80,7 @@ private:
   double tau1,      tau2,     tau3,       tau21;
   double etjet1,    ptjet1,   etajet1,    phijet1;
   double massjet1,  softjet1, prunedjet1;
+  double rhojet1;                  // SRR : Jet Rho Ratio (m/pt*R)^2
   double nhfjet1,   chfjet1;       // neutral and charged hadron energy fraction
   double nemfjet1,  cemfjet1;      // neutral and charged EM fraction
   int    nmultjet1, cmultjet1;     // neutral and charged multiplicity
@@ -288,6 +289,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("ptlep2"          ,&ptlep2         ,"ptlep2/D"         );
   outTree_->Branch("ptjet1"          ,&ptjet1         ,"ptjet1/D"         );
   outTree_->Branch("etjet1"          ,&etjet1         ,"etjet1/D"         );
+  outTree_->Branch("rhojet1"         ,&rhojet1        ,"rhojet1/D"        );
   outTree_->Branch("etalep1"         ,&etalep1        ,"etalep1/D"        );
   outTree_->Branch("etalep2"         ,&etalep2        ,"etalep2/D"        );
   outTree_->Branch("etajet1"         ,&etajet1        ,"etajet1/D"        );
@@ -300,6 +302,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("met"             ,&met            ,"met/D"            );
   outTree_->Branch("metpt"           ,&metpt          ,"metpt/D"          );
   outTree_->Branch("metPhi"          ,&metPhi         ,"metPhi/D"         );
+  
+
 
   // Other quantities
   outTree_->Branch("triggerWeight"   ,&triggerWeight  ,"triggerWeight/D"  );
@@ -414,6 +418,13 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    softjet1       = hadronicV.userFloat("ak8PFJetsCHSSoftDropMass");
                    prunedjet1     = hadronicV.userFloat("ak8PFJetsCHSPrunedMass");
                    massVhad       = hadronicV.userFloat("ak8PFJetsCHSCorrPrunedMass");
+		   // SRR : get rho ratio. This assumes the subjets are corrected to L2L3.
+		   // If not, they must be done on-the-fly with a separate jet corrector. 
+		   auto subjetsSD = hadronicV.subjets("SoftDrop");
+		   if ( subjetsSD.size() >= 2 ) {
+		     auto groomedJet = subjetsSD[0]->p4() + subjetsSD[1]->p4();
+		     rhojet1 = std::pow( groomedJet.mass() / (groomedJet.pt() * 0.8), 2.0);		     
+		   }
                    //*****************************************************************//
                    //***************************** Jet ID ****************************//
                    //*****************************************************************//
@@ -709,6 +720,7 @@ void EDBRTreeMaker::setDummyValues() {
      massjet1       = -1e4;
      softjet1       = -1e4;
      prunedjet1     = -1e4;
+     rhojet1        = -1e4;
      nhfjet1        = -1e4;
      chfjet1        = -1e4;
      nemfjet1       = -1e4;
