@@ -28,6 +28,8 @@
 
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
 #include "EDBRChannels.h"
 #include "TAxis.h"
 #include "TEfficiency.h"
@@ -145,7 +147,7 @@ private:
   edm::Service<TFileService> fs;
   TTree* outTree_;
   TFile *f1;
-  TH1F *h1;
+  TH1D *h1;
 
 };
 
@@ -643,12 +645,20 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
        /// For the time being, set these to 1
        triggerWeight = 1.0;
-       pileupWeight = 1.0;
+       pileupWeight  = 1.0;
        
        if( !isData_ ) {
-           int  bin = h1->FindBin(nVtx);
-           float content = h1->GetBinContent(bin);
-           pileupWeight = content;
+           Handle<std::vector< PileupSummaryInfo > >  puInfo;
+           iEvent.getByLabel("slimmedAddPileupInfo",  puInfo);
+           std::vector<PileupSummaryInfo>::const_iterator PVI;
+           for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
+                int BX = PVI->getBunchCrossing();
+                if( BX == 0 ){
+                     int  bin     = h1->FindBin(PVI->getTrueNumInteractions());
+                     pileupWeight = h1->GetBinContent(bin);
+                     continue;
+                }
+           }
        }
 
        double targetEvents = targetLumiInvPb_*crossSectionPb_;
@@ -802,7 +812,7 @@ void EDBRTreeMaker::setDummyValues() {
 void EDBRTreeMaker::beginJob(){ 
      if ( !isData_ ){
         f1 = new TFile( puWeights_.fullPath().c_str() );
-        h1 = (TH1F*)f1->Get("pileupWeights");
+        h1 = (TH1D*)f1->Get("pileupWeights");
      }
 }
 
