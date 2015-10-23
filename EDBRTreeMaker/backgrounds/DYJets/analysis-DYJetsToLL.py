@@ -21,10 +21,10 @@ VZ_JetMET       = False        # True
 import sys
 SAMPLE = str(sys.argv[2])
 configXsecs = {
-                  "HT-100to200" : 171.46,
-                  "HT-200to400" : 52.58,
-                  "HT-400to600" : 6.761,
-                  "HT-600toInf" : 2.72,
+                  "HT-100to200" : 139.4,
+                  "HT-200to400" : 42.75,
+                  "HT-400to600" : 5.497,
+                  "HT-600toInf" : 2.21,
               }
 configNevents = {
                   "HT-100to200" : 2725655,
@@ -84,7 +84,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isData          = cms.bool      (  False                      ),
                                           originalNEvents = cms.int32     (  usedNevents                ),
                                           crossSectionPb  = cms.double    (  usedXsec                   ),
-                                          targetLumiInvPb = cms.double    (  1268.856                   ),
+                                          targetLumiInvPb = cms.double    (  1263.886                   ),
                                           EDBRChannel     = cms.string    (  CHANNEL                    ),
                                           gravitonSrc     = cms.string    ( "graviton"                  ),
                                           metSrc          = cms.string    ( "slimmedMETs"               ),
