@@ -30,7 +30,7 @@ process.hltFilter.triggerConditions =  ( usedHLT, )
 
 SAMPLE = str(sys.argv[2])
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.Spring15MiniAODv2."+SAMPLE)
-#process.maxEvents.input = 1000
+process.maxEvents.input = 1000
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -95,14 +95,16 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter = cms.bool(True) )
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          isGen           = cms.bool    (  False                     ),
-                                          originalNEvents = cms.int32   (  usedNevents               ),
-                                          crossSectionPb  = cms.double  (  usedXsec                  ),
-                                          targetLumiInvPb = cms.double  (  1000.                     ),
-                                          EDBRChannel     = cms.string  (  CHANNEL                   ),
-                                          gravitonSrc     = cms.string  ( "graviton"                 ),
-                                          metSrc          = cms.string  ( "slimmedMETs"              ),
-                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex" ))
+                                          isGen           = cms.bool      (  False                     ),
+                                          isData          = cms.bool      (  False                     ),
+                                          originalNEvents = cms.int32     (  usedNevents               ),
+                                          crossSectionPb  = cms.double    (  usedXsec                  ),
+                                          targetLumiInvPb = cms.double    (  1268.856                  ),
+                                          EDBRChannel     = cms.string    (  CHANNEL                   ),
+                                          gravitonSrc     = cms.string    ( "graviton"                 ),
+                                          metSrc          = cms.string    ( "slimmedMETs"              ),
+                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights.root"),
+                                          vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
 

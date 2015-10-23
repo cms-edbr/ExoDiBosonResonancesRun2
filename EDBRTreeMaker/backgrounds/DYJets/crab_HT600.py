@@ -6,7 +6,7 @@ config.JobType.psetName    = 'analysis-DYJetsToLL.py'
 config.JobType.pyCfgParams = ['','HT-600toInf','el']
 
 config.Data.inputDataset   = '/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM'
-config.Data.unitsPerJob    = 5
+config.Data.unitsPerJob    = 2
 config.Data.splitting      = 'FileBased'
 config.Data.outLFNDirBase  = '/store/user/jruizvar/mc/2015/EDBRtrees/el'
 
