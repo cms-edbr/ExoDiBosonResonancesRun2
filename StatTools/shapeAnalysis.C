@@ -47,7 +47,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   TCut upperSIG = "massVhad>105. && massVhad<145" + selectedCategory;
   TCut lowerSB  = "massVhad<65."  + selectedCategory;
   TCut upperSB  = "massVhad>145." + selectedCategory;
-  TCut allSB    = lowerSB + upperSB;
+  TCut allSB    = lowerSB or upperSB;
 
   //*******************************************************//
   //                                                       //     
