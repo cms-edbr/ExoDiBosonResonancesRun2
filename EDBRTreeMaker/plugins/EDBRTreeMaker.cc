@@ -643,11 +643,12 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	   nVtx = 0;
        }
 
-       /// For the time being, set these to 1
+       /// For data, all weights are equal to 1.
        triggerWeight = 1.0;
        pileupWeight  = 1.0;
-       
+       lumiWeight    = 1.0;
        if( !isData_ ) {
+           // pileup reweight
            Handle<std::vector< PileupSummaryInfo > >  puInfo;
            iEvent.getByLabel("slimmedAddPileupInfo",  puInfo);
            std::vector<PileupSummaryInfo>::const_iterator PVI;
@@ -659,11 +660,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                      continue;
                 }
            }
+           // lumi weight
+           double targetEvents = targetLumiInvPb_*crossSectionPb_;
+           lumiWeight = targetEvents/originalNEvents_;
        }
-
-       double targetEvents = targetLumiInvPb_*crossSectionPb_;
-       lumiWeight = targetEvents/originalNEvents_;
-
        totalWeight = triggerWeight*pileupWeight*lumiWeight;
 
        // Enumarate regions
