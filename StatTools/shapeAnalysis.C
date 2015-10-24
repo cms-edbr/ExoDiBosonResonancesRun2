@@ -7,10 +7,10 @@
 //        Examples of usage:
 // 
 //        root -b -q 'shapeAnalysis.C("ALL", 1400)'
-//        root -b -q 'shapeAnalysis.C("EHP", 1000)'
-//        root -b -q 'shapeAnalysis.C("ELP", 1000)'
-//        root -b -q 'shapeAnalysis.C("MHP", 1000)'
-//        root -b -q 'shapeAnalysis.C("MLP", 1000)'
+//        root -b -q 'shapeAnalysis.C("EHP", 1400)'
+//        root -b -q 'shapeAnalysis.C("ELP", 1400)'
+//        root -b -q 'shapeAnalysis.C("MHP", 1400)'
+//        root -b -q 'shapeAnalysis.C("MLP", 1400)'
 //
 
 R__LOAD_LIBRARY(PDFs/HWWLVJRooPdfs_cxx.so)
@@ -83,8 +83,29 @@ void shapeAnalysis(std::string key, Int_t mass)
   Double_t scale  = n_signalR1->getVal()/n_sideband->getVal(); //scale yield from both sidebands to lower SIG
   Double_t bkgYield       = yieldSideband.getVal()   * scale; 
   Double_t bkgYield_error = yieldSideband.getError() * scale;
-  ZZ_bkg_eig_norm.setVal(   bkgYield );
-  ZZ_bkg_eig_norm.setError( bkgYield_error );
+
+  //*******************************************************//
+  //                                                       //     
+  //      Contribution of subddominant backgrounds         //
+  //                                                       //     
+  //*******************************************************//
+
+  TChain treeMCsub("treeDumper/EDBRCandidates");
+  treeMCsub.Add("../elTrees/treeEDBR_WZ.root");
+  treeMCsub.Add("../elTrees/treeEDBR_ZZ.root");
+  treeMCsub.Add("../elTrees/treeEDBR_T_T.root");
+  treeMCsub.Add("../muTrees/treeEDBR_WZ.root");
+  treeMCsub.Add("../muTrees/treeEDBR_ZZ.root");
+  treeMCsub.Add("../muTrees/treeEDBR_T_T.root");
+
+  RooRealVar totalWeight("totalWeight", "total weight",  0., 1.);
+  RooDataSet lowSigMCsub("lowSigMCsub","lowSigMCsub",RooArgSet(massVhad,candMass,tau21,lep,totalWeight),WeightVar(totalWeight),Cut(lowerSIG), Import(treeMCsub));
+  double subMCyield = lowSigMCsub.sumEntries();
+  double subMCyield_error = sqrt(subMCyield);
+
+  // Add contribution of subdominant backgrounds
+  ZZ_bkg_eig_norm.setVal( bkgYield + subMCyield );
+  ZZ_bkg_eig_norm.setError( sqrt( bkgYield_error*bkgYield_error + subMCyield_error*subMCyield_error ) );
   ZZ_bkg_eig_norm.setConstant(true);
  
   //*******************************************************//
@@ -106,11 +127,10 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooArgSet variables(candMass,massVhad,tau21,lep,lumiWeight,pileupWeight);
 
   // Weight MC to current luminosity
-  // For MC:   totWeight == lumiWeight*pileupWeight*currentLumi/targetLumi 
+  // For MC:   totWeight == lumiWeight*pileupWeight
   // For Data: totWeight == 1
-  const char *currentLumi = "837.87/1000";
-  TString totWeight = Form("(lumiWeight<100)*lumiWeight*pileupWeight*%s + (lumiWeight>100)", currentLumi);
-  RooFormulaVar wFunc("wFunc","event weight", totWeight, RooArgList(lumiWeight,pileupWeight));
+  const char *weightFormula = "(lumiWeight<999)*lumiWeight*pileupWeight + (lumiWeight>999)";
+  RooFormulaVar wFunc("wFunc","event weight", weightFormula, RooArgList(lumiWeight,pileupWeight));
 
   // Data in lower sideband
   RooDataSet sbDataNoW("sbData","sbData",variables,Cut(lowerSB),Import(treeData));
