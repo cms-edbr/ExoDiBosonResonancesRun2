@@ -6,12 +6,12 @@
 //
 //        Examples of usage:
 // 
-//        root -b -q 'shapeAnalysis.C("ALL", 1400)'
-//        root -b -q 'shapeAnalysis.C("EHP", 1400)'
-//        root -b -q 'shapeAnalysis.C("ELP", 1400)'
-//        root -b -q 'shapeAnalysis.C("MHP", 1400)'
-//        root -b -q 'shapeAnalysis.C("MLP", 1400)'
-//
+//        root -b -q 'shapeAnalysis.C("ENP", 1400)'   // Electron No Purity
+//        root -b -q 'shapeAnalysis.C("EHP", 1400)'   // Electron High Purity
+//        root -b -q 'shapeAnalysis.C("ELP", 1400)'   // Electron Low Purity
+//        root -b -q 'shapeAnalysis.C("MNP", 1400)'   // Muon No Purity
+//        root -b -q 'shapeAnalysis.C("MHP", 1400)'   // Muon High Purity
+//        root -b -q 'shapeAnalysis.C("MLP", 1400)'   // Muon Low Purity
 
 R__LOAD_LIBRARY(PDFs/HWWLVJRooPdfs_cxx.so)
 R__LOAD_LIBRARY(PDFs/PdfDiagonalizer_cc.so)
@@ -36,7 +36,8 @@ void shapeAnalysis(std::string key, Int_t mass)
   massVhad.setRange("upperSB",     145., 9999.);
 
   std::map<std::string, std::string> selection;
-  selection["ALL"] = "candMass>600";
+  selection["ENP"] = "candMass>600 && lep<12";
+  selection["MNP"] = "candMass>600 && lep>12";
   selection["EHP"] = "candMass>600 && lep<12 && tau21<0.6";
   selection["MHP"] = "candMass>600 && lep>12 && tau21<0.6";
   selection["ELP"] = "candMass>600 && lep<12 && tau21>0.6 && tau21<0.75";
@@ -51,17 +52,70 @@ void shapeAnalysis(std::string key, Int_t mass)
 
   //*******************************************************//
   //                                                       //     
+  //                      Input files                      //
+  //                                                       //     
+  //*******************************************************//
+
+  TChain treeData( "treeDumper/EDBRCandidates");
+  TChain treeMCsub("treeDumper/EDBRCandidates");
+  TChain treeMC(   "treeDumper/EDBRCandidates");
+  std::map<Int_t, std::string> inputFile;
+
+  if( key[0]=='E' ){ 
+      treeData.Add(     "../trees/treeEDBR_SingleElectron.root"                ); 
+      treeMCsub.Add(    "../elTrees/treeEDBR_WZ.root"                          );
+      treeMCsub.Add(    "../elTrees/treeEDBR_ZZ.root"                          );
+      treeMCsub.Add(    "../elTrees/treeEDBR_T_T.root"                         );
+      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-100to200.root"      );
+      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-200to400.root"      );
+      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-400to600.root"      );
+      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
+      inputFile[600]  = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
+      inputFile[800]  = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
+      inputFile[1000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
+      inputFile[1200] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
+      inputFile[1400] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
+      inputFile[1600] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
+      inputFile[1800] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
+      inputFile[2000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
+      inputFile[2500] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
+      inputFile[3000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
+      inputFile[3500] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
+      inputFile[4000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
+      inputFile[4500] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+  }
+
+  if( key[0]=='M' ){
+      treeData.Add(     "../trees/treeEDBR_SingleMuon.root"                    ); 
+      treeMCsub.Add(    "../muTrees/treeEDBR_WZ.root"                          );
+      treeMCsub.Add(    "../muTrees/treeEDBR_ZZ.root"                          );
+      treeMCsub.Add(    "../muTrees/treeEDBR_T_T.root"                         );
+      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-100to200.root"      );
+      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-200to400.root"      );
+      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-400to600.root"      );
+      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
+      inputFile[600]  = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
+      inputFile[800]  = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
+      inputFile[1000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
+      inputFile[1200] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
+      inputFile[1400] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
+      inputFile[1600] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
+      inputFile[1800] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
+      inputFile[2000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
+      inputFile[2500] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
+      inputFile[3000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
+      inputFile[3500] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
+      inputFile[4000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
+      inputFile[4500] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+  }
+
+  //*******************************************************//
+  //                                                       //     
   //                   Get Normalization                   //
   //                                                       //     
   //*******************************************************//
 
-  TChain treeData("treeDumper/EDBRCandidates");
-  treeData.Add("../trees/treeEDBR_SingleMuon.root"); 
-  treeData.Add("../trees/treeEDBR_SingleElectron.root"); 
-
   RooDataSet sbObs("sbObs","sbObs", RooArgSet(massVhad,candMass,tau21,lep), Cut(allSB), Import(treeData));
-
-  // FIXME to subtract subdominant backgrounds
 
   // Error Function * Exponential
   RooRealVar c("c","slope of the exp",              -0.1,  -1.0,  0.0);
@@ -90,14 +144,6 @@ void shapeAnalysis(std::string key, Int_t mass)
   //                                                       //     
   //*******************************************************//
 
-  TChain treeMCsub("treeDumper/EDBRCandidates");
-  treeMCsub.Add("../elTrees/treeEDBR_WZ.root");
-  treeMCsub.Add("../elTrees/treeEDBR_ZZ.root");
-  treeMCsub.Add("../elTrees/treeEDBR_T_T.root");
-  treeMCsub.Add("../muTrees/treeEDBR_WZ.root");
-  treeMCsub.Add("../muTrees/treeEDBR_ZZ.root");
-  treeMCsub.Add("../muTrees/treeEDBR_T_T.root");
-
   RooRealVar totalWeight("totalWeight", "total weight",  0., 1.);
   RooDataSet lowSigMCsub("lowSigMCsub","lowSigMCsub",RooArgSet(massVhad,candMass,tau21,lep,totalWeight),WeightVar(totalWeight),Cut(lowerSIG), Import(treeMCsub));
   double subMCyield = lowSigMCsub.sumEntries();
@@ -113,16 +159,6 @@ void shapeAnalysis(std::string key, Int_t mass)
   //      Simultaneous fit and alpha ratio                 //
   //                                                       //     
   //*******************************************************//
-
-  TChain treeMC("treeDumper/EDBRCandidates");
-  treeMC.Add("../elTrees/treeEDBR_DYJetsToLL_HT-100to200.root");
-  treeMC.Add("../elTrees/treeEDBR_DYJetsToLL_HT-200to400.root");
-  treeMC.Add("../elTrees/treeEDBR_DYJetsToLL_HT-400to600.root");
-  treeMC.Add("../elTrees/treeEDBR_DYJetsToLL_HT-600toInf.root");
-  treeMC.Add("../muTrees/treeEDBR_DYJetsToLL_HT-100to200.root");
-  treeMC.Add("../muTrees/treeEDBR_DYJetsToLL_HT-200to400.root");
-  treeMC.Add("../muTrees/treeEDBR_DYJetsToLL_HT-400to600.root");
-  treeMC.Add("../muTrees/treeEDBR_DYJetsToLL_HT-600toInf.root");
 
   RooArgSet variables(candMass,massVhad,tau21,lep,lumiWeight,pileupWeight);
 
@@ -180,21 +216,6 @@ void shapeAnalysis(std::string key, Int_t mass)
   //                    Signal shape                       //
   //                                                       //     
   //*******************************************************//
-
-  std::map<Int_t, std::string> inputFile;
-  inputFile[600]  = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-600.root";
-  inputFile[800]  = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-800.root";
-  inputFile[1000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
-  inputFile[1200] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
-  inputFile[1400] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
-  inputFile[1600] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
-  inputFile[1800] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
-  inputFile[2000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
-  inputFile[2500] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
-  inputFile[3000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
-  inputFile[3500] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
-  inputFile[4000] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
-  inputFile[4500] = "../trees/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
 
   std::map<Int_t, Double_t> low;
   low[600]  =  400.;

@@ -1,37 +1,46 @@
 // 
-// Usage: root -b -q 'plotLimit.C("EHP")'
+// Usage: root -b -q 'plotLimit.C("ENP")'
+//        root -b -q 'plotLimit.C("EHP")'
 //        root -b -q 'plotLimit.C("ELP")'
+//        root -b -q 'plotLimit.C("MNP")'
 //        root -b -q 'plotLimit.C("MHP")'
 //        root -b -q 'plotLimit.C("MLP")'
 //        root -b -q 'plotLimit.C("ALL")'
-//
 
 void plotLimit(std::string key)
 {
   std::map<std::string, std::string> inputFile;
+  inputFile["ENP"]="combineENP.root";
   inputFile["EHP"]="combineEHP.root";
   inputFile["ELP"]="combineELP.root";
+  inputFile["MNP"]="combineMNP.root";
   inputFile["MHP"]="combineMHP.root";
   inputFile["MLP"]="combineMLP.root";
   inputFile["ALL"]="combineALL.root";
 
   std::map<std::string, std::string> outFile;
+  outFile["ENP"]="limitENP.pdf";
   outFile["EHP"]="limitEHP.pdf";
   outFile["ELP"]="limitELP.pdf";
+  outFile["MNP"]="limitMNP.pdf";
   outFile["MHP"]="limitMHP.pdf";
   outFile["MLP"]="limitMLP.pdf";
   outFile["ALL"]="limitALL.pdf";
 
   std::map<std::string, std::string> legTitle;
+  legTitle["ENP"]="electron channel";
   legTitle["EHP"]="electron channel high purity";
   legTitle["ELP"]="electron channel low purity";
+  legTitle["MNP"]="muon channel";
   legTitle["MHP"]="muon channel high purity";
   legTitle["MLP"]="muon channel low purity";
   legTitle["ALL"]="Combination of channels";
 
   std::map<std::string, std::string> axisTitle;
+  axisTitle["ENP"]="ee";
   axisTitle["EHP"]="ee";
   axisTitle["ELP"]="ee";
+  axisTitle["MNP"]="#mu#mu";
   axisTitle["MHP"]="#mu#mu";
   axisTitle["MLP"]="#mu#mu";
   axisTitle["ALL"]="ll";
@@ -73,10 +82,10 @@ void plotLimit(std::string key)
   gr1->SetFillColor(3);
   gr2->SetFillColor(5);
   gr2->GetYaxis()->SetTitleOffset(1.2);
-  gr2->SetMinimum(4.e-2);
-  gr2->SetMaximum(8.);
-  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 40 pb^{-1};M_{VZ} [GeV];\
-                     #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [pb]",
+  gr2->SetMinimum(4.e-1);
+  gr2->SetMaximum(4.e2);
+  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 1.26 fb^{-1};M_{VZ} [GeV];\
+                     #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [fb]",
                      axisTitle[key].c_str() ));
 
   TCanvas *c1 = new TCanvas("c1","c1",700,700);
