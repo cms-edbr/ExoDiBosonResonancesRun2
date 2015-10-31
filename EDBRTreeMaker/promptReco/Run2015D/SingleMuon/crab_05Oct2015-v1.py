@@ -13,7 +13,7 @@ config.section_('Data')
 config.Data.inputDataset= '/SingleMuon/Run2015D-05Oct2015-v1/MINIAOD'
 config.Data.unitsPerJob = 200
 config.Data.splitting = 'LumiBased'
-config.Data.lumiMask = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
+config.Data.lumiMask = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
 config.Data.publication = False
 config.Data.useParent = False
 config.Data.outLFNDirBase = '/store/user/jruizvar/data/2015/EDBRtrees'
