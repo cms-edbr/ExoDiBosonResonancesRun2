@@ -120,7 +120,7 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const Ptr<pat::Muon> muPtr(muons, i);
         const pat::Muon& mu    = (*muons)[i];
         float miniIso          = (*muIsoMap)[muPtr]; 
-        bool  isoID            = miniIso<0.1 ? true : false;
+        bool  isoID            = miniIso<0.2 ? true : false;
         bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
         bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         bool tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;

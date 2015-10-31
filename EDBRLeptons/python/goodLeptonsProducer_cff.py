@@ -29,8 +29,8 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
                                        vertex     = cms.InputTag("goodOfflinePrimaryVertex"),
                                        electrons  = cms.InputTag("slimmedElectrons"),
                                        muons      = cms.InputTag("slimmedMuons"),
-                                       elIsoMap   = cms.InputTag("electronsMiniIsolationValueMap"),
-                                       muIsoMap   = cms.InputTag("muonsMiniIsolationValueMap"),
+                                       elIsoMap   = cms.InputTag("electronsMiniIsolationValueMap:eArea"),
+                                       muIsoMap   = cms.InputTag("muonsMiniIsolationValueMap:eArea"),
                                        heepV60    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60"))
 
 goodElectrons = cms.EDFilter("PATElectronSelector",
