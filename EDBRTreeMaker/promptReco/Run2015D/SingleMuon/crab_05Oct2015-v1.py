@@ -20,4 +20,5 @@ config.Data.outLFNDirBase = '/store/user/jruizvar/data/2015/EDBRtrees'
 
 config.section_('User')
 config.section_('Site')
-config.Site.storageSite = 'T2_BR_SPRACE'
+config.Site.storageSite =  'T2_BR_SPRACE'
+config.Site.whitelist   = ['T2_BR_SPRACE']
