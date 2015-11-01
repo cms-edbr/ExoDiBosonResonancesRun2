@@ -60,11 +60,11 @@ process.source = cms.Source ("PoolSource",
 
 #************************************* JSON file ***************************************************#
 # https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
-# last modified 19-Oct-2015 
+# last modified 30-Oct-2015 
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(
-    filename = '../../Cert_256630-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
+    filename = '../../Cert_256630-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
@@ -86,7 +86,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay           = cms.string  ( "bestLeptonicV bestHadronicV" ),
                                           checkCharge     = cms.bool    (  False                        ),
-                                          cut             = cms.string  ( "mass > 400."                 ),
+                                          cut             = cms.string  ( "mass > 600."                 ),
                                           roles           = cms.vstring ( 'leptonicV', 'hadronicV'      ))
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
@@ -98,7 +98,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isGen           = cms.bool    (  False                        ),
                                           originalNEvents = cms.int32   (  1                            ),
                                           crossSectionPb  = cms.double  (  1.                           ),
-                                          targetLumiInvPb = cms.double  (  1263.886                     ),
+                                          targetLumiInvPb = cms.double  (  1.                           ),
                                           EDBRChannel     = cms.string  (  CHANNEL                      ),
                                           gravitonSrc     = cms.string  ( "graviton"                    ),
                                           metSrc          = cms.string  ( "slimmedMETs"                 ),

@@ -22,6 +22,8 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+
 template <typename T>
 class MiniPFIsolationProducer : public edm::EDProducer {
    public:
@@ -39,6 +41,8 @@ class MiniPFIsolationProducer : public edm::EDProducer {
       bool charged_only_;
       edm::EDGetTokenT<candidateCollection> leptonToken;
       edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken;
+      EffectiveAreas eAreasElectrons;
+      EffectiveAreas eAreasMuons;
 };
 
 template <typename T>
@@ -48,9 +52,12 @@ MiniPFIsolationProducer<T>::MiniPFIsolationProducer(const edm::ParameterSet& iCo
     kt_scale_(                                            iConfig.getParameter<double>("kt_scale"        ) ),
     charged_only_(                                        iConfig.getParameter<bool>("charged_only"      ) ),
     leptonToken(consumes<candidateCollection>(            iConfig.getParameter<edm::InputTag>("leptons") ) ),
-    pfToken(    consumes<pat::PackedCandidateCollection>( iConfig.getParameter<edm::InputTag>("pfCands") ) )
+    pfToken(    consumes<pat::PackedCandidateCollection>( iConfig.getParameter<edm::InputTag>("pfCands") ) ),
+    eAreasElectrons(edm::FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt").fullPath()),
+    eAreasMuons(    edm::FileInPath("ExoDiBosonResonances/EDBRLeptons/data/effAreasMuons_cone03_Spring15_25ns.txt").fullPath())
 {
-    produces<edm::ValueMap<float> >();
+    produces<edm::ValueMap<float> >("dBeta");
+    produces<edm::ValueMap<float> >("eArea");
 }
 
 template <typename T>
@@ -64,17 +71,30 @@ void MiniPFIsolationProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
     edm::Handle<pat::PackedCandidateCollection> pfcands;
     iEvent.getByToken(pfToken, pfcands);
 
-    vector<float> miniIso;
+    // Energy density
+    edm::Handle< double > rhoHandle;
+    iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rhoHandle);
+    double rho = *rhoHandle;
+
+    vector<float> miniIso_dBeta;
+    vector<float> miniIso_eArea;
 
     // loop over leptons
     typename candidateCollection::const_iterator lep, endLoop = leptons->end();
     for (lep = leptons->begin(); lep != endLoop; ++lep) {
-        if (lep->pt() < 5) {miniIso.push_back(9999.); continue;}
+        if(lep->pt() < 5) {
+          miniIso_dBeta.push_back(9999.); 
+          miniIso_eArea.push_back(9999.); 
+          continue;
+        }
         // initialize cones
         double deadcone_nh(0.), deadcone_ch(0.), deadcone_ph(0.), deadcone_pu(0.);
+        double eA(0.); // effective area
         if(lep->isElectron()) {
+          eA = eAreasElectrons.getEffectiveArea( lep->superCluster()->eta() );
           if (fabs(lep->eta())>1.479) {deadcone_ch = 0.015; deadcone_pu = 0.015; deadcone_ph = 0.08;}
         } else if(lep->isMuon()) {
+          eA = eAreasMuons.getEffectiveArea( lep->eta() );
           deadcone_ch = 0.0001; deadcone_pu = 0.01; deadcone_ph = 0.01;deadcone_nh = 0.01;  
         }
         // initialize sums
@@ -116,23 +136,33 @@ void MiniPFIsolationProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
                 }
             }
         }// close loop over PF candidates
-        double iso(0.);
+        // Effective area pileup correction
+        double eA_miniIso = eA * r_iso*r_iso / 0.09;
+        double iso_dBeta(0.);
+        double iso_eArea(0.);
         if (charged_only_){
-          iso = iso_ch;
+          iso_dBeta = iso_eArea = iso_ch;
         } 
         else {
-          iso = iso_ch + max(0., iso_nh + iso_ph - 0.5*iso_pu);
+          iso_dBeta = iso_ch + max(0., iso_nh + iso_ph - 0.5*iso_pu);
+          iso_eArea = iso_ch + max(0., iso_nh + iso_ph - rho*eA_miniIso);
         }
-        miniIso.push_back(iso/lep->pt());
+        miniIso_dBeta.push_back(iso_dBeta/lep->pt());
+        miniIso_eArea.push_back(iso_eArea/lep->pt());
     }// close loop over leptons
 
     // convert into ValueMap
-    auto_ptr<edm::ValueMap<float> > miniMap(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler miniFiller(*miniMap);
-    miniFiller.insert(leptons, miniIso.begin(), miniIso.end());
-    miniFiller.fill();
+    auto_ptr<edm::ValueMap<float> > map_dBeta(new edm::ValueMap<float>);
+    auto_ptr<edm::ValueMap<float> > map_eArea(new edm::ValueMap<float>);
+    edm::ValueMap<float>::Filler filler_dBeta(*map_dBeta);
+    edm::ValueMap<float>::Filler filler_eArea(*map_eArea);
+    filler_dBeta.insert(leptons, miniIso_dBeta.begin(), miniIso_dBeta.end());
+    filler_eArea.insert(leptons, miniIso_eArea.begin(), miniIso_eArea.end());
+    filler_dBeta.fill();
+    filler_eArea.fill();
 
-    iEvent.put(miniMap);
+    iEvent.put(map_dBeta, "dBeta");
+    iEvent.put(map_eArea, "eArea");
 }
 
 //define this as a plug-in

@@ -53,7 +53,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay           = cms.string  ( "bestLeptonicV bestHadronicV" ),
                                           checkCharge     = cms.bool    (  False                        ),
-                                          cut             = cms.string  ( "mass > 400."                 ),
+                                          cut             = cms.string  ( "mass > 600."                 ),
                                           roles           = cms.vstring ( 'leptonicV', 'hadronicV'      ))
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
@@ -66,11 +66,11 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isData          = cms.bool      (  False                      ),
                                           originalNEvents = cms.int32     (  19806096                   ),
                                           crossSectionPb  = cms.double    (  831.76                     ),
-                                          targetLumiInvPb = cms.double    (  1263.886                   ),
+                                          targetLumiInvPb = cms.double    (  1546.719                   ),
                                           EDBRChannel     = cms.string    (  CHANNEL                    ),
                                           gravitonSrc     = cms.string    ( "graviton"                  ),
                                           metSrc          = cms.string    ( "slimmedMETs"               ),
-                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights.root" ),
+                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights72mb.root" ),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"  ))
 
 #***************************************** SEQUENCES **********************************************# 

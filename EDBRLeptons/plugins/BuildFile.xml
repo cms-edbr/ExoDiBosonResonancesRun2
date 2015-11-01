@@ -6,5 +6,6 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/VertexReco"/>
+<use name="RecoEgamma/EgammaTools"/>
 <use name="clhep"/>
 <flags EDM_PLUGIN="1"/>
