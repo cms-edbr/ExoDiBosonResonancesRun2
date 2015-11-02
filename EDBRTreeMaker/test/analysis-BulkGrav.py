@@ -30,7 +30,7 @@ process.hltFilter.triggerConditions =  ( usedHLT, )
 
 SAMPLE = str(sys.argv[2])
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.Spring15MiniAODv2."+SAMPLE)
-process.maxEvents.input = 1000
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
