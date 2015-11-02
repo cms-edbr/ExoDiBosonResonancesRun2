@@ -142,14 +142,12 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool elFlag=false, muFlag=false;
     for ( size_t i=0; i<goodElectrons->size(); ++i ) {
         const pat::Electron& el = (*goodElectrons)[i];
-        const Ptr<pat::Electron> elPtr(electrons, el.userInt("slimmedIndex"));
         bool  acceptance = el.pt()>115. ? true : false;
         if ( filter_ and !acceptance ) continue; 
         elFlag=true;
     }
     for ( size_t i=0; i<goodMuons->size(); ++i ) {
         const pat::Muon& mu = (*goodMuons)[i];
-        const Ptr<pat::Muon> muPtr(muons, mu.userInt("slimmedIndex"));
         bool  acceptance = (mu.pt()>50. && mu.eta()<2.1) ? true : false;
         if ( filter_ and !acceptance ) continue; 
         muFlag=true;
