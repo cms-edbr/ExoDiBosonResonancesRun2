@@ -103,7 +103,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           EDBRChannel     = cms.string    (  CHANNEL                   ),
                                           gravitonSrc     = cms.string    ( "graviton"                 ),
                                           metSrc          = cms.string    ( "slimmedMETs"              ),
-                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights72mb.root"),
+                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 
 #************************************** SELECT GEN OR RECO ******************************************# 
