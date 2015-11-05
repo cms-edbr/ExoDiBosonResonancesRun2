@@ -506,16 +506,24 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         isTrackerMu2     = mu2->isTrackerMuon();
                         matchedStations1 = mu1->numberOfMatchedStations();
                         matchedStations2 = mu2->numberOfMatchedStations();
-                        pixelHits1       = mu1->innerTrack()->hitPattern().numberOfValidPixelHits();
-                        pixelHits2       = mu2->innerTrack()->hitPattern().numberOfValidPixelHits();
-                        trackerLayers1   = mu1->innerTrack()->hitPattern().trackerLayersWithMeasurement();
-                        trackerLayers2   = mu2->innerTrack()->hitPattern().trackerLayersWithMeasurement();
-                        relativeError1   = mu1->muonBestTrack()->ptError()/mu1->muonBestTrack()->pt();
-                        relativeError2   = mu2->muonBestTrack()->ptError()/mu2->muonBestTrack()->pt();
-                        dBCut1           = fabs(mu1->muonBestTrack()->dxy(vertex.position()));
-                        dBCut2           = fabs(mu2->muonBestTrack()->dxy(vertex.position()));
-                        longiCut1        = fabs(mu1->muonBestTrack()->dz( vertex.position()));
-                        longiCut2        = fabs(mu2->muonBestTrack()->dz( vertex.position()));
+                        if ( mu1->innerTrack().isNonnull() ){
+                           pixelHits1     = mu1->innerTrack()->hitPattern().numberOfValidPixelHits();
+                           trackerLayers1 = mu1->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+                        }
+                        if ( mu2->innerTrack().isNonnull() ){
+                           pixelHits2     = mu2->innerTrack()->hitPattern().numberOfValidPixelHits();
+                           trackerLayers2 = mu2->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+                        }
+                        if ( mu1->muonBestTrack().isNonnull() ){
+                           relativeError1 = mu1->muonBestTrack()->ptError()/mu1->muonBestTrack()->pt();
+                           dBCut1         = fabs(mu1->muonBestTrack()->dxy(vertex.position()));
+                           longiCut1      = fabs(mu1->muonBestTrack()->dz( vertex.position()));
+                        }
+                        if ( mu2->muonBestTrack().isNonnull() ){
+                           relativeError2 = mu2->muonBestTrack()->ptError()/mu2->muonBestTrack()->pt();
+                           dBCut2         = fabs(mu2->muonBestTrack()->dxy(vertex.position()));
+                           longiCut2      = fabs(mu2->muonBestTrack()->dz( vertex.position()));
+                        }
                         // relative mini-isolation
                         miniIso1         = mu1->userFloat("miniIso");
                         miniIso2         = mu2->userFloat("miniIso");

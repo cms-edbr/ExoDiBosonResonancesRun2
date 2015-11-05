@@ -108,7 +108,7 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         bool  isoID             = miniIso<9999. ? true : false;
         bool  heepV60           = (*heepV60_handle)[elPtr].cutFlowPassed(); 
         bool  heepV60_noiso     = (*heepV60_handle)[elPtr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
-        if ( !(heepV60_noiso and isoID) ) continue;
+        if ( filter_ and !(heepV60_noiso and isoID) ) continue;
         pat::Electron* cloneEl = el.clone();
         cloneEl->addUserInt("slimmedIndex",  i             ); // index to localize the goodElectron in the slimmedElectrons
         cloneEl->addUserInt("heepV60",       heepV60       );
@@ -124,8 +124,8 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
         bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         bool tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
-        if ( !tracker_OR_highPt_AND_miniIso ) continue;
-        if ( goodMuons->size()==1 ) {
+        if ( filter_ and !tracker_OR_highPt_AND_miniIso ) continue;
+        if ( filter_ and goodMuons->size()==1 ) {
             bool highPt_AND_tracker = muon::isHighPtMuon( (*goodMuons)[0], vertex) and trackerID; 
             bool tracker_AND_highPt = hptm::isTrackerMuon((*goodMuons)[0], vertex) and highPtID; 
             if ( !(highPt_AND_tracker or tracker_AND_highPt) ) continue; 
