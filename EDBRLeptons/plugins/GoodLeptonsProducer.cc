@@ -105,7 +105,7 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const Ptr<pat::Electron> elPtr(electrons, i);
         const pat::Electron& el = (*electrons)[i];
         float miniIso           = (*elIsoMap)[elPtr]; 
-        bool  isoID             = miniIso<0.1 ? true : false;
+        bool  isoID             = miniIso<9999. ? true : false;
         bool  heepV60           = (*heepV60_handle)[elPtr].cutFlowPassed(); 
         bool  heepV60_noiso     = (*heepV60_handle)[elPtr].getCutFlowResultMasking(maskCuts).cutFlowPassed();
         if ( !(heepV60_noiso and isoID) ) continue;
@@ -120,7 +120,7 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const Ptr<pat::Muon> muPtr(muons, i);
         const pat::Muon& mu    = (*muons)[i];
         float miniIso          = (*muIsoMap)[muPtr]; 
-        bool  isoID            = miniIso<0.2 ? true : false;
+        bool  isoID            = miniIso<9999. ? true : false;
         bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
         bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         bool tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
