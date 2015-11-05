@@ -17,7 +17,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "ExoDiBosonResonances/EDBRLeptons/interface/TrackerMuonSelector.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -496,10 +496,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         double absiso2   =  pfIso2.sumChargedHadronPt + std::max(0.0,  pfIso2.sumNeutralHadronEt +  pfIso2.sumPhotonEt -  0.5*pfIso2.sumPUPt );
                         relIso1          = absiso1/mu1->pt();
                         relIso2          = absiso2/mu2->pt();
-                        trackerMu1       = mu1->userInt("isTracker");
-                        trackerMu2       = mu2->userInt("isTracker");
-                        highPtMu1        = mu1->userInt("isHighPt");
-                        highPtMu2        = mu2->userInt("isHighPt");
+                        trackerMu1       = (int)hptm::isTrackerMuon(*mu1, vertex);
+                        trackerMu2       = (int)hptm::isTrackerMuon(*mu2, vertex);
+                        highPtMu1        = (int)muon::isHighPtMuon( *mu1, vertex);
+                        highPtMu2        = (int)muon::isHighPtMuon( *mu2, vertex);
                         isGlobalMu1      = mu1->isGlobalMuon();
                         isGlobalMu2      = mu2->isGlobalMuon();
                         isTrackerMu1     = mu1->isTrackerMuon();

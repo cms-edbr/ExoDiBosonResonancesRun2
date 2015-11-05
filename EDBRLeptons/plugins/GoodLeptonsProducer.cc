@@ -121,7 +121,7 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const pat::Muon& mu    = (*muons)[i];
         float miniIso          = (*muIsoMap)[muPtr]; 
         bool  isoID            = miniIso<9999. ? true : false;
-        bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
+        bool  trackerID        = mu.isTrackerMuon() || mu.isGlobalMuon();  
         bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         bool tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
         if ( filter_ and !tracker_OR_highPt_AND_miniIso ) continue;
@@ -132,8 +132,6 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
         pat::Muon* cloneMu = mu.clone();
         cloneMu->addUserInt("slimmedIndex", i         );
-        cloneMu->addUserInt("isTracker",    trackerID );
-        cloneMu->addUserInt("isHighPt",     highPtID  );
         cloneMu->addUserFloat("miniIso",    miniIso   );
         goodMuons->push_back(               *cloneMu  );
     }
