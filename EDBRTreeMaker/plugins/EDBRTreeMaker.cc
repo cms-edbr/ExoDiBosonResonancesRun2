@@ -141,6 +141,7 @@ private:
   // Muon ID 
   int    highPtMu1,        highPtMu2;
   int    trackerMu1,       trackerMu2;
+  int    isPFMu1,          isPFMu2;
   int    isGlobalMu1,      isGlobalMu2;
   int    isTrackerMu1,     isTrackerMu2;
   int    matchedStations1, matchedStations2;
@@ -235,6 +236,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("trackerMu2"       ,&trackerMu2       ,"trackerMu2/I"      );
   outTree_->Branch("highPtMu1"        ,&highPtMu1        ,"highPtMu1/I"       );
   outTree_->Branch("highPtMu2"        ,&highPtMu2        ,"highPtMu2/I"       );
+  outTree_->Branch("isPFMu1"          ,&isPFMu1          ,"isPFMu1/I"         );
   outTree_->Branch("isGlobalMu1"      ,&isGlobalMu1      ,"isGlobalMu1/I"     );
   outTree_->Branch("isGlobalMu2"      ,&isGlobalMu2      ,"isGlobalMu2/I"     );
   outTree_->Branch("isTrackerMu1"     ,&isTrackerMu1     ,"isTrackerMu1/I"    );
@@ -500,6 +502,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         trackerMu2       = (int)hptm::isTrackerMuon(*mu2, vertex);
                         highPtMu1        = (int)muon::isHighPtMuon( *mu1, vertex);
                         highPtMu2        = (int)muon::isHighPtMuon( *mu2, vertex);
+                        isPFMu1          = mu1->isPFMuon();
+                        isPFMu2          = mu2->isPFMuon();
                         isGlobalMu1      = mu1->isGlobalMuon();
                         isGlobalMu2      = mu2->isGlobalMuon();
                         isTrackerMu1     = mu1->isTrackerMuon();
@@ -858,6 +862,8 @@ void EDBRTreeMaker::setDummyValues() {
      trackerMu2       = -1e4;
      highPtMu1        = -1e4;
      highPtMu2        = -1e4;
+     isPFMu1          = -1e4;
+     isPFMu2          = -1e4;
      isGlobalMu1      = -1e4;
      isGlobalMu2      = -1e4;
      isTrackerMu1     = -1e4;

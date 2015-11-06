@@ -121,19 +121,19 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const pat::Muon& mu    = (*muons)[i];
         float miniIso          = (*muIsoMap)[muPtr]; 
         bool  isoID            = miniIso<9999. ? true : false;
-        bool  trackerID        = mu.isTrackerMuon() or mu.isGlobalMuon();  
+        bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
         bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         bool tracker_OR_highPt_AND_miniIso = (trackerID or highPtID) and isoID;
         if ( filter_ and !tracker_OR_highPt_AND_miniIso ) continue;
         if ( filter_ and goodMuons->size()==1 ) {
-            const pat::Muon& mu0 = (*goodMuons)[0];
-            bool  trackerIDmu0   = mu0.isTrackerMuon() or mu0.isGlobalMuon();  
-            bool highPt_AND_tracker = muon::isHighPtMuon( mu0, vertex) and trackerID; 
-            bool tracker_AND_highPt = trackerIDmu0 and highPtID; 
+            bool highPt_AND_tracker = muon::isHighPtMuon( (*goodMuons)[0], vertex) and trackerID; 
+            bool tracker_AND_highPt = hptm::isTrackerMuon((*goodMuons)[0], vertex) and highPtID; 
             if ( !(highPt_AND_tracker or tracker_AND_highPt) ) continue; 
         }
         pat::Muon* cloneMu = mu.clone();
         cloneMu->addUserInt("slimmedIndex", i         );
+        cloneMu->addUserInt("isTracker",    trackerID );
+        cloneMu->addUserInt("isHighPt",     highPtID  );
         cloneMu->addUserFloat("miniIso",    miniIso   );
         goodMuons->push_back(               *cloneMu  );
     }

@@ -30,7 +30,7 @@ process.hltFilter.triggerConditions =  ( usedHLT, )
 
 SAMPLE = str(sys.argv[2])
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.Spring15MiniAODv2."+SAMPLE)
-process.maxEvents.input = -1
+process.maxEvents.input = -1 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -179,9 +179,14 @@ filterMode = True
 if filterMode == False:
     process.hltFilter.triggerConditions = ('*',)
     process.goodLeptons.filter = False
-    process.goodElectrons.cut = ""
-    process.goodMuons.cut = ""
-    process.leptonicVSelector.cut = '70. < mass < 110.'
+    process.goodElectrons.src = 'slimmedElectrons'
+    process.goodElectrons.cut = ''
+    process.goodMuons.src = 'slimmedMuons'
+    process.goodMuons.cut = ''
+    process.leptonicVSelector.cut = ''
+    process.goodJets.filter = False
+    process.corrJetsProducer.jets = 'slimmedJetsAK8'
+    process.hadronicV.cut = ''
     process.graviton.cut = ''
 
 #****************************************************************************************************#
