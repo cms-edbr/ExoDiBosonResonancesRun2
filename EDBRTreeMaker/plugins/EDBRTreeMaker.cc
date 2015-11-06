@@ -119,7 +119,7 @@ private:
   double dEtaIn1,        dEtaIn2;
   double dPhiIn1,        dPhiIn2;
   double hOverE1,        hOverE2;
-  double relIso1,        relIso2;
+  double relIsoR03_1,    relIsoR03_2;
   double caloIso1,       caloIso2;
   double ooEmooP1,       ooEmooP2;
   double trackIso1,      trackIso2;
@@ -286,8 +286,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("d02"              ,&d02              ,"d02/D"             );
   outTree_->Branch("dz1"              ,&dz1              ,"dz1/D"             );
   outTree_->Branch("dz2"              ,&dz2              ,"dz2/D"             );
-  outTree_->Branch("relIso1"          ,&relIso1          ,"relIso1/D"         );
-  outTree_->Branch("relIso2"          ,&relIso2          ,"relIso2/D"         );
+  outTree_->Branch("relIsoR03_1"      ,&relIsoR03_1      ,"relIsoR03_1/D"     );
+  outTree_->Branch("relIsoR03_2"      ,&relIsoR03_2      ,"relIsoR03_2/D"     );
   outTree_->Branch("caloIso1"         ,&caloIso1         ,"caloIso1/D"        );
   outTree_->Branch("caloIso2"         ,&caloIso2         ,"caloIso2/D"        );
   outTree_->Branch("trackIso1"        ,&trackIso1        ,"trackIso1/D"       );
@@ -496,8 +496,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         // isolation wi  th delta beta correction
                         double absiso1   =  pfIso1.sumChargedHadronPt + std::max(0.0,  pfIso1.sumNeutralHadronEt +  pfIso1.sumPhotonEt -  0.5*pfIso1.sumPUPt );
                         double absiso2   =  pfIso2.sumChargedHadronPt + std::max(0.0,  pfIso2.sumNeutralHadronEt +  pfIso2.sumPhotonEt -  0.5*pfIso2.sumPUPt );
-                        relIso1          = absiso1/mu1->pt();
-                        relIso2          = absiso2/mu2->pt();
+                        relIsoR03_1      = absiso1/mu1->pt();
+                        relIsoR03_2      = absiso2/mu2->pt();
                         trackerMu1       = (int)hptm::isTrackerMuon(*mu1, vertex);
                         trackerMu2       = (int)hptm::isTrackerMuon(*mu2, vertex);
                         highPtMu1        = (int)muon::isHighPtMuon( *mu1, vertex);
@@ -571,8 +571,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         double     eA2 = effectiveAreas.getEffectiveArea( etaSC2 );
                         double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
                         double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
-                        relIso1        = absiso1/el1->pt();
-                        relIso2        = absiso2/el2->pt();
+                        relIsoR03_1    = absiso1/el1->pt();
+                        relIsoR03_2    = absiso2/el2->pt();
                         caloIso1       = el1->dr03EcalRecHitSumEt() + el1->dr03HcalDepth1TowerSumEt();
                         caloIso2       = el2->dr03EcalRecHitSumEt() + el2->dr03HcalDepth1TowerSumEt();
                         trackIso1      = el1->dr03TkSumPt();
@@ -830,7 +830,7 @@ void EDBRTreeMaker::setDummyValues() {
      ooEmooP1         = -1e4;
      d01              = -1e4;
      dz1              = -1e4;
-     relIso1          = -1e4;
+     relIsoR03_1      = -1e4;
      caloIso1         = -1e4;
      trackIso1        = -1e4;
      ecalDriven1      = -1e4;
@@ -850,7 +850,7 @@ void EDBRTreeMaker::setDummyValues() {
      ooEmooP2         = -1e4;
      d02              = -1e4;
      dz2              = -1e4;
-     relIso2          = -1e4;
+     relIsoR03_2      = -1e4;
      caloIso2         = -1e4;
      trackIso2        = -1e4;
      ecalDriven2      = -1e4;
