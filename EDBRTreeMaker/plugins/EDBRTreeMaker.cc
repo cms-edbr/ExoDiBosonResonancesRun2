@@ -549,10 +549,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    //*****************************************************************//
                    else if ( leptonicV.daughter(0)->isElectron() && 
                              leptonicV.daughter(1)->isElectron()    ) {
-                        int lead = leptonicV.daughter(0)->pt() > leptonicV.daughter(1)->pt() ? 0 : 1; 
-                        int subl = leptonicV.daughter(0)->pt() < leptonicV.daughter(1)->pt() ? 0 : 1; 
-                        const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(lead);
-                        const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(subl);
+                        int temp = leptonicV.daughter(0)->pt() > leptonicV.daughter(1)->pt() ? 0 : 1; 
+                        const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(      temp);
+                        const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter((int)!temp);
                         const Ptr<pat::Electron> el1Ptr(electrons, el1->userInt("slimmedIndex") );
                         const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
                         iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaR"),   deltaR_handle);
