@@ -8,6 +8,7 @@ config.section_('JobType')
 config.JobType.psetName = 'analysis-SingleElectron.py'
 config.JobType.pluginName = 'Analysis'
 config.JobType.outputFiles = ['treeEDBR_SingleElectron.root']
+config.JobType.inputFiles = ['../../../data/Summer15_25nsV6_DATA.db']
 config.JobType.maxJobRuntimeMin = 180
 
 config.section_('Data')

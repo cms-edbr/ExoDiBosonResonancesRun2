@@ -88,10 +88,10 @@ private:
   int    nmultjet1, cmultjet1;     // neutral and charged multiplicity
 
   //-------------------- LEPTONS -----------------------------------------------------
-  double ptlep1,   ptlep2;
-  double etalep1,  etalep2;
-  double philep1,  philep2;
-  double miniIso1, miniIso2;
+  double ptlep1,    ptlep2;
+  double etalep1,   etalep2;
+  double philep1,   philep2;
+  double miniIso1,  miniIso2;
 
   //--------------------DELTAS ------------------------------------------------------- 
   double deltaRleplep, deltaRlepjet, delPhilepmet, delPhijetmet, deltaphijetmet;
@@ -111,31 +111,30 @@ private:
   double deltaPtlep2Obj;
 
   // Electron ID 
-  double d01,            d02;
-  double dz1,            dz2;
-  double etel1,          etel2;
-  double ptel1,          ptel2;
-  double etaSC1,         etaSC2;
-  double dEtaIn1,        dEtaIn2;
-  double dPhiIn1,        dPhiIn2;
-  double hOverE1,        hOverE2;
-  double relIso1,        relIso2;
-  double caloIso1,       caloIso2;
-  double ooEmooP1,       ooEmooP2;
-  double trackIso1,      trackIso2;
-  double dEtaSeed1,      dEtaSeed2; 
-  double sigmaIEtaIEta1, sigmaIEtaIEta2;
-  double e1x5overE5x5_1, e1x5overE5x5_2;
-  double e2x5overE5x5_1, e2x5overE5x5_2;
+  double d01,              d02;
+  double dz1,              dz2;
+  double etel1,            etel2;
+  double ptel1,            ptel2;
+  double etaSC1,           etaSC2;
+  double dEtaIn1,          dEtaIn2;
+  double dPhiIn1,          dPhiIn2;
+  double hOverE1,          hOverE2;
+  double caloIso1,         caloIso2;
+  double ooEmooP1,         ooEmooP2;
+  double trackIso1,        trackIso2;
+  double dEtaSeed1,        dEtaSeed2; 
+  double sigmaIEtaIEta1,   sigmaIEtaIEta2;
+  double e1x5overE5x5_1,   e1x5overE5x5_2;
+  double e2x5overE5x5_1,   e2x5overE5x5_2;
   double rho; // energy density
   double eeDeltaR;
-  int    barrel1,        barrel2;
-  int    endcap1,        endcap2;
-  int    heepV601,       heepV602;
-  int    modheep1,       modheep2;
-  int    ecalDriven1,    ecalDriven2;
-  int    missingHits1,   missingHits2;
-  int    passConVeto1,   passConVeto2;
+  int    barrel1,          barrel2;
+  int    endcap1,          endcap2;
+  int    heepV601,         heepV602;
+  int    modheep1,         modheep2;
+  int    ecalDriven1,      ecalDriven2;
+  int    missingHits1,     missingHits2;
+  int    passConVeto1,     passConVeto2;
   EffectiveAreas effectiveAreas;
 
   // Muon ID 
@@ -150,6 +149,8 @@ private:
   double relativeError1,   relativeError2;
   double dBCut1,           dBCut2;
   double longiCut1,        longiCut2;
+  double relIsoR03_1,      relIsoR03_2;
+  double relIsoR04_1,      relIsoR04_2;
 
   void setDummyValues();
 
@@ -253,6 +254,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("dBCut2"           ,&dBCut2           ,"dBCut2/D"          );
   outTree_->Branch("longiCut1"        ,&longiCut1        ,"longiCut1/D"       );
   outTree_->Branch("longiCut2"        ,&longiCut2        ,"longiCut2/D"       );
+  outTree_->Branch("relIsoR03_1"      ,&relIsoR03_1      ,"relIsoR03_1/D"     );
+  outTree_->Branch("relIsoR03_2"      ,&relIsoR03_2      ,"relIsoR03_2/D"     );
+  outTree_->Branch("relIsoR04_1"      ,&relIsoR04_1      ,"relIsoR04_1/D"     );
+  outTree_->Branch("relIsoR04_2"      ,&relIsoR04_2      ,"relIsoR04_2/D"     );
 
   // Electron ID quantities
   outTree_->Branch("barrel1"          ,&barrel1          ,"barrel1/I"         );
@@ -286,8 +291,6 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("d02"              ,&d02              ,"d02/D"             );
   outTree_->Branch("dz1"              ,&dz1              ,"dz1/D"             );
   outTree_->Branch("dz2"              ,&dz2              ,"dz2/D"             );
-  outTree_->Branch("relIso1"          ,&relIso1          ,"relIso1/D"         );
-  outTree_->Branch("relIso2"          ,&relIso2          ,"relIso2/D"         );
   outTree_->Branch("caloIso1"         ,&caloIso1         ,"caloIso1/D"        );
   outTree_->Branch("caloIso2"         ,&caloIso2         ,"caloIso2/D"        );
   outTree_->Branch("trackIso1"        ,&trackIso1        ,"trackIso1/D"       );
@@ -425,13 +428,16 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    phiVlep        = leptonicV.phi();
                    massVlep       = leptonicV.mass();
                    mtVlep         = leptonicV.mt();
-                   ptlep1         = leptonicV.daughter(0)->pt();
-                   ptlep2         = leptonicV.daughter(1)->pt();
-                   etalep1        = leptonicV.daughter(0)->eta();
-                   etalep2        = leptonicV.daughter(1)->eta();
-                   philep1        = leptonicV.daughter(0)->phi();
-                   philep2        = leptonicV.daughter(1)->phi();
-                   lep        = abs(leptonicV.daughter(0)->pdgId());
+                   int leading    = leptonicV.daughter(0)->pt() > leptonicV.daughter(1)->pt() ? 0 : 1; 
+                   const reco::Candidate *lepton1 = leptonicV.daughter(      leading);
+                   const reco::Candidate *lepton2 = leptonicV.daughter((int)!leading);
+                   ptlep1         = lepton1->pt();
+                   ptlep2         = lepton2->pt();
+                   etalep1        = lepton1->eta();
+                   etalep2        = lepton2->eta();
+                   philep1        = lepton1->phi();
+                   philep2        = lepton2->phi();
+                   lep        = abs(lepton1->pdgId());
                    // hadrons
                    ptVhad         = hadronicV.pt();
                    yVhad          = hadronicV.eta();
@@ -478,8 +484,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    //*****************************************************************//
                    if ( leptonicV.daughter(0)->isMuon() && 
                         leptonicV.daughter(1)->isMuon()    ) {
-                        const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
-                        const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
+                        int temp = leptonicV.daughter(0)->pt() > leptonicV.daughter(1)->pt() ? 0 : 1; 
+                        const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(      temp);
+                        const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter((int)!temp);
                         const Ptr<pat::Muon> mu1Ptr(muons, mu1->userInt("slimmedIndex") );
                         const Ptr<pat::Muon> mu2Ptr(muons, mu2->userInt("slimmedIndex") );
                         iEvent.getByLabel(InputTag("hltMatchingMuons","deltaR"),   deltaR_handle);
@@ -491,13 +498,19 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         deltaPtlep2Obj   =      (*deltaPt_handle)[mu2Ptr];
                         matchHlt1        = (int)(*matchHlt_handle)[mu1Ptr]; 
                         matchHlt2        = (int)(*matchHlt_handle)[mu2Ptr]; 
-                        reco::MuonPFIsolation pfIso1  = mu1->pfIsolationR03();
-                        reco::MuonPFIsolation pfIso2  = mu2->pfIsolationR03();
+                        reco::MuonPFIsolation pfIsoR03_1 = mu1->pfIsolationR03();
+                        reco::MuonPFIsolation pfIsoR03_2 = mu2->pfIsolationR03();
+                        reco::MuonPFIsolation pfIsoR04_1 = mu1->pfIsolationR04();
+                        reco::MuonPFIsolation pfIsoR04_2 = mu2->pfIsolationR04();
                         // isolation wi  th delta beta correction
-                        double absiso1   =  pfIso1.sumChargedHadronPt + std::max(0.0,  pfIso1.sumNeutralHadronEt +  pfIso1.sumPhotonEt -  0.5*pfIso1.sumPUPt );
-                        double absiso2   =  pfIso2.sumChargedHadronPt + std::max(0.0,  pfIso2.sumNeutralHadronEt +  pfIso2.sumPhotonEt -  0.5*pfIso2.sumPUPt );
-                        relIso1          = absiso1/mu1->pt();
-                        relIso2          = absiso2/mu2->pt();
+                        double absisoR03_1 = pfIsoR03_1.sumChargedHadronPt + std::max(0.0,  pfIsoR03_1.sumNeutralHadronEt + pfIsoR03_1.sumPhotonEt - 0.5*pfIsoR03_1.sumPUPt );
+                        double absisoR03_2 = pfIsoR03_2.sumChargedHadronPt + std::max(0.0,  pfIsoR03_2.sumNeutralHadronEt + pfIsoR03_2.sumPhotonEt - 0.5*pfIsoR03_2.sumPUPt );
+                        double absisoR04_1 = pfIsoR04_1.sumChargedHadronPt + std::max(0.0,  pfIsoR04_1.sumNeutralHadronEt + pfIsoR04_1.sumPhotonEt - 0.5*pfIsoR04_1.sumPUPt );
+                        double absisoR04_2 = pfIsoR04_2.sumChargedHadronPt + std::max(0.0,  pfIsoR04_2.sumNeutralHadronEt + pfIsoR04_2.sumPhotonEt - 0.5*pfIsoR04_2.sumPUPt );
+                        relIsoR03_1      = absisoR03_1/mu1->pt();
+                        relIsoR03_2      = absisoR03_2/mu2->pt();
+                        relIsoR04_1      = absisoR04_1/mu1->pt();
+                        relIsoR04_2      = absisoR04_2/mu2->pt();
                         trackerMu1       = (int)hptm::isTrackerMuon(*mu1, vertex);
                         trackerMu2       = (int)hptm::isTrackerMuon(*mu2, vertex);
                         highPtMu1        = (int)muon::isHighPtMuon( *mu1, vertex);
@@ -540,8 +553,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    //*****************************************************************//
                    else if ( leptonicV.daughter(0)->isElectron() && 
                              leptonicV.daughter(1)->isElectron()    ) {
-                        const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
-                        const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+                        int temp = leptonicV.daughter(0)->pt() > leptonicV.daughter(1)->pt() ? 0 : 1; 
+                        const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(      temp);
+                        const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter((int)!temp);
                         const Ptr<pat::Electron> el1Ptr(electrons, el1->userInt("slimmedIndex") );
                         const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
                         iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaR"),   deltaR_handle);
@@ -571,8 +585,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         double     eA2 = effectiveAreas.getEffectiveArea( etaSC2 );
                         double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
                         double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
-                        relIso1        = absiso1/el1->pt();
-                        relIso2        = absiso2/el2->pt();
+                        relIsoR03_1    = absiso1/el1->pt();
+                        relIsoR03_2    = absiso2/el2->pt();
                         caloIso1       = el1->dr03EcalRecHitSumEt() + el1->dr03HcalDepth1TowerSumEt();
                         caloIso2       = el2->dr03EcalRecHitSumEt() + el2->dr03HcalDepth1TowerSumEt();
                         trackIso1      = el1->dr03TkSumPt();
@@ -830,7 +844,6 @@ void EDBRTreeMaker::setDummyValues() {
      ooEmooP1         = -1e4;
      d01              = -1e4;
      dz1              = -1e4;
-     relIso1          = -1e4;
      caloIso1         = -1e4;
      trackIso1        = -1e4;
      ecalDriven1      = -1e4;
@@ -850,7 +863,6 @@ void EDBRTreeMaker::setDummyValues() {
      ooEmooP2         = -1e4;
      d02              = -1e4;
      dz2              = -1e4;
-     relIso2          = -1e4;
      caloIso2         = -1e4;
      trackIso2        = -1e4;
      ecalDriven2      = -1e4;
@@ -880,6 +892,10 @@ void EDBRTreeMaker::setDummyValues() {
      dBCut2           = -1e4;
      longiCut1        = -1e4;
      longiCut2        = -1e4;
+     relIsoR03_1      = -1e4;
+     relIsoR03_2      = -1e4;
+     relIsoR04_1      = -1e4;
+     relIsoR04_2      = -1e4;
 }
 
 void EDBRTreeMaker::beginJob(){ 

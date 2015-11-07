@@ -30,7 +30,7 @@ process.hltFilter.triggerConditions =  ( usedHLT, )
 
 SAMPLE = str(sys.argv[2])
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.Spring15MiniAODv2."+SAMPLE)
-process.maxEvents.input = -1 
+process.maxEvents.input = -1
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
@@ -86,7 +86,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay = cms.string("bestLeptonicV bestHadronicV"),
                                           checkCharge = cms.bool(False),
-                                          cut = cms.string("mass > 600."),
+                                          cut = cms.string("mass > 400."),
                                           roles = cms.vstring('leptonicV', 'hadronicV') )
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
