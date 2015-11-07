@@ -13,12 +13,10 @@ process.GlobalTag.globaltag = '74X_dataRun2_reMiniAOD_v0'
 # Use private JECs
 usePrivateSQlite = True 
 if usePrivateSQlite:
-    import os
-    dataBasePath = os.path.expandvars("../../../data/Summer15_25nsV6_DATA.db")
     from CondCore.DBCommon.CondDBSetup_cfi import *
     process.jec = cms.ESSource("PoolDBESSource",
         CondDBSetup,
-        connect = cms.string("sqlite:"+dataBasePath),
+        connect = cms.string("sqlite_file:Summer15_25nsV6_DATA.db"),
         toGet =  cms.VPSet(
             cms.PSet(
                 record = cms.string("JetCorrectionsRecord"),
