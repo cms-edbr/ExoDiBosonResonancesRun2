@@ -428,13 +428,16 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    phiVlep        = leptonicV.phi();
                    massVlep       = leptonicV.mass();
                    mtVlep         = leptonicV.mt();
-                   ptlep1         = leptonicV.daughter(0)->pt();
-                   ptlep2         = leptonicV.daughter(1)->pt();
-                   etalep1        = leptonicV.daughter(0)->eta();
-                   etalep2        = leptonicV.daughter(1)->eta();
-                   philep1        = leptonicV.daughter(0)->phi();
-                   philep2        = leptonicV.daughter(1)->phi();
-                   lep        = abs(leptonicV.daughter(0)->pdgId());
+                   int leading    = leptonicV.daughter(0)->pt() > leptonicV.daughter(1)->pt() ? 0 : 1; 
+                   const reco::Candidate *lepton1 = leptonicV.daughter(      leading);
+                   const reco::Candidate *lepton2 = leptonicV.daughter((int)!leading);
+                   ptlep1         = lepton1->pt();
+                   ptlep2         = lepton2->pt();
+                   etalep1        = lepton1->eta();
+                   etalep2        = lepton2->eta();
+                   philep1        = lepton1->phi();
+                   philep2        = lepton2->phi();
+                   lep        = abs(lepton1->pdgId());
                    // hadrons
                    ptVhad         = hadronicV.pt();
                    yVhad          = hadronicV.eta();
@@ -481,8 +484,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    //*****************************************************************//
                    if ( leptonicV.daughter(0)->isMuon() && 
                         leptonicV.daughter(1)->isMuon()    ) {
-                        const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
-                        const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
+                        int temp = leptonicV.daughter(0)->pt() > leptonicV.daughter(1)->pt() ? 0 : 1; 
+                        const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(      temp);
+                        const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter((int)!temp);
                         const Ptr<pat::Muon> mu1Ptr(muons, mu1->userInt("slimmedIndex") );
                         const Ptr<pat::Muon> mu2Ptr(muons, mu2->userInt("slimmedIndex") );
                         iEvent.getByLabel(InputTag("hltMatchingMuons","deltaR"),   deltaR_handle);
