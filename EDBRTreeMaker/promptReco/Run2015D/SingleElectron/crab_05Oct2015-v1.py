@@ -2,7 +2,7 @@ from WMCore.Configuration import Configuration
     
 config = Configuration()
 config.section_('General')
-config.General.transferOutputs = True 
+config.General.transferOutputs = True
 
 config.section_('JobType')
 config.JobType.psetName = 'analysis-SingleElectron.py'
