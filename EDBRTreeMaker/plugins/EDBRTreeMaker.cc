@@ -363,6 +363,17 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    nevent  = iEvent.eventAuxiliary().event();
    run     = iEvent.eventAuxiliary().run();
    lumisec = iEvent.eventAuxiliary().luminosityBlock();
+                   
+   // ------ analize trigger results ----------//
+   Handle<bool> elHlt_handle;
+   Handle<bool> muHlt_handle;
+   Handle<ValueMap<bool> > matchHlt_handle;
+   Handle<ValueMap<float> > deltaPt_handle;
+   Handle<ValueMap<float> >  deltaR_handle;
+   iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elHlt_handle);
+   iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), muHlt_handle);
+   elhltbit = (int)(*elHlt_handle);
+   muhltbit = (int)(*muHlt_handle);
 
    setDummyValues(); //Initalize variables with dummy values
 
@@ -407,17 +418,6 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            //we put the definitions inside the channel
            switch(channel){
                case VZ_CHANNEL:{
-                   // ------ analize trigger results ----------//
-                   Handle<bool> elHlt_handle;
-                   Handle<bool> muHlt_handle;
-                   Handle<ValueMap<bool> > matchHlt_handle;
-                   Handle<ValueMap<float> > deltaPt_handle;
-                   Handle<ValueMap<float> >  deltaR_handle;
-                   iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elHlt_handle);
-                   iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), muHlt_handle);
-                   elhltbit = (int)(*elHlt_handle);
-                   muhltbit = (int)(*muHlt_handle);
-
                    //**************DEFINITIONS *********************************** 
                    const reco::Candidate& leptonicV = (*graviton.daughter("leptonicV"));
                    // candidate
