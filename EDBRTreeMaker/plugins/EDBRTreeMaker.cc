@@ -238,6 +238,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("highPtMu1"        ,&highPtMu1        ,"highPtMu1/I"       );
   outTree_->Branch("highPtMu2"        ,&highPtMu2        ,"highPtMu2/I"       );
   outTree_->Branch("isPFMu1"          ,&isPFMu1          ,"isPFMu1/I"         );
+  outTree_->Branch("isPFMu2"          ,&isPFMu2          ,"isPFMu2/I"         );
   outTree_->Branch("isGlobalMu1"      ,&isGlobalMu1      ,"isGlobalMu1/I"     );
   outTree_->Branch("isGlobalMu2"      ,&isGlobalMu2      ,"isGlobalMu2/I"     );
   outTree_->Branch("isTrackerMu1"     ,&isTrackerMu1     ,"isTrackerMu1/I"    );
