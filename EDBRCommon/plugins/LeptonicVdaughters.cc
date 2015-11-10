@@ -56,22 +56,25 @@ LeptonicVdaughters::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     Handle<reco::CandidateCollection>  leptonicV_handle;
     iEvent.getByToken(collectionToken, leptonicV_handle);
 
-    const reco::Candidate& leptonicV = (*leptonicV_handle)[0];
-
-    if ( leptonicV.daughter(0)->isMuon() && 
-         leptonicV.daughter(1)->isMuon()    ) {
-         const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
-         const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
-         Muons->push_back( *mu1 );
-         Muons->push_back( *mu2 );
-    }
-
-    if ( leptonicV.daughter(0)->isElectron() && 
-         leptonicV.daughter(1)->isElectron()    ) {
-         const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
-         const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
-         Electrons->push_back( *el1 );
-         Electrons->push_back( *el2 );
+    /// PROTECTION, because this vector could in principle be empty.
+    if(leptonicV_handle->size() > 0) {
+	const reco::Candidate& leptonicV = (*leptonicV_handle)[0];
+	
+	if ( leptonicV.daughter(0)->isMuon() && 
+	     leptonicV.daughter(1)->isMuon()    ) {
+	    const pat::Muon *mu1 = (pat::Muon*)leptonicV.daughter(0);
+	    const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter(1);
+	    Muons->push_back( *mu1 );
+	    Muons->push_back( *mu2 );
+	}
+	
+	if ( leptonicV.daughter(0)->isElectron() && 
+	     leptonicV.daughter(1)->isElectron()    ) {
+	    const pat::Electron *el1 = (pat::Electron*)leptonicV.daughter(0);
+	    const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter(1);
+	    Electrons->push_back( *el1 );
+	    Electrons->push_back( *el2 );
+	}
     }
 
     iEvent.put(Electrons, "Electrons");
