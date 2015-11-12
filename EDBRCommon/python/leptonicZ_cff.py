@@ -1,12 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 Ztoee = cms.EDProducer(           "CandViewCombiner",
-                                   decay = cms.string("goodElectrons@+ goodElectrons@-"),
-                                   cut = cms.string("") )
+                                   decay = cms.string("isoElectrons@+ isoElectrons@-"),
+                                   cut = cms.string("(daughter(0).pt > 115 || daughter(1).pt > 115)"),
+                                   #checkCharge = cms.bool(False)
+                                  )
 
 Ztomumu = cms.EDProducer(         "CandViewCombiner",
-                                   decay = cms.string("goodMuons@+ goodMuons@-"),
-                                   cut = cms.string("") )
+                                  decay = cms.string("isoMuons@+ isoMuons@-"),
+                                  cut = cms.string("((daughter(0).userInt('isHighPt')==1 || daughter(1).userInt('isHighPt')==1)) && "+
+                                                   "((daughter(0).pt > 50 & abs(daughter(0).eta) < 2.1) || (daughter(1).pt > 50 & abs(daughter(1).eta) < 2.1))"),
+                                  #checkCharge = cms.bool(False)
+                                  )
 
 leptonicV = cms.EDProducer(       "CandViewMerger",
                                    src = cms.VInputTag( "Ztoee", "Ztomumu"),
