@@ -77,12 +77,12 @@ void TrigReportData::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   switch(index){
       case  0: cutFlow->Fill("Begin",1); break;
       case  4: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); break;
-      case 13: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
-      case 14: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
-      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); break;
-      case 20: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); break;
-      case 23: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetMass",1); break;
-      case 24: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetMass",1); cutFlow->Fill("Graviton",1); break;
+      case 17: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); break;
+      case 18: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); break;
+      case 21: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); break;
+      case 24: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); break;
+      case 27: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetMass",1); break;
+      case 28: cutFlow->Fill("Begin",1); cutFlow->Fill("HLT",1); cutFlow->Fill("Vertex",1); cutFlow->Fill("Leptons",1); cutFlow->Fill("Zpeak",1); cutFlow->Fill("JetID",1); cutFlow->Fill("JetMass",1); cutFlow->Fill("Graviton",1); break;
   }
 }
 
