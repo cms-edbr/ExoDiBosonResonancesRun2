@@ -33,17 +33,44 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
                                        muIsoMap   = cms.InputTag("muonsMiniIsolationValueMap:eArea"),
                                        heepV60    = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60"))
 
-goodElectrons = cms.EDFilter("PATElectronSelector",
-                                       src = cms.InputTag("goodLeptons:Electrons"),
-                                       cut = cms.string("pt > 35 & abs(eta) < 2.5"))
+kinElectrons = cms.EDFilter("PATElectronSelector",
+                            src = cms.InputTag("goodLeptons:Electrons"),
+                            cut = cms.string("pt > 35 & abs(eta) < 2.5")
+                            )
 
-goodMuons = cms.EDFilter("PATMuonSelector",
-                                       src = cms.InputTag("goodLeptons:Muons"),
-                                       cut = cms.string("pt > 20 & abs(eta) < 2.4"))
+idElectrons = cms.EDFilter("PATElectronSelector",
+                           src = cms.InputTag("kinElectrons"),
+                           cut = cms.string("userInt('heepV60_noiso') == 1")
+                           )
+
+isoElectrons = cms.EDFilter("PATElectronSelector",
+                            src = cms.InputTag("idElectrons"),
+                            cut = cms.string("userFloat('miniIso') < 0.1")
+                            )
+
+kinMuons = cms.EDFilter("PATMuonSelector",
+                        src = cms.InputTag("goodLeptons:Muons"),
+                        cut = cms.string("pt > 20 & abs(eta) < 2.4")
+                        )
+
+idMuons = cms.EDFilter("PATMuonSelector",
+                       src = cms.InputTag("kinMuons"),
+                       cut = cms.string("userInt('isTracker') == 1 || userInt('isHighPt') == 1")
+                       )
+
+isoMuons = cms.EDFilter("PATMuonSelector",
+                        src = cms.InputTag("idMuons"),
+                        cut = cms.string("userFloat('miniIso') < 0.2")
+                        )
 
 goodLeptonsProducer = cms.Sequence(    goodOfflinePrimaryVertex       +
                                        electronsMiniIsolationValueMap +
                                        muonsMiniIsolationValueMap     +
                                        goodLeptons                    +
-                                       goodElectrons                  +
-                                       goodMuons                      )
+                                       kinElectrons +
+                                       idElectrons +
+                                       isoElectrons +
+                                       kinMuons +
+                                       idMuons + 
+                                       isoMuons
+                                       )

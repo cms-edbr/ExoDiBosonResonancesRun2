@@ -206,10 +206,18 @@ if VZ_JetMET == True :
 
 print "++++++++++ CUTS ++++++++++\n"
 print "HLT = "            + str(process.hltFilter.triggerConditions)
-print "Graviton cut = "   + str(process.graviton.cut)
+print "Kinem. ele cut = " + str(process.kinElectrons.cut)
+print "Ident. ele cut = " + str(process.idElectrons.cut)
+print "Isol.  ele cut = " + str(process.isoElectrons.cut)
+print "Kinem.  mu cut = " + str(process.kinMuons.cut)
+print "Ident.  mu cut = " + str(process.idMuons.cut)
+print "Isol.   mu cut = " + str(process.isoMuons.cut)
+print "Dielectron cut = " + str(process.Ztoee.cut)
+print "Dimuon     cut = " + str(process.Ztomumu.cut)
 print "Leptonic V cut = " + str(process.leptonicVSelector.cut)
 print "Hadronic V cut = " + str(process.hadronicV.cut)
-print "\n++++++++++++++++++++++++++"
+print "Graviton cut = "   + str(process.graviton.cut)
+print "++++++++++++++++++++++++++\n"
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("treeEDBR_"+SAMPLE+".root")
