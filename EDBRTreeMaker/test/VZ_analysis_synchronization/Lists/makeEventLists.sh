@@ -3,7 +3,6 @@
 # Create lists of events passing VZ analysis preselection
 #
 
-root -b -q 'scanTree.C(600, 11)'
 root -b -q 'scanTree.C(800, 11)'
 root -b -q 'scanTree.C(1000, 11)'
 root -b -q 'scanTree.C(1200, 11)'
@@ -17,7 +16,6 @@ root -b -q 'scanTree.C(3500, 11)'
 root -b -q 'scanTree.C(4000, 11)'
 root -b -q 'scanTree.C(4500, 11)'
 
-root -b -q 'scanTree.C(600, 13)'
 root -b -q 'scanTree.C(800, 13)'
 root -b -q 'scanTree.C(1000, 13)'
 root -b -q 'scanTree.C(1200, 13)'
