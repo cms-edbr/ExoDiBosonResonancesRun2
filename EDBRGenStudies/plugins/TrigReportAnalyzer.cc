@@ -114,12 +114,12 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         switch(index){
             case  2: wfMu->Fill("Begin",1); break;
             case  6: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); break;
-            case 15: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); break;
-            case 16: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); break;
-            case 19: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); break;
-            case 22: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); break;
-            case 25: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetMass",1); break;
-            case 26: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetMass",1); wfMu->Fill("Graviton",1); break;
+            case 19: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); break;
+            case 20: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); break;
+            case 23: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); break;
+            case 26: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); break;
+            case 29: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetMass",1); break;
+            case 30: wfMu->Fill("Begin",1); wfMu->Fill("HLT",1); wfMu->Fill("Vertex",1); wfMu->Fill("Leptons",1); wfMu->Fill("Zpeak",1); wfMu->Fill("JetID",1); wfMu->Fill("JetMass",1); wfMu->Fill("Graviton",1); break;
         }
      }
      // cut flow for electrons
@@ -127,12 +127,12 @@ void TrigReportAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         switch(index){
             case  2: wfEl->Fill("Begin",1); break;
             case  6: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); break;
-            case 15: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); break;
-            case 16: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); break;
-            case 19: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); break;
-            case 22: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); break;
-            case 25: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetMass",1); break;
-            case 26: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetMass",1); wfEl->Fill("Graviton",1); break;
+            case 19: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); break;
+            case 20: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); break;
+            case 23: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); break;
+            case 26: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); break;
+            case 29: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetMass",1); break;
+            case 30: wfEl->Fill("Begin",1); wfEl->Fill("HLT",1); wfEl->Fill("Vertex",1); wfEl->Fill("Leptons",1); wfEl->Fill("Zpeak",1); wfEl->Fill("JetID",1); wfEl->Fill("JetMass",1); wfEl->Fill("Graviton",1); break;
         }
      }
    }
