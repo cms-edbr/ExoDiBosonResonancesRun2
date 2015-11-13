@@ -4,14 +4,14 @@
 
 // 2) Generate PU profile in data: 
 
-//    pileupCalc.py -i MYJSON.txt --inputLumiJSON INPUTLUMIJSON.txt --calcMode true --minBiasXsec 80000 --maxPileupBin 52 --numPileupBins 52 MyDataPileupHistogram_true.root
+//    pileupCalc.py -i MYJSON.txt --inputLumiJSON INPUTLUMIJSON.txt --calcMode true --minBiasXsec 69000 --maxPileupBin 52 --numPileupBins 52 MyDataPileupHistogram.root
 
 // 3) root -b -q generatePUWeights.C
 
 R__LOAD_LIBRARY(PUWeight_cxx.so)
 
 void generatePUWeights(){
-   std::string PUProfileData_ = "MyDataPileupHistogram_true.root";
+   std::string PUProfileData_ = "MyDataPileupHistogram.root";
    PUWeight  PUWeight_;
    PUWeight::Scenario sc = PUWeight_.toScenario("PUS25ns");
    PUWeight_.initPUWeights(PUProfileData_,sc);
@@ -22,7 +22,7 @@ void generatePUWeights(){
        pileupWeights->SetBinContent(i, PUWeight_.getPUWeight(i-1));
    }
 
-   TFile *outFile = new TFile("pileupWeights.root", "RECREATE");
+   TFile *outFile = new TFile("pileupWeights69mb.root", "RECREATE");
    outFile->cd();
    pileupWeights->Write();
    outFile->Close();
