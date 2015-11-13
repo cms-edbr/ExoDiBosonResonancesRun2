@@ -754,9 +754,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	   reg = lowerSB;
        if( massVhad > 65.  and  massVhad < 105. )
 	   reg = lowerSIG;
-       if( massVhad > 105. and  massVhad < 145. )
+       if( massVhad > 105. and  massVhad < 135. )
 	   reg = upperSIG;
-       if( massVhad > 145. )
+       if( massVhad > 135. )
 	   reg = upperSB;
    
        outTree_->Fill();
