@@ -60,53 +60,56 @@ void shapeAnalysis(std::string key, Int_t mass)
   TChain treeMCsub("treeDumper/EDBRCandidates");
   TChain treeMC(   "treeDumper/EDBRCandidates");
   std::map<Int_t, std::string> inputFile;
+  std::string lepton_scale;
 
   if( key[0]=='E' ){ 
-      treeData.Add(     "../trees/treeEDBR_SingleElectron.root"                ); 
-      treeMCsub.Add(    "../elTrees/treeEDBR_WZ.root"                          );
-      treeMCsub.Add(    "../elTrees/treeEDBR_ZZ.root"                          );
-      treeMCsub.Add(    "../elTrees/treeEDBR_T_T.root"                         );
-      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-100to200.root"      );
-      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-200to400.root"      );
-      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-400to600.root"      );
-      treeMC.Add(       "../elTrees/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
-      inputFile[600]  = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
-      inputFile[800]  = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
-      inputFile[1000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
-      inputFile[1200] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
-      inputFile[1400] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
-      inputFile[1600] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
-      inputFile[1800] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
-      inputFile[2000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
-      inputFile[2500] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
-      inputFile[3000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
-      inputFile[3500] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
-      inputFile[4000] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
-      inputFile[4500] = "../elTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      treeData.Add(     "../trees/nov3/treeEDBR_SingleElectron.root"                ); 
+      treeMCsub.Add(    "../elTrees/nov3/treeEDBR_WZ.root"                          );
+      treeMCsub.Add(    "../elTrees/nov3/treeEDBR_ZZ.root"                          );
+      treeMCsub.Add(    "../elTrees/nov3/treeEDBR_T_T.root"                         );
+      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-100to200.root"      );
+      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-200to400.root"      );
+      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-400to600.root"      );
+      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
+      inputFile[600]  = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
+      inputFile[800]  = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
+      inputFile[1000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
+      inputFile[1200] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
+      inputFile[1400] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
+      inputFile[1600] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
+      inputFile[1800] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
+      inputFile[2000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
+      inputFile[2500] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
+      inputFile[3000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
+      inputFile[3500] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
+      inputFile[4000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
+      inputFile[4500] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      lepton_scale    = "1.005";
   }
 
   if( key[0]=='M' ){
-      treeData.Add(     "../trees/treeEDBR_SingleMuon.root"                    ); 
-      treeMCsub.Add(    "../muTrees/treeEDBR_WZ.root"                          );
-      treeMCsub.Add(    "../muTrees/treeEDBR_ZZ.root"                          );
-      treeMCsub.Add(    "../muTrees/treeEDBR_T_T.root"                         );
-      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-100to200.root"      );
-      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-200to400.root"      );
-      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-400to600.root"      );
-      treeMC.Add(       "../muTrees/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
-      inputFile[600]  = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
-      inputFile[800]  = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
-      inputFile[1000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
-      inputFile[1200] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
-      inputFile[1400] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
-      inputFile[1600] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
-      inputFile[1800] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
-      inputFile[2000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
-      inputFile[2500] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
-      inputFile[3000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
-      inputFile[3500] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
-      inputFile[4000] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
-      inputFile[4500] = "../muTrees/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      treeData.Add(     "../trees/nov3/treeEDBR_SingleMuon.root"                    ); 
+      treeMCsub.Add(    "../muTrees/nov3/treeEDBR_WZ.root"                          );
+      treeMCsub.Add(    "../muTrees/nov3/treeEDBR_ZZ.root"                          );
+      treeMCsub.Add(    "../muTrees/nov3/treeEDBR_T_T.root"                         );
+      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-100to200.root"      );
+      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-200to400.root"      );
+      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-400to600.root"      );
+      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
+      inputFile[600]  = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
+      inputFile[800]  = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
+      inputFile[1000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
+      inputFile[1200] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
+      inputFile[1400] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
+      inputFile[1600] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
+      inputFile[1800] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
+      inputFile[2000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
+      inputFile[2500] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
+      inputFile[3000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
+      inputFile[3500] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
+      inputFile[4000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
+      inputFile[4500] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      lepton_scale    = "1.03";
   }
 
   //*******************************************************//
@@ -285,8 +288,8 @@ void shapeAnalysis(std::string key, Int_t mass)
 
   // selection efficiency
   Double_t sel_eff = (Double_t)dsSig.numEntries()/nEvents[mass];
-  Double_t sig_xs_fb = 1.;         // signal cross section in fb
-  Double_t target_lumi_fbInv = 1.; // target luminosity in fb^-1
+  Double_t sig_xs_fb = 1.;           // signal cross section in fb
+  Double_t target_lumi_fbInv = 1.26; // target luminosity in fb^-1
   // Signal yield  
   Double_t sigYield = target_lumi_fbInv * sel_eff * sig_xs_fb;
 
@@ -333,17 +336,16 @@ void shapeAnalysis(std::string key, Int_t mass)
   ofs << Form("process           %-10s         %s\n",             "0",              "1");
   ofs << Form("rate              %-10f         %s\n",        sigYield,              "1");
   ofs << Form("-----------------------------------------------------------------------------------\n");
-  ofs << Form("lumi_13TeV                     lnN       %-10s    %s\n", "1.026", "1.026");
-  ofs << Form("CMS_eff_vtag_tau21_sf_13TeV    lnN       %-10s    %s\n", "1.15",  "1.15" );
-  ofs << Form("CMS_scale_j_13TeV              lnN       %-10s    %s\n", "1.12",  "1.12" );
-  ofs << Form("CMS_res_j_13TeV                lnN       %-10s    %s\n", "1.04",  "1.04" );
-  ofs << Form("CMS_pu_13TeV                   lnN       %-10s    %s\n", "1.03",  "1.03" );
-  ofs << Form("eig_eig0                     param       %-10s    %s\n", "0",     "1"    );
-  ofs << Form("eig_eig1                     param       %-10s    %s\n", "0",     "1"    );
-  ofs << Form("eig_eig2                     param       %-10s    %s\n", "0",     "1"    );
-  ofs << Form("eig_eig3                     param       %-10s    %s\n", "0",     "1"    );
-  ofs << Form("eig_eig4                     param       %-10s    %s\n", "0",     "1"    );
-  ofs << Form("eig_eig5                     param       %-10s    %s\n", "0",     "1"    );
+  ofs << Form("lumi_13TeV                     lnN       %-10s    %s\n", "1.05",  "1." );
+  ofs << Form("CMS_eff_vtag_tau21_sf_13TeV    lnN       %-10s    %s\n", "1.1" ,  "1." );
+  ofs << Form("CMS_scale_j_13TeV              lnN       %-10s    %s\n", "1.01",  "1." );
+  ofs << Form("CMS_scale_%c_13TeV              lnN       %-10s    %s\n", key[0], lepton_scale.c_str(),  "1." );
+  ofs << Form("eig_eig0                     param       %-10s    %s\n", "0.",    "1." );
+  ofs << Form("eig_eig1                     param       %-10s    %s\n", "0.",    "1." );
+  ofs << Form("eig_eig2                     param       %-10s    %s\n", "0.",    "1." );
+  ofs << Form("eig_eig3                     param       %-10s    %s\n", "0.",    "1." );
+  ofs << Form("eig_eig4                     param       %-10s    %s\n", "0.",    "1." );
+  ofs << Form("eig_eig5                     param       %-10s    %s\n", "0.",    "1." );
 
   ofs.close();
 }
