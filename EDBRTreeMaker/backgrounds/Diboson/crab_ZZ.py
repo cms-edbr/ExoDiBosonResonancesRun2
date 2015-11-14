@@ -12,4 +12,4 @@ config.Data.splitting      = 'FileBased'
 config.Data.outLFNDirBase  = '/store/user/jruizvar/mc/2015/EDBRtrees/mu'
 
 config.Site.storageSite    = 'T2_BR_SPRACE'
-config.Site.whitelist      = ['T2_BR_SPRACE']
+config.Site.blacklist      = ['T2_BR_SPRACE']
