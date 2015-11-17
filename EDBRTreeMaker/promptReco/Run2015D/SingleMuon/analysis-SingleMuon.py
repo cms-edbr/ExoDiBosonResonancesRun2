@@ -62,7 +62,7 @@ process.source = cms.Source ("PoolSource",
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(
-    filename = '../../Cert_256630-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
+    filename = '../../Cert_256630-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
