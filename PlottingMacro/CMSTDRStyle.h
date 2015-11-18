@@ -1,7 +1,21 @@
-//#include "TList.h"
 #include "TStyle.h"
+#include "TPad.h"
+
+// tdrGrid: Turns the grid lines on (true) or off (false)
+
+void tdrGrid(bool gridOn) {
+  gStyle->SetPadGridX(gridOn);
+  gStyle->SetPadGridY(gridOn);
+}
+
+// fixOverlay: Redraws the axis
+
+void fixOverlay() {
+  gPad->RedrawAxis();
+}
 
 void setTDRStyle() {
+  printf("Setting TDR style...\n");
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
   // For the canvas:
@@ -30,22 +44,24 @@ void setTDRStyle() {
   tdrStyle->SetFrameLineColor(1);
   tdrStyle->SetFrameLineStyle(1);
   tdrStyle->SetFrameLineWidth(1);
-
+  
   // For the histo:
   // tdrStyle->SetHistFillColor(1);
   // tdrStyle->SetHistFillStyle(0);
   tdrStyle->SetHistLineColor(1);
   tdrStyle->SetHistLineStyle(0);
-  tdrStyle->SetHistLineWidth(2);
+  tdrStyle->SetHistLineWidth(1);
   // tdrStyle->SetLegoInnerR(Float_t rad = 0.5);
   // tdrStyle->SetNumberContours(Int_t number = 20);
 
   tdrStyle->SetEndErrorSize(2);
   //tdrStyle->SetErrorMarker(20);
   //tdrStyle->SetErrorX(0.);
-  tdrStyle->SetErrorX(0.5);
- 
+  
   tdrStyle->SetMarkerStyle(20);
+  
+  // For the legend:
+  tdrStyle->SetLegendBorderSize(0);
 
   //For the fit/function:
   tdrStyle->SetOptFit(1);
@@ -75,15 +91,14 @@ void setTDRStyle() {
   // tdrStyle->SetStatY(Float_t y = 0);
 
   // Margins:
-  tdrStyle->SetPadTopMargin(0.09);
-  tdrStyle->SetPadBottomMargin(0.13);
-  tdrStyle->SetPadLeftMargin(0.15);
-  //tdrStyle->SetPadRightMargin(0.10);
-  tdrStyle->SetPadRightMargin(0.05);
+  tdrStyle->SetPadTopMargin(0.05);    // Was 0.09
+  tdrStyle->SetPadBottomMargin(0.13); // Was 0.12
+  tdrStyle->SetPadLeftMargin(0.16);   // Was 0.16
+  tdrStyle->SetPadRightMargin(0.06);  // Was 0.06
 
   // For the Global title:
 
-  //  tdrStyle->SetOptTitle(0);
+  tdrStyle->SetOptTitle(0);
   tdrStyle->SetTitleFont(42);
   tdrStyle->SetTitleColor(1);
   tdrStyle->SetTitleTextColor(1);
@@ -104,7 +119,7 @@ void setTDRStyle() {
   // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
   // tdrStyle->SetTitleYSize(Float_t size = 0.02);
   tdrStyle->SetTitleXOffset(0.9);
-  tdrStyle->SetTitleYOffset(1.1);
+  tdrStyle->SetTitleYOffset(1.25);
   // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 
   // For the axis labels:
@@ -112,7 +127,7 @@ void setTDRStyle() {
   tdrStyle->SetLabelColor(1, "XYZ");
   tdrStyle->SetLabelFont(42, "XYZ");
   tdrStyle->SetLabelOffset(0.007, "XYZ");
-  tdrStyle->SetLabelSize(0.04, "XYZ");
+  tdrStyle->SetLabelSize(0.04, "XYZ"); // Was 0.04
 
   // For the axis:
 
@@ -128,13 +143,8 @@ void setTDRStyle() {
   tdrStyle->SetOptLogy(0);
   tdrStyle->SetOptLogz(0);
 
-  // For the legends:
-  tdrStyle->SetLegendBorderSize(0);
-  tdrStyle->SetLegendFillColor(kWhite);
-  tdrStyle->SetLegendFont(42);
-
   // Postscript options:
-  // tdrStyle->SetPaperSize(15.,15.);
+  tdrStyle->SetPaperSize(20.,20.);
   // tdrStyle->SetLineScalePS(Float_t scale = 3);
   // tdrStyle->SetLineStyleString(Int_t i, const char* text);
   // tdrStyle->SetHeaderPS(const char* header);
@@ -142,10 +152,14 @@ void setTDRStyle() {
 
   // tdrStyle->SetBarOffset(Float_t baroff = 0.5);
   // tdrStyle->SetBarWidth(Float_t barwidth = 0.5);
-  // tdrStyle->SetPaintTextFormat(const char* format = "g");
+  tdrStyle->SetPaintTextFormat("4.3f");
   // tdrStyle->SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
   // tdrStyle->SetTimeOffset(Double_t toffset);
   // tdrStyle->SetHistMinimumZero(kTRUE);
 
+  tdrStyle->SetHatchesLineWidth(5);
+  tdrStyle->SetHatchesSpacing(0.05);
+
   tdrStyle->cd();
+
 }
