@@ -10,7 +10,7 @@
 #include "TString.h"
 #include "TObjString.h"
 #include "TSystem.h"
-#include "CMSLabels.h"
+#include "CMS_lumi.h"
 #include "TVectorD.h"
 #include "TGraph.h"
 
@@ -216,7 +216,8 @@ void EDBRHistoPlotter::makeLabels()
     TObjArray* tokens = s1.Tokenize(s2);
     std::string aLabel  = ((TObjString*)(tokens->At(1)))->String().Data();
     std::string aLabel2 = ((TObjString*)(tokens->At(2)))->String().Data();
-    labels.push_back(aLabel + aLabel2);
+    //labels.push_back(aLabel + aLabel2);
+    labels.push_back(aLabel);
   }
   std::cout << "Labels MC done" << std::endl;
 
@@ -459,13 +460,13 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   //scale the MC signal histogram
   if (histosMCSig.size() != kFactorsSig_.size())cout << "+++++++++++++++++ Mismatch in size of input MC Sig arrays !!!" << endl;
   for (size_t is = 0; is != histosMCSig.size(); is++) {
-    if (debug_)printf("This histogram has integral %g\n", histosMCSig.at(is)->Integral());
+    if (debug_)printf("Signal histogram has integral %g\n", histosMCSig.at(is)->Integral());
 
     histosMCSig.at(is)->Scale(targetLumi_ * kFactorsSig_.at(is));
     histosMCSigOrig.at(is)->Scale(targetLumi_ * kFactorsSig_.at(is));
 
     if (debug_)
-      printf("After scaling this histogram has integral %g\n", histosMCSig.at(is)->Integral());
+      printf("After scaling signal histogram has integral %g\n", histosMCSig.at(is)->Integral());
 
     //add the signal to the total background
     histosMCSig.at(is)->Add(sumMC);
@@ -480,10 +481,10 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   hs->GetYaxis()->SetTitle("Events");
   hs->GetYaxis()->SetTitleOffset(1.15);
   hs->GetYaxis()->CenterTitle();
-  double maximumMC = 1.15 * sumMC->GetMaximum();
+  double maximumMC = 1.333 * sumMC->GetMaximum();
   double maximumDATA = -100;
   if (isDataPresent_)
-    maximumDATA = 1.15 * sumDATA->GetMaximum();
+    maximumDATA = 1.333 * sumDATA->GetMaximum();
   double maximumForStack = -100;
   if (isDataPresent_)
     maximumForStack = (maximumMC > maximumDATA ? maximumMC : maximumDATA);
@@ -495,10 +496,22 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   if (histoName.find("eta") != std::string::npos) {
     hs->SetMaximum(maximumForStack * 1.25);
   }
+  if (histoName.find("massZjj") != std::string::npos) {
+      hs->SetMaximum(maximumForStack * 2.75);
+  }
 
   hs->SetMinimum(0.1);
   hs->Draw("HIST");
-  sumMC->Draw("HISTO SAME");
+  sumMC->SetTitle("");
+  TH1* histoForErrors = (TH1*)sumMC->Clone("histoForErrors");
+  histoForErrors->Draw("HISTO SAME");
+  histoForErrors->SetMarkerSize(0);
+  histoForErrors = (TH1*)sumMC->Clone("histoForErrors2");
+  histoForErrors->SetMarkerSize(0);
+  histoForErrors->SetFillColor(kBlack);
+  histoForErrors->SetFillStyle(3001);
+  histoForErrors->Draw("E2SAME");
+
   if (isDataPresent_)
     sumDATA->Draw("SAME E1");
   for (size_t is = 0; is != histosMCSig.size(); is++) {
@@ -507,7 +520,6 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
     else
       histosMCSigOrig.at(is)->Draw("HISTO SAME");
   }
-  sumMC->Draw("HISTO SAME");
 
   if (histoName.find("candMass") != std::string::npos) {
     double limInt0 = 400.0;
@@ -526,9 +538,9 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
 
   // For the legend, we have to tokenize the name "histos_XXX.root"
-  TLegend* leg = new TLegend(0.62, 0.61, 0.86, 0.88);
-  leg->SetMargin(0.4);
-  leg->SetTextSize(0.038);
+  TLegend* leg = new TLegend(0.60, 0.80, 0.87, 0.92);
+  leg->SetMargin(0.2);
+  leg->SetTextSize(0.016);
   if (isDataPresent_)
     leg->AddEntry(sumDATA, "Data", "p");
   for (int i = histosMC.size()-1; i != -1; --i)
@@ -548,12 +560,13 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   leg->Draw();
 
   // Nice labels
-  TMathText* t = makeCMSPreliminaryTop(13, 0.15, 0.93);
-  TMathText* c = makeChannelLabel(1, flavour_, true, 0.2, 0.83);
-  TMathText* l = makeCMSLumi(166.94, 0.2, 0.76);
-  t->Draw();
-  c->Draw();
-  l->Draw();
+  CMS_lumi(cv,0,10,true,"Preliminary");
+  //TMathText* t = makeCMSPreliminaryTop(13, 0.15, 0.93);
+  //TMathText* c = makeChannelLabel(1, flavour_, true, 0.2, 0.83);
+  //TMathText* l = makeCMSLumi(166.94, 0.2, 0.76);
+  //t->Draw();
+  //c->Draw();
+  //l->Draw();
   
   /*
   //============ Save the full background histogram ============
@@ -671,6 +684,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   // Save the picture
   char buffer[256];
   cv->SetLogy(false);
+  if (debug_) printf("%s,%s\n",nameOutDir_.c_str(), histoName.c_str());
   sprintf(buffer, "%s/png/can_%s.png", nameOutDir_.c_str(), histoName.c_str());
   cv->SaveAs(buffer);
   sprintf(buffer, "%s/root/can_%s.root", nameOutDir_.c_str(), histoName.c_str());
@@ -685,7 +699,6 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
   //-- resize y axis --
   hs->SetMaximum(10 * maximumForStack);
-  //
   cv->Update();
   cv->Modified(true);
   cv->Draw();

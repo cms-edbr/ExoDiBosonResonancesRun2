@@ -352,7 +352,7 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("phiZll",74,-3.7,3.7);
   hs.setHisto("phiZjj",74,-3.7,3.7);
   hs.setHisto("massZll",50,50,150); // 2 GeV bins 
-  hs.setHisto("massZjj",50,30,130); // 2 GeV bins  
+  hs.setHisto("massZjj",32,40,120); // 2.5 GeV bins  
   hs.setHisto("tau21",50,0,1);
   hs.setHisto("ptlep1",40,0,800); 
   hs.setHisto("ptlep2",50,0,500);
