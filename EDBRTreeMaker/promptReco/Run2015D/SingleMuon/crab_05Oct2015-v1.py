@@ -8,7 +8,6 @@ config.section_('JobType')
 config.JobType.psetName = 'analysis-SingleMuon.py'
 config.JobType.pluginName = 'Analysis'
 config.JobType.outputFiles = ['treeEDBR_SingleMuon.root']
-config.JobType.inputFiles = ['../../../data/Summer15_25nsV6_DATA.db']
 config.JobType.maxJobRuntimeMin = 180
 
 config.section_('Data')
