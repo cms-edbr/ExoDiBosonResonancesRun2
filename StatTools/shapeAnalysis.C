@@ -118,10 +118,6 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooDataSet bkg2("bkg2", "bkg2", variables, Cut(selectedCategory), WeightVar(totalWeight), Import(treeMC2));
   RooRealVar coef("coef", "coef", bkg2.sumEntries()/bkg1.sumEntries(),0.,1.);
   coef.setConstant(true);
-  RooCategory MC("MC","MC");
-  MC.defineType(   "dominant");
-  MC.defineType("subdominant");
-  RooDataSet allMC("allMC","allMC", variables, WeightVar(totalWeight), Index(MC), Import("dominant",bkg1), Import("subdominant",bkg2));
 
 /////////////////////////////////////////////////////////////////////////////////////
 //        _   _                                                                    //
