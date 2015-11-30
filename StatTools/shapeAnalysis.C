@@ -23,17 +23,17 @@ void shapeAnalysis(std::string key, Int_t mass)
   // Silent RooFit
   RooMsgService::instance().setGlobalKillBelow(FATAL);
 
-  RooRealVar candMass("candMass","M_{VZ}", 600., 4800., "GeV");
-  RooRealVar massVhad("massVhad","M_{j}" ,  40., 9999., "GeV");
-  RooRealVar tau21("tau21","tau21",          0.,    1.       );
-  RooRealVar lep("lep","lep",                10,    15       );
-  RooRealVar lumiWeight("lumiWeight", "lumi weight",       0., 1.e4 );
-  RooRealVar pileupWeight("pileupWeight", "pileup weight", 0., 1.e4 );
+  RooRealVar candMass("candMass","M_{VZ}",            600., 4800., "GeV");
+  RooRealVar massVhad("massVhad","M_{j}" ,             45.,  220., "GeV");
+  RooRealVar tau21("tau21","tau21",                     0.,    1.       );
+  RooRealVar lep("lep","lep",                           10,    15       );
+  RooRealVar totalWeight("totalWeight", "total weight", 0.,    10.      );
+  RooArgSet variables(candMass,massVhad,tau21,lep,totalWeight);
 
-  massVhad.setRange("lowerSB",      40.,   65.);
+  massVhad.setRange("lowerSB",      45.,   65.);
   massVhad.setRange("lowerSIG",     65.,  105.);
-  massVhad.setRange("upperSIG",    105.,  145.);
-  massVhad.setRange("upperSB",     145., 9999.);
+  massVhad.setRange("upperSIG",    105.,  135.);
+  massVhad.setRange("upperSB",     135.,  220.);
 
   std::map<std::string, std::string> selection;
   selection["ENP"] = "candMass>600 && lep<12";
@@ -45,9 +45,9 @@ void shapeAnalysis(std::string key, Int_t mass)
 
   TCut selectedCategory = selection[key].c_str();
   TCut lowerSIG = "massVhad>65.  && massVhad<105" + selectedCategory;
-  TCut upperSIG = "massVhad>105. && massVhad<145" + selectedCategory;
+  TCut upperSIG = "massVhad>105. && massVhad<135" + selectedCategory;
   TCut lowerSB  = "massVhad<65."  + selectedCategory;
-  TCut upperSB  = "massVhad>145." + selectedCategory;
+  TCut upperSB  = "massVhad>135." + selectedCategory;
   TCut allSB    = lowerSB or upperSB;
 
   //*******************************************************//
@@ -56,134 +56,130 @@ void shapeAnalysis(std::string key, Int_t mass)
   //                                                       //     
   //*******************************************************//
 
-  TChain treeData( "treeDumper/EDBRCandidates");
-  TChain treeMCsub("treeDumper/EDBRCandidates");
-  TChain treeMC(   "treeDumper/EDBRCandidates");
+  TChain treeData("treeDumper/EDBRCandidates");
+  TChain treeMC1( "treeDumper/EDBRCandidates");
+  TChain treeMC2( "treeDumper/EDBRCandidates");
   std::map<Int_t, std::string> inputFile;
   std::string lepton_scale;
 
   if( key[0]=='E' ){ 
-      treeData.Add(     "../trees/nov3/treeEDBR_SingleElectron.root"                ); 
-      treeMCsub.Add(    "../elTrees/nov3/treeEDBR_WZ.root"                          );
-      treeMCsub.Add(    "../elTrees/nov3/treeEDBR_ZZ.root"                          );
-      treeMCsub.Add(    "../elTrees/nov3/treeEDBR_T_T.root"                         );
-      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-100to200.root"      );
-      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-200to400.root"      );
-      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-400to600.root"      );
-      treeMC.Add(       "../elTrees/nov3/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
-      inputFile[600]  = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
-      inputFile[800]  = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
-      inputFile[1000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
-      inputFile[1200] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
-      inputFile[1400] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
-      inputFile[1600] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
-      inputFile[1800] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
-      inputFile[2000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
-      inputFile[2500] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
-      inputFile[3000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
-      inputFile[3500] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
-      inputFile[4000] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
-      inputFile[4500] = "../elTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      treeData.Add(     "../elTrees/nov13/treeEDBR_SingleElectron.root"              ); 
+      treeMC2.Add(      "../elTrees/nov13/treeEDBR_WZ.root"                          );
+      treeMC2.Add(      "../elTrees/nov13/treeEDBR_ZZ.root"                          );
+      treeMC2.Add(      "../elTrees/nov13/treeEDBR_T_T.root"                         );
+      treeMC1.Add(      "../elTrees/nov13/treeEDBR_DYJetsToLL_HT-100to200.root"      );
+      treeMC1.Add(      "../elTrees/nov13/treeEDBR_DYJetsToLL_HT-200to400.root"      );
+      treeMC1.Add(      "../elTrees/nov13/treeEDBR_DYJetsToLL_HT-400to600.root"      );
+      treeMC1.Add(      "../elTrees/nov13/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
+      inputFile[800]  = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
+      inputFile[1000] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
+      inputFile[1200] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
+      inputFile[1400] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
+      inputFile[1600] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
+      inputFile[1800] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
+      inputFile[2000] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
+      inputFile[2500] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
+      inputFile[3000] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
+      inputFile[3500] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
+      inputFile[4000] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
+      inputFile[4500] = "../elTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
       lepton_scale    = "1.005";
   }
 
   if( key[0]=='M' ){
-      treeData.Add(     "../trees/nov3/treeEDBR_SingleMuon.root"                    ); 
-      treeMCsub.Add(    "../muTrees/nov3/treeEDBR_WZ.root"                          );
-      treeMCsub.Add(    "../muTrees/nov3/treeEDBR_ZZ.root"                          );
-      treeMCsub.Add(    "../muTrees/nov3/treeEDBR_T_T.root"                         );
-      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-100to200.root"      );
-      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-200to400.root"      );
-      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-400to600.root"      );
-      treeMC.Add(       "../muTrees/nov3/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
-      inputFile[600]  = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-600.root" ;
-      inputFile[800]  = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
-      inputFile[1000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
-      inputFile[1200] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
-      inputFile[1400] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
-      inputFile[1600] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
-      inputFile[1800] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
-      inputFile[2000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
-      inputFile[2500] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
-      inputFile[3000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
-      inputFile[3500] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
-      inputFile[4000] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
-      inputFile[4500] = "../muTrees/nov3/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      treeData.Add(     "../muTrees/nov13/treeEDBR_SingleMuon.root"                  ); 
+      treeMC2.Add(      "../muTrees/nov13/treeEDBR_WZ.root"                          );
+      treeMC2.Add(      "../muTrees/nov13/treeEDBR_ZZ.root"                          );
+      treeMC2.Add(      "../muTrees/nov13/treeEDBR_T_T.root"                         );
+      treeMC1.Add(      "../muTrees/nov13/treeEDBR_DYJetsToLL_HT-100to200.root"      );
+      treeMC1.Add(      "../muTrees/nov13/treeEDBR_DYJetsToLL_HT-200to400.root"      );
+      treeMC1.Add(      "../muTrees/nov13/treeEDBR_DYJetsToLL_HT-400to600.root"      );
+      treeMC1.Add(      "../muTrees/nov13/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
+      inputFile[800]  = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
+      inputFile[1000] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
+      inputFile[1200] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
+      inputFile[1400] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
+      inputFile[1600] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
+      inputFile[1800] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
+      inputFile[2000] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
+      inputFile[2500] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
+      inputFile[3000] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
+      inputFile[3500] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
+      inputFile[4000] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
+      inputFile[4500] = "../muTrees/nov13/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
       lepton_scale    = "1.03";
   }
 
-  //*******************************************************//
-  //                                                       //     
-  //                   Get Normalization                   //
-  //                                                       //     
-  //*******************************************************//
+  // dataset to host data in sideband
+  RooDataSet sbObs("sbObs","sbObs", variables, Cut(allSB), Import(treeData));
 
-  RooDataSet sbObs("sbObs","sbObs", RooArgSet(massVhad,candMass,tau21,lep), Cut(allSB), Import(treeData));
+  // MC datasets
+  RooDataSet bkg1("bkg1", "bkg1", variables, Cut(selectedCategory), WeightVar(totalWeight), Import(treeMC1));
+  RooDataSet bkg2("bkg2", "bkg2", variables, Cut(selectedCategory), WeightVar(totalWeight), Import(treeMC2));
+  RooRealVar coef("coef", "coef", bkg2.sumEntries()/bkg1.sumEntries(),0.,1.);
+  coef.setConstant(true);
+  RooCategory MC("MC","MC");
+  MC.defineType(   "dominant");
+  MC.defineType("subdominant");
+  RooDataSet allMC("allMC","allMC", variables, WeightVar(totalWeight), Index(MC), Import("dominant",bkg1), Import("subdominant",bkg2));
+
+/////////////////////////////////////////////////////////////////////////////////////
+//        _   _                                                                    //
+//       | \ | |                          | (_)         | | (_)                    //
+//       |  \| | ___  _ __ _ __ ___   __ _| |_ ___  __ _| |_ _  ___  _ __          //
+//       | . ` |/ _ \| '__| '_ ` _ \ / _` | | / __|/ _` | __| |/ _ \| '_ \         //
+//       | |\  | (_) | |  | | | | | | (_| | | \__ \ (_| | |_| | (_) | | | |        //
+//       |_| \_|\___/|_|  |_| |_| |_|\__,_|_|_|___/\__,_|\__|_|\___/|_| |_|        //
+//                                                                                 //
+/////////////////////////////////////////////////////////////////////////////////////
 
   // Error Function * Exponential
-  RooRealVar c("c","slope of the exp",              -0.1,  -1.0,  0.0);
-  RooRealVar offset("offset","offset of the erf",    0.1,   0.0,  2.0);
-  RooRealVar width("width",  "width of the erf",     0.1,   0.0,  1.0);
-  RooRealVar yieldSideband("yieldSideband", "Zjets normalization in sideband region", 10., 1., 1.e4);
-  yieldSideband.setVal(        sbObs.numEntries()  );
-  yieldSideband.setError( sqrt(sbObs.numEntries()) );
-  yieldSideband.setConstant(true);
+  RooRealVar c1("c1","slope of the exp",             -0.020,  -1.,    0.);
+  RooRealVar c2("c2","slope of the exp",             -0.020,  -1.,    0.);
+  RooRealVar offset1("offset1","offset of the erf",    10.0,   1.,  200.);
+  RooRealVar offset2("offset2","offset of the erf",    10.0,   1.,  200.);
+  RooRealVar width1("width1",  "width of the erf",     50.0,   1.,  200.);
+  RooRealVar width2("width2",  "width of the erf",     50.0,   1.,  200.);
+  RooErfExpPdf model1("model1","fiting mj spectrum",massVhad,c1,offset1,width1);
+  RooErfExpPdf model2("model2","fiting mj spectrum",massVhad,c2,offset2,width2);
+  model1.fitTo(bkg1, Range("lowerSB,lowerSIG,upperSIG,upperSB"),PrintLevel(-1));
+  model2.fitTo(bkg2, Range("lowerSB,lowerSIG,upperSIG,upperSB"),PrintLevel(-1));
+  // Final background model
+  RooAddPdf model("model","model",RooArgList(model2,model1),coef);
+  c1.setConstant(true);
+  c2.setConstant(true);
+  offset1.setConstant(true);
+  offset2.setConstant(true);
+  width1.setConstant(true);
+  width2.setConstant(true);
+  // Extended model
+  RooRealVar yieldLowerSB( "lower SB",  "Lower SB normalization",  10, 1., 1.e3);
+  RooExtendPdf model_ext( "model_ext", "extended p.d.f",   model,  yieldLowerSB);
+  model_ext.fitTo(sbObs,ConditionalObservables(RooArgSet(massVhad)),Extended(kTRUE),Range("lowerSB"),PrintLevel(-1));
 
-  RooRealVar ZZ_bkg_eig_norm("ZZ_bkg_eig_norm", "Zjets normalization in signal region",     10., 1., 1.e4);
-  RooErfExpPdf mj_pdf("mj_pdf","fiting mj spectrum",massVhad,c,offset,width);
-  RooExtendPdf mj_pdf_ext("mj_pdf_ext","extended p.d.f", mj_pdf, yieldSideband);
-  mj_pdf_ext.fitTo(sbObs, Extended(kTRUE), Minimizer("Minuit"), Range("lowerSB,upperSB"), PrintLevel(-1));
+  // Calculate integral of the model
+  RooAbsReal* nSIG1 = model_ext.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
+  RooAbsReal* nSB1  = model_ext.createIntegral(massVhad,NormSet(massVhad),Range("lowerSB"));
+  Double_t scale1   = nSIG1->getVal()/nSB1->getVal(); // scale from lower sideband to lower signal reg
+  Double_t bkgYield       = yieldLowerSB.getVal()   * scale1; 
+  Double_t bkgYield_error = yieldLowerSB.getError() * scale1;
 
-  // Extrapolate PDF to signal window 
-  RooAbsReal* n_signalR1  = mj_pdf.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
-  RooAbsReal* n_sideband  = mj_pdf.createIntegral(massVhad,NormSet(massVhad),Range("lowerSB,upperSB"));
-  Double_t scale  = n_signalR1->getVal()/n_sideband->getVal(); //scale yield from both sidebands to lower SIG
-  Double_t bkgYield       = yieldSideband.getVal()   * scale; 
-  Double_t bkgYield_error = yieldSideband.getError() * scale;
-
-  //*******************************************************//
-  //                                                       //     
-  //      Contribution of subddominant backgrounds         //
-  //                                                       //     
-  //*******************************************************//
-
-  RooRealVar totalWeight("totalWeight", "total weight",  0., 1.);
-  RooDataSet lowSigMCsub("lowSigMCsub","lowSigMCsub",RooArgSet(massVhad,candMass,tau21,lep,totalWeight),WeightVar(totalWeight),Cut(lowerSIG), Import(treeMCsub));
-  double subMCyield = lowSigMCsub.sumEntries();
-  double subMCyield_error = sqrt(subMCyield);
-
-  // Add contribution of subdominant backgrounds
-  ZZ_bkg_eig_norm.setVal( bkgYield + subMCyield );
-  ZZ_bkg_eig_norm.setError( sqrt( bkgYield_error*bkgYield_error + subMCyield_error*subMCyield_error ) );
+  RooRealVar ZZ_bkg_eig_norm("ZZ_bkg_eig_norm", "normalization in signal reg", 10., 1., 1.e4);
+  ZZ_bkg_eig_norm.setVal(   bkgYield );
+  ZZ_bkg_eig_norm.setError( bkgYield_error );
   ZZ_bkg_eig_norm.setConstant(true);
- 
-  //*******************************************************//
-  //                                                       //     
-  //      Simultaneous fit and alpha ratio                 //
-  //                                                       //     
-  //*******************************************************//
 
-  RooArgSet variables(candMass,massVhad,tau21,lep,lumiWeight,pileupWeight);
+///////////////////////////////////////////////////////////////////////////////
+//                           _____ _                                         //
+//                          / ____| |                                        //
+//                         | (___ | |__   __ _ _ __   ___                    //
+//                          \___ \| '_ \ / _` | '_ \ / _ \                   // 
+//                          ____) | | | | (_| | |_) |  __/                   //
+//                         |_____/|_| |_|\__,_| .__/ \___|                   //
+//                                            | |                            //
+//                                            |_|                            // 
+///////////////////////////////////////////////////////////////////////////////
 
-  // Weight MC to current luminosity
-  // For MC:   totWeight == lumiWeight*pileupWeight
-  // For Data: totWeight == 1
-  const char *weightFormula = "(lumiWeight<999)*lumiWeight*pileupWeight + (lumiWeight>999)";
-  RooFormulaVar wFunc("wFunc","event weight", weightFormula, RooArgList(lumiWeight,pileupWeight));
-
-  // Data in lower sideband
-  RooDataSet sbDataNoW("sbData","sbData",variables,Cut(lowerSB),Import(treeData));
-  RooRealVar* w0 = (RooRealVar*) sbDataNoW.addColumn(wFunc);
-  RooDataSet sbData(sbDataNoW.GetName(), sbDataNoW.GetTitle(), &sbDataNoW, *sbDataNoW.get(),0,w0->GetName());
-
-  // MC datasets in Signal and Sideband regions
-  RooDataSet nsBkgNoW("nsBkgNoW",  "nsBkgNoW", variables, Cut(lowerSIG), Import(treeMC));
-  RooDataSet sbBkgNoW("sbBkgNoW",  "sbBkgNoW", variables, Cut(lowerSB),  Import(treeMC));
-  RooRealVar* w1 = (RooRealVar*) nsBkgNoW.addColumn(wFunc);
-  RooRealVar* w2 = (RooRealVar*) sbBkgNoW.addColumn(wFunc);
-  RooDataSet nsBkg(nsBkgNoW.GetName(), nsBkgNoW.GetTitle(), &nsBkgNoW, *nsBkgNoW.get(),0,w1->GetName());
-  RooDataSet sbBkg(sbBkgNoW.GetName(), sbBkgNoW.GetTitle(), &sbBkgNoW, *sbBkgNoW.get(),0,w2->GetName());
-  
   // Declare PDFs (3 levelled-exponentials) 
   RooRealVar s0("s0","slope of the exp0",500.,1.,1.e3);
   RooRealVar s1("s1","slope of the exp1",500.,1.,1.e3);
@@ -191,21 +187,23 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooRealVar a0("a0","parameter of exp0",0.1 ,0.,1.);
   RooRealVar a1("a1","parameter of exp1",0.1 ,0.,1.);
   RooRealVar a2("a2","parameter of exp2",0.1 ,0.,1.);
-  RooExpTailPdf       nsBkg_pdf("nsBkg_pdf", "fit bkg  in nominal  region",   candMass,s0,a0);
-  RooExpTailPdf       sbBkg_pdf("sbBkg_pdf", "fit bkg  in sideband region",   candMass,s1,a1);
-  RooExpTailPdf       sbObs_pdf("sbObs_pdf", "fit data in sideband region",   candMass,s2,a2);
+  RooExpTailPdf       nsBkg_pdf("nsBkg_pdf", "fit bkg  in nominal  reg",   candMass,s0,a0);
+  RooExpTailPdf       sbBkg_pdf("sbBkg_pdf", "fit bkg  in sideband reg",   candMass,s1,a1);
+  RooExpTailPdf       sbObs_pdf("sbObs_pdf", "fit data in sideband reg",   candMass,s2,a2);
   RooAlpha4ExpTailPdf alpha_pdf("alpha_pdf", "alpha ratio",                   candMass,s0,a0,s1,a1);
   RooProdPdf             ZZ_bkg("ZZ_bkg", "Data-driven bakground estimation", alpha_pdf, sbObs_pdf);
 
-  // Perform a simultaneous fit  
-  RooCategory region("region","region");
-  region.defineType("nsMC");
-  region.defineType("sbMC");
-  region.defineType("sbDA");
-  RooDataSet bigSampleNoW("bigSampleNoW","bigSampleNoW", variables, Index(region), Import("nsMC",nsBkg), Import("sbMC",sbBkg), Import("sbDA",sbData));
-  RooRealVar* w3 = (RooRealVar*) bigSampleNoW.addColumn(wFunc);
-  RooDataSet bigSample(bigSampleNoW.GetName(), bigSampleNoW.GetTitle(), &bigSampleNoW, *bigSampleNoW.get(),0,w3->GetName());
-  RooSimultaneous bigSample_pdf("bigSample_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf,sbObs_pdf), region); 
+  // Fit 1) Dominant backgrounds in lowerSIG
+  // Fit 2) Dominant backgrounds in lowerSB and upperSB
+  // Fit 3) Blinded data in lowerSB and upperSB
+  RooDataSet nsBkg("nsBkg", "nsBkg", variables, Cut(lowerSIG), WeightVar(totalWeight), Import(treeMC1));
+  RooDataSet sbBkg("sbBkg", "sbBkg", variables, Cut(allSB),    WeightVar(totalWeight), Import(treeMC1));
+  RooCategory reg("reg","reg");
+  reg.defineType("nsMC");
+  reg.defineType("sbMC");
+  reg.defineType("sbDA");
+  RooDataSet bigSample("bigSample","bigSample", variables, WeightVar(totalWeight), Index(reg), Import("nsMC",nsBkg), Import("sbMC",sbBkg), Import("sbDA",sbObs));
+  RooSimultaneous bigSample_pdf("bigSample_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf,sbObs_pdf), reg); 
   RooFitResult *fitres = bigSample_pdf.fitTo(bigSample, Save(1), Minimizer("Minuit"), PrintLevel(-1));
   s0.setConstant(true);
   s1.setConstant(true);
@@ -221,7 +219,6 @@ void shapeAnalysis(std::string key, Int_t mass)
   //*******************************************************//
 
   std::map<Int_t, Double_t> low;
-  low[600]  =  400.;
   low[800]  =  600.;
   low[1000] =  800.;
   low[1200] = 1000.;
@@ -236,7 +233,6 @@ void shapeAnalysis(std::string key, Int_t mass)
   low[4500] = 3700.;
 
   std::map<Int_t, Double_t> upp;
-  upp[600]  =  800.;
   upp[800]  = 1000.;
   upp[1000] = 1200.;
   upp[1200] = 1400.;
@@ -272,7 +268,6 @@ void shapeAnalysis(std::string key, Int_t mass)
 
   // Number of signal events entering hltFilter
   std::map<Int_t, Int_t> nEvents;
-  nEvents[600]  = 32338;
   nEvents[800]  = 32400;
   nEvents[1000] = 31320;
   nEvents[1200] = 31983;
@@ -288,8 +283,8 @@ void shapeAnalysis(std::string key, Int_t mass)
 
   // selection efficiency
   Double_t sel_eff = (Double_t)dsSig.numEntries()/nEvents[mass];
-  Double_t sig_xs_fb = 1.;           // signal cross section in fb
-  Double_t target_lumi_fbInv = 1.26; // target luminosity in fb^-1
+  Double_t sig_xs_fb = 1.;            // signal cross section in fb
+  Double_t target_lumi_fbInv = 2.093; // target luminosity in fb^-1
   // Signal yield  
   Double_t sigYield = target_lumi_fbInv * sel_eff * sig_xs_fb;
 
@@ -311,7 +306,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   w->import(*ZZ_bkg_eig, RecycleConflictNodes());
 
   // Observed data
-  RooDataSet data_obs("data_obs","data_obs",RooArgSet(candMass,massVhad,tau21,lep),Cut(lowerSB),Import(treeData));
+  RooDataSet data_obs("data_obs","data_obs",variables,Cut(lowerSIG),Import(treeData));
   w->import(data_obs);
 
   w->writeToFile(Form("workSpaces/CMS_ZZ_%d_%s_13TeV.root",mass,key.c_str()));

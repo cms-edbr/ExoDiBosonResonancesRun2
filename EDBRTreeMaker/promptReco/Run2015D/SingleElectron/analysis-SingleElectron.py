@@ -8,10 +8,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '74X_dataRun2_reMiniAOD_v0'
+process.GlobalTag.globaltag = '74X_dataRun2_v5'
 
 # Use private JECs
-usePrivateSQlite = True 
+usePrivateSQlite = False 
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     process.jec = cms.ESSource("PoolDBESSource",
@@ -62,7 +62,7 @@ process.source = cms.Source ("PoolSource",
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(
-    filename = '../../Cert_256630-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
+    filename = '../../Cert_256630-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 

@@ -4,7 +4,7 @@ process = cms.Process( "TEST" )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
+process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v4'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
 
@@ -99,7 +99,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isData          = cms.bool      (  False                     ),
                                           originalNEvents = cms.int32     (  usedNevents               ),
                                           crossSectionPb  = cms.double    (  usedXsec                  ),
-                                          targetLumiInvPb = cms.double    (  2093.917                  ),
+                                          targetLumiInvPb = cms.double    (  2461.575                  ),
                                           EDBRChannel     = cms.string    (  CHANNEL                   ),
                                           gravitonSrc     = cms.string    ( "graviton"                 ),
                                           metSrc          = cms.string    ( "slimmedMETs"              ),
