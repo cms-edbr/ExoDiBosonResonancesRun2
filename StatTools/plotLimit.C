@@ -52,18 +52,18 @@ void plotLimit(std::string key)
   Int_t i=0;
   while(myReader.Next()){
     switch ( i%6 ){
-      //case 0 : y0.push_back(*limit); break;
-      //case 1 : y1.push_back(*limit); break;
-      //case 2 : y2.push_back(*limit); break;
-      //case 3 : y3.push_back(*limit); break;
-      //case 4 : y4.push_back(*limit); break;
-      //case 5 : y5.push_back(*limit); break;
-      case 0 : y0.push_back((*limit)/0.09408488); break;
-      case 1 : y1.push_back((*limit)/0.09408488); break;
-      case 2 : y2.push_back((*limit)/0.09408488); break;
-      case 3 : y3.push_back((*limit)/0.09408488); break;
-      case 4 : y4.push_back((*limit)/0.09408488); break;
-      case 5 : y5.push_back((*limit)/0.09408488); break;
+      case 0 : y0.push_back((*limit)/0.1412042); break;
+      case 1 : y1.push_back((*limit)/0.1412042); break;
+      case 2 : y2.push_back((*limit)/0.1412042); break;
+      case 3 : y3.push_back((*limit)/0.1412042); break;
+      case 4 : y4.push_back((*limit)/0.1412042); break;
+      case 5 : y5.push_back((*limit)/0.1412042); break;
+      //case 0 : y0.push_back((*limit)/0.09408488); break;
+      //case 1 : y1.push_back((*limit)/0.09408488); break;
+      //case 2 : y2.push_back((*limit)/0.09408488); break;
+      //case 3 : y3.push_back((*limit)/0.09408488); break;
+      //case 4 : y4.push_back((*limit)/0.09408488); break;
+      //case 5 : y5.push_back((*limit)/0.09408488); break;
     }
     i++;
   }
@@ -98,7 +98,7 @@ void plotLimit(std::string key)
   gr2->GetYaxis()->SetTitleOffset(1.2);
   gr2->SetMinimum(5.e-1);
   gr2->SetMaximum(1.e3);
-  gr2->SetTitle("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 2.1 fb^{-1};M_{VZ} [GeV];\
+  gr2->SetTitle("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 2.5 fb^{-1};M_{VZ} [GeV];\
                  #sigma_{95%} #times BR(G #rightarrow ZZ) [fb]");
 //  gr2->SetTitle(Form("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 1.26 fb^{-1};M_{VZ} [GeV];\
 //                     #sigma_{95%%} #times BR(G #rightarrow ZZ #rightarrow %sj ) [fb]",
