@@ -11,8 +11,9 @@ observation       -1.0
 bin               MHP                MHP
 process           ZZ_sig             ZZ_bkg_eig
 process           0                  1
-rate              0.687882           1
+rate              0.525785           1
 -----------------------------------------------------------------------------------
+ZZ_bkg_eig_norm                lnU       1.            1.152155
 lumi_13TeV                     lnN       1.05          1.
 CMS_eff_vtag_tau21_sf_13TeV    lnN       1.1           1.
 CMS_scale_j_13TeV              lnN       1.01          1.
