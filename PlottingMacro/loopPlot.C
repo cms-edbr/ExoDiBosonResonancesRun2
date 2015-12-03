@@ -21,9 +21,9 @@ void loopPlot(){
   /// Boolean flags to steer the histogram making
   bool wantElectrons = false; // Will make histograms for electrons
   bool wantMuons     = true; // Will make histograms for muons
-  bool wantSideband  = true; // Will make histograms for sideband region
+  bool wantSideband  = false; // Will make histograms for sideband region
   bool wantSignal    = true; // Will make histograms for signal region
-  bool wantFullRange = true; // Will not check signal or sideband, ie, pick all jet mass range
+  bool wantFullRange = false; // Will not check signal or sideband, ie, pick all jet mass range
   int  wantNXJets    = 1; // Will make histograms for 1 or 2 jet topology
   int  isZZchannel   = 1; //plot label for zz (1) or ww (0)
   int  flavour = 0; 
@@ -32,7 +32,7 @@ void loopPlot(){
   /// Luminosity value in fb^-1
   /// Scale histograms (line 403 EDBRHistoPloter.h) 
   /// Use lumiValue = 1. if actualWeights (lines 562-585 EDBRHistoMaker.h) were consistently defined in the EDBRTreeMaker 
-  double lumiValue = 166.9/1000.; 
+  double lumiValue = 1.; 
   /// Should we scale the histograms to data?
   bool scaleToData = false;
   // Should we scale only wjets to make total MC = DATA?
@@ -48,7 +48,7 @@ void loopPlot(){
   std::string pathToTrees="../trees/";
 
   /// Path to wherever you want to put the histograms (figures) in.
-  std::string outputDir = "../plots_MuonChannel";
+  std::string outputDir = "../plots_MuonChannelHighPurity";
  
 
   /// Setup names of data files for trees.
@@ -60,12 +60,10 @@ void loopPlot(){
 				 "DoubleMuParked_Run2012C_22Jan2013",
 				 "DoubleMuParked_Run2012D_22Jan2013"};
   */
-  const int nDATA=4;//set to zero if you don't want to plot
+  const int nDATA=2;//set to zero if you don't want to plot
   //std::string dataLabels[nDATA]={ };
-  std::string dataLabels[nDATA]={"SingleMuon_Run2015C",
-                                 "SingleMuon_Run2015D",
-                                 "SingleElectron_Run2015C",
-                                 "SingleElectron_Run2015D"};
+  std::string dataLabels[nDATA]={"SingleMuon",
+                                 "SingleElectron"};
   std::vector<std::string> fData;
   
   for(int ii=0;ii<nDATA;ii++){
@@ -76,9 +74,9 @@ void loopPlot(){
 
   const int nMC=3;//set to zero if you don't want to plot
   std::string mcLabels[nMC]={ 
-                             "T_T",
-                             "Di_boson",
-                             "DYJets_ToLL",
+                             "TT",
+                             "Diboson",
+                             "DYJets",
 			    };
 
   double kFactorsMC_array[nMC] = {1, 1, 1};
