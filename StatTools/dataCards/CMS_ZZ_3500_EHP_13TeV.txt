@@ -13,7 +13,7 @@ process           ZZ_sig             ZZ_bkg_eig
 process           0                  1
 rate              0.393575           1
 -----------------------------------------------------------------------------------
-ZZ_bkg_eig_norm                lnU       1.            1.157828
+ZZ_bkg_eig_norm                lnU       1.            1.16
 lumi_13TeV                     lnN       1.05          1.
 CMS_eff_vtag_tau21_sf_13TeV    lnN       1.1           1.
 CMS_scale_j_13TeV              lnN       1.01          1.

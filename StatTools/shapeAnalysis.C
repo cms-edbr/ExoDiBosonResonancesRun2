@@ -151,7 +151,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   // Extended model
   RooRealVar yieldLowerSB( "lower SB",  "Lower SB normalization",  10, 0., 1.e3);
   RooExtendPdf model_ext( "model_ext", "extended p.d.f",   model,  yieldLowerSB);
-  model_ext.fitTo(sbObs,ConditionalObservables(RooArgSet(massVhad)),Extended(kTRUE),Range("lowerSB"),SumW2Error(kTRUE),PrintLevel(-1));
+  model_ext.fitTo(sbObs,ConditionalObservables(RooArgSet(massVhad)),Extended(kTRUE),Range("lowerSB"),PrintLevel(-1));
 
   // Calculate integral of the model
   RooAbsReal* nSIG = model_ext.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
@@ -325,7 +325,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   ofs << Form("process           %-10s         %s\n",             "0",              "1");
   ofs << Form("rate              %-10f         %s\n",        sigYield,              "1");
   ofs << Form("-----------------------------------------------------------------------------------\n");
-  ofs << Form("ZZ_bkg_eig_norm                lnU       %-10s    %f\n", "1.",    bkgYield_error );
+  ofs << Form("ZZ_bkg_eig_norm                lnU       %-10s    %.2f\n", "1.",  bkgYield_error );
   ofs << Form("lumi_13TeV                     lnN       %-10s    %s\n", "1.05",  "1." );
   ofs << Form("CMS_eff_vtag_tau21_sf_13TeV    lnN       %-10s    %s\n", "1.1" ,  "1." );
   ofs << Form("CMS_scale_j_13TeV              lnN       %-10s    %s\n", "1.01",  "1." );
