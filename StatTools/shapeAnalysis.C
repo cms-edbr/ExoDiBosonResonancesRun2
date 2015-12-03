@@ -263,9 +263,9 @@ void shapeAnalysis(std::string key, Int_t mass)
   // Total number of signal events in the sample 
   std::map<Int_t, Int_t> nEvents;
   nEvents[800]  = 50000;
-  nEvents[1000] = 50000;
-  nEvents[1200] = 48400;
-  nEvents[1400] = 49200;
+  nEvents[1000] = 48400;
+  nEvents[1200] = 49200;
+  nEvents[1400] = 50000;
   nEvents[1600] = 50000;
   nEvents[1800] = 50000;
   nEvents[2000] = 50000;
