@@ -374,7 +374,7 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("pileupWeight",70,0,7);
   hs.setHisto("deltaRleplep",70,0,3.5); 
   hs.setHisto("deltaRlepjet",70,0,7); 
-  hs.setHisto("candMass", 58,300,3200); // 50 GeV bins...
+  hs.setHisto("candMass", 30,600,3600); // 100 GeV bins...
   //but to have the signal spread around 4 bins maybe we want 25 GeV bins?
   
   char buffer[256];
@@ -570,15 +570,10 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       //if(candMass>2400.0)
       //cout<<"Found one event with MZZ="<<candMass<<endl;
       
-      /*
-      double deltaR_LJ = deltaR(etalep1,philep1,etajet1,phijet1);
-      double deltaPhi_LJ   = deltaPhi(phijet1,philep1);
-      double deltaPhi_JMET = deltaPhi(phijet1,philep2);
-      double deltaPhi_JWL  = deltaPhi(phijet1,phiZll); 
-      double deltaPhi_LMET = deltaPhi(philep1,philep2);
-      double ptLoverJ      = ptlep1/ptjet1;
-      */
-      
+      if(candMass<600.) continue;
+      //if(tau21<0.6 or tau21>0.75) continue; //Low purity category
+      if(tau21>0.6) continue; // High purity category
+     
       double miniIsoAbs1 = miniIso1*ptlep1;
       double miniIsoAbs2 = miniIso2*ptlep2;
 
