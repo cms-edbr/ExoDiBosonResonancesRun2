@@ -35,23 +35,38 @@ VZ_JetMET       = False        # True
                                                                                                    
 #************************************ CHOOSE YOUR HLT     *******************************************#
 
+triggerPath = {
+                "el" : "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
+                "mu" : "HLT_Mu45_eta2p1_v*",
+              }
+import sys
+TRIGGER = str(sys.argv[2])
 process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
-process.hltFilter.triggerConditions =  ( "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*", )
+process.hltFilter.triggerConditions =  ( triggerPath[TRIGGER], )
 process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
-process.kinElectrons.filter   = cms.bool(True)
-process.idElectrons.filter    = cms.bool(True)
-process.isoElectrons.filter   = cms.bool(True)
-process.leptonicVFilter.src   = "Ztoee"
-process.leptonicVSelector.src = "Ztoee"
+
+if TRIGGER == "el" :
+    process.kinElectrons.filter   = cms.bool(True)
+    process.idElectrons.filter    = cms.bool(True)
+    process.isoElectrons.filter   = cms.bool(True)
+    process.leptonicVFilter.src   = "Ztoee"
+    process.leptonicVSelector.src = "Ztoee"
+
+if TRIGGER == "mu" :
+    process.kinMuons.filter       = cms.bool(True)
+    process.idMuons.filter        = cms.bool(True)
+    process.isoMuons.filter       = cms.bool(True)
+    process.leptonicVFilter.src   = "Ztomumu"
+    process.leptonicVSelector.src = "Ztomumu"
 
 #*********************************** POOL SOURCE ****************************************************#
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v4/000/258/159/00000/0EC56452-186C-E511-8158-02163E0146D5.root',
+         '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root',
     )
 )
 
@@ -61,7 +76,7 @@ process.source = cms.Source ("PoolSource",
 
 import FWCore.PythonUtilities.LumiList as LumiList
 process.source.lumisToProcess = LumiList.LumiList(
-    filename = '../../Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt').getVLuminosityBlockRange()
+    filename = '../Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
@@ -164,5 +179,5 @@ print "Hadronic V cut = " + str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_SingleElectron.root")
+                                   fileName = cms.string("treeEDBR_data.root")
                                   )
