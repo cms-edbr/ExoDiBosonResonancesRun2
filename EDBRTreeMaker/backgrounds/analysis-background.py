@@ -8,7 +8,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'
+process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v4'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
                                                                                                     
@@ -16,16 +16,68 @@ CHANNEL         = "VZ_CHANNEL" # VZnu_CHANNEL
 VZ_semileptonic = True         # False
 VZ_JetMET       = False        # True
                                                                                                    
-#*********************************** POOL SOURCE ****************************************************#
+#*********************************** CHOOSE SAMPLE **************************************************#
 
 import sys
 SAMPLE = str(sys.argv[2])
-process.load("ExoDiBosonResonances.EDBRCommon.simulation.RunIIDR74X.TTbar."+SAMPLE)
+configXsecs = {
+                  "HT-100to200" : 139.4,
+                  "HT-200to400" : 42.75,
+                  "HT-400to600" : 5.497,
+                  "HT-600toInf" : 2.21,
+                  "WZ"          : 47.13,
+                  "ZZ"          : 16.52,
+                  "TT"          : 831.76,
+              }
+configNevents = {
+                  "HT-100to200" : 2725655,
+                  "HT-200to400" : 973937,
+                  "HT-400to600" : 1067758,
+                  "HT-600toInf" : 998912,
+                  "WZ"          : 978512,
+                  "ZZ"          : 996944,
+                  "TT"          : 19806096,
+                }
+usedXsec    = configXsecs[SAMPLE]
+usedNevents = configNevents[SAMPLE]
 
-#********************************  MODULES *********************************************************#
+#************************************ CHOOSE YOUR HLT     *******************************************#
 
+TRIGGER = str(sys.argv[3])
+triggerPath = {
+                "el" : "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
+                "mu" : "HLT_Mu45_eta2p1_v*",
+              }
+usedHLT = triggerPath[TRIGGER]
+
+process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
+process.hltFilter.triggerConditions =  ( usedHLT, )
 process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
+process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
+if TRIGGER == "el" :
+    process.kinElectrons.filter   = cms.bool(True)
+    process.idElectrons.filter    = cms.bool(True)
+    process.isoElectrons.filter   = cms.bool(True)
+    process.leptonicVFilter.src   = "Ztoee"
+    process.leptonicVSelector.src = "Ztoee"
+
+if TRIGGER == "mu" :
+    process.kinMuons.filter       = cms.bool(True)
+    process.idMuons.filter        = cms.bool(True)
+    process.isoMuons.filter       = cms.bool(True)
+    process.leptonicVFilter.src   = "Ztomumu"
+    process.leptonicVSelector.src = "Ztomumu"
+
+#*********************************** POOL SOURCE ****************************************************#
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.source = cms.Source ("PoolSource",
+    fileNames = cms.untracked.vstring(
+         '/store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/009AE141-CA6D-E511-A060-002590A3716C.root')
+)
+
+#********************************  MODULES *********************************************************#
 
 process.bestLeptonicV = cms.EDFilter(    "LargestPtCandSelector",
                                           src             = cms.InputTag( "leptonicVSelector"           ),
@@ -38,7 +90,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay           = cms.string  ( "bestLeptonicV bestHadronicV" ),
                                           checkCharge     = cms.bool    (  False                        ),
-                                          cut             = cms.string  ( " "                           ),
+                                          cut             = cms.string  ( "mass > 400."                 ),
                                           roles           = cms.vstring ( 'leptonicV', 'hadronicV'      ))
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
@@ -47,20 +99,18 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter          = cms.bool    (  True                         ))
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          isGen           = cms.bool      (  False                                              ),
-                                          isData          = cms.bool      (  False                                              ),
-                                          originalNEvents = cms.int32     (  19899500                                           ),
-                                          crossSectionPb  = cms.double    (  831.76                                             ),
-                                          targetLumiInvPb = cms.double    (  1000.                                              ),
-                                          EDBRChannel     = cms.string    (  CHANNEL                                            ),
-                                          gravitonSrc     = cms.string    ( "graviton"                                          ),
-                                          metSrc          = cms.string    ( "slimmedMETs"                                       ),
-                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/StatTools/pileupWeights.root" ),
-                                          vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"                          ))
+                                          isGen           = cms.bool      (  False                      ),
+                                          isData          = cms.bool      (  False                      ),
+                                          originalNEvents = cms.int32     (  usedNevents                ),
+                                          crossSectionPb  = cms.double    (  usedXsec                   ),
+                                          targetLumiInvPb = cms.double    (  2630.245                   ),
+                                          EDBRChannel     = cms.string    (  CHANNEL                    ),
+                                          gravitonSrc     = cms.string    ( "graviton"                  ),
+                                          metSrc          = cms.string    ( "slimmedMETs"               ),
+                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
+                                          vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"  ))
 
 #***************************************** SEQUENCES **********************************************# 
-process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
-process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -121,11 +171,12 @@ if VZ_JetMET == True :
                                     process.metSequence    )
 
 print "++++++++++ CUTS ++++++++++\n"
-print "Graviton cut = "+str(process.graviton.cut)
-print "Leptonic V cut = "+str(process.leptonicVSelector.cut)
-print "Hadronic V cut = "+str(process.hadronicV.cut)
+print "HLT = "            + str(process.hltFilter.triggerConditions)
+print "Graviton cut = "   + str(process.graviton.cut)
+print "Leptonic V cut = " + str(process.leptonicVSelector.cut)
+print "Hadronic V cut = " + str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_"+SAMPLE+".root")
+                                   fileName = cms.string("treeEDBR_background.root")
                                   )

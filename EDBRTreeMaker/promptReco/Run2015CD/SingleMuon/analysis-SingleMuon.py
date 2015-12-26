@@ -8,39 +8,64 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v4'
+process.GlobalTag.globaltag = '74X_dataRun2_v5'
+
+# Use private JECs
+usePrivateSQlite = False 
+if usePrivateSQlite:
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    process.jec = cms.ESSource("PoolDBESSource",
+        CondDBSetup,
+        connect = cms.string("sqlite_file:Summer15_25nsV6_DATA.db"),
+        toGet =  cms.VPSet(
+            cms.PSet(
+                record = cms.string("JetCorrectionsRecord"),
+                tag = cms.string("JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK8PFchs"),
+                label= cms.untracked.string("AK8PFchs")
+            ),
+        )
+    )
+    process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
                                                                                                     
 CHANNEL         = "VZ_CHANNEL" # VZnu_CHANNEL
 VZ_semileptonic = True         # False
 VZ_JetMET       = False        # True
-
+                                                                                                   
 #************************************ CHOOSE YOUR HLT     *******************************************#
 
-import sys
-TRIGGER = str(sys.argv[2])
-triggerPath = {
-                "el" : "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
-                "mu" : "HLT_Mu45_eta2p1_v*",
-              }
-usedHLT = triggerPath[TRIGGER]
-
 process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
-process.hltFilter.triggerConditions =  ( usedHLT, )
-                                                                                                   
+process.hltFilter.triggerConditions =  ( "HLT_Mu45_eta2p1_v*", )
+process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
+process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
+process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
+process.kinMuons.filter       = cms.bool(True)
+process.idMuons.filter        = cms.bool(True)
+process.isoMuons.filter       = cms.bool(True)
+process.leptonicVFilter.src   = "Ztomumu"
+process.leptonicVSelector.src = "Ztomumu"
+
 #*********************************** POOL SOURCE ****************************************************#
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/00087FEB-236E-E511-9ACB-003048FF86CA.root')
+         '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root',
+    )
 )
+
+#************************************* JSON file ***************************************************#
+# https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/
+# last modified 18-Dic-2015 
+
+import FWCore.PythonUtilities.LumiList as LumiList
+process.source.lumisToProcess = LumiList.LumiList(
+    filename = '../../Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt').getVLuminosityBlockRange()
 
 #********************************  MODULES *********************************************************#
 
-process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
-process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
+process.corrJetsProducer.isData = True
 
 process.bestLeptonicV = cms.EDFilter(    "LargestPtCandSelector",
                                           src             = cms.InputTag( "leptonicVSelector"           ),
@@ -62,19 +87,16 @@ process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
                                           filter          = cms.bool    (  True                         ))
 
 process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
-                                          isGen           = cms.bool      (  False                      ),
-                                          isData          = cms.bool      (  False                      ),
-                                          originalNEvents = cms.int32     (  19806096                   ),
-                                          crossSectionPb  = cms.double    (  831.76                     ),
-                                          targetLumiInvPb = cms.double    (  2461.575                   ),
-                                          EDBRChannel     = cms.string    (  CHANNEL                    ),
-                                          gravitonSrc     = cms.string    ( "graviton"                  ),
-                                          metSrc          = cms.string    ( "slimmedMETs"               ),
-                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root" ),
-                                          vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"  ))
+                                          isGen           = cms.bool    (  False                        ),
+                                          originalNEvents = cms.int32   (  1                            ),
+                                          crossSectionPb  = cms.double  (  1.                           ),
+                                          targetLumiInvPb = cms.double  (  1.                           ),
+                                          EDBRChannel     = cms.string  (  CHANNEL                      ),
+                                          gravitonSrc     = cms.string  ( "graviton"                    ),
+                                          metSrc          = cms.string  ( "slimmedMETs"                 ),
+                                          vertex          = cms.InputTag( "goodOfflinePrimaryVertex"    ))
 
 #***************************************** SEQUENCES **********************************************# 
-process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
@@ -142,5 +164,5 @@ print "Hadronic V cut = " + str(process.hadronicV.cut)
 print "\n++++++++++++++++++++++++++"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_T_T.root")
+                                   fileName = cms.string("treeEDBR_SingleMuon.root")
                                   )

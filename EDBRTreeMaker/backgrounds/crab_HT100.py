@@ -2,7 +2,7 @@ from CRABClient.UserUtilities import config
 config = config()
     
 config.JobType.pluginName  = 'Analysis'
-config.JobType.psetName    = 'analysis-DYJetsToLL.py'
+config.JobType.psetName    = 'analysis-background.py'
 config.JobType.pyCfgParams = ['','HT-100to200','mu']
 config.JobType.maxJobRuntimeMin = 120
 
@@ -12,4 +12,4 @@ config.Data.splitting      = 'FileBased'
 config.Data.outLFNDirBase  = '/store/user/jruizvar/mc/2015/EDBRtrees/mu'
 
 config.Site.storageSite    =  'T2_BR_SPRACE'
-config.Site.blacklist      = ['T2_BR_SPRACE']
+config.Site.whitelist      = ['T2_BR_SPRACE']
