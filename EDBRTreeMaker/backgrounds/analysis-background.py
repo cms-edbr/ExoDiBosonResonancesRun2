@@ -21,10 +21,10 @@ VZ_JetMET       = False        # True
 import sys
 SAMPLE = str(sys.argv[2])
 configXsecs = {
-                  "HT-100to200" : 139.4,
-                  "HT-200to400" : 42.75,
-                  "HT-400to600" : 5.497,
-                  "HT-600toInf" : 2.21,
+                  "HT-100to200" : 147.40,
+                  "HT-200to400" : 40.99,
+                  "HT-400to600" : 5.678,
+                  "HT-600toInf" : 2.198,
                   "WZ"          : 47.13,
                   "ZZ"          : 16.52,
                   "TT"          : 831.76,
