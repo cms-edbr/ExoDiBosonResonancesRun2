@@ -6,6 +6,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -55,10 +57,24 @@ private:
   double crossSectionPb_;
   double targetLumiInvPb_;
   std::string EDBRChannel_;
-  std::string gravitonSrc_;
-  std::string metSrc_;
   edm::FileInPath puWeights_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+  edm::EDGetTokenT<bool> elHltToken;
+  edm::EDGetTokenT<bool> muHltToken;
+  edm::EDGetTokenT<edm::ValueMap<bool>  >    matchElHltToken;
+  edm::EDGetTokenT<edm::ValueMap<bool>  >    matchMuHltToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >   deltaRElHltToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >   deltaRMuHltToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >  deltaPtElHltToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >  deltaPtMuHltToken;
+  edm::EDGetTokenT<double> rhoToken;
+  edm::EDGetTokenT<reco::CompositeCandidateView> gravitonsToken;
+  edm::EDGetTokenT<pat::METCollection> metToken;
+  edm::EDGetTokenT<pat::ElectronCollection> electronsToken;
+  edm::EDGetTokenT<pat::MuonCollection> muonsToken;
+  edm::EDGetTokenT<pat::JetCollection> jetsToken;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puInfoToken;
+
 
   //------------------------ GENERAL ----------------------------------------------
   int nVtx;
@@ -168,17 +184,33 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   crossSectionPb_  (                                   iConfig.getParameter<double>        ( "crossSectionPb"    ) ),
   targetLumiInvPb_ (                                   iConfig.getParameter<double>        ( "targetLumiInvPb"   ) ),
   EDBRChannel_     (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"       ) ),
-  gravitonSrc_     (                                   iConfig.getParameter<std::string>   ( "gravitonSrc"       ) ),
-  metSrc_          (                                   iConfig.getParameter<std::string>   ( "metSrc"            ) ),
   vertexToken_     ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"          ) ) ),
   effectiveAreas   ( edm::FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt").fullPath())
 {
+  using namespace edm;
+
   if( iConfig.existsAs<bool>("isData") )
        isData_ = iConfig.getParameter<bool> ("isData");
   else isData_ = true;
 
-  if( iConfig.existsAs<edm::FileInPath>("puWeights") )
-       puWeights_ = iConfig.getParameter<edm::FileInPath>("puWeights") ;
+  if( iConfig.existsAs<FileInPath>("puWeights") )
+       puWeights_ = iConfig.getParameter<FileInPath>("puWeights") ;
+
+  elHltToken        = consumes<bool>(            InputTag("hltMatchingElectrons", "trigBit"   ));
+  muHltToken        = consumes<bool>(            InputTag("hltMatchingMuons",     "trigBit"   ));
+  matchElHltToken   = consumes<ValueMap<bool> >( InputTag("hltMatchingElectrons","matchHlt"   ));
+  matchMuHltToken   = consumes<ValueMap<bool> >( InputTag("hltMatchingMuons",    "matchHlt"   ));
+  deltaRElHltToken  = consumes<ValueMap<float> >(InputTag("hltMatchingElectrons","deltaR"     ));
+  deltaRMuHltToken  = consumes<ValueMap<float> >(InputTag("hltMatchingMuons",    "deltaR"     ));
+  deltaPtElHltToken = consumes<ValueMap<float> >(InputTag("hltMatchingElectrons","deltaPt"    ));
+  deltaPtMuHltToken = consumes<ValueMap<float> >(InputTag("hltMatchingMuons",    "deltaPt"    ));
+  rhoToken          = consumes<double>(          InputTag("fixedGridRhoFastjetAll"            ));
+  gravitonsToken    = consumes<reco::CompositeCandidateView>(  InputTag("graviton","","TEST"  ));
+  metToken          = consumes<pat::METCollection>(            InputTag("slimmedMETs"         ));
+  electronsToken    = consumes<pat::ElectronCollection>(       InputTag("slimmedElectrons"    ));
+  muonsToken        = consumes<pat::MuonCollection>(           InputTag("slimmedMuons"        ));
+  jetsToken         = consumes<pat::JetCollection>(            InputTag("slimmedJetsAK8"      ));
+  puInfoToken       = consumes<std::vector<PileupSummaryInfo>>(InputTag("slimmedAddPileupInfo"));
 
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -372,36 +404,36 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    Handle<ValueMap<bool> > matchHlt_handle;
    Handle<ValueMap<float> > deltaPt_handle;
    Handle<ValueMap<float> >  deltaR_handle;
-   iEvent.getByLabel(InputTag("hltMatchingElectrons","trigBit"), elHlt_handle);
-   iEvent.getByLabel(InputTag("hltMatchingMuons",    "trigBit"), muHlt_handle);
+   iEvent.getByToken(elHltToken, elHlt_handle);
+   iEvent.getByToken(muHltToken, muHlt_handle);
    elhltbit = (int)(*elHlt_handle);
    muhltbit = (int)(*muHlt_handle);
 
    setDummyValues(); //Initalize variables with dummy values
 
-   Handle<View<reco::Candidate> > gravitons;
-   iEvent.getByLabel(gravitonSrc_.c_str(), gravitons);
+   Handle<reco::CompositeCandidateView > gravitons;
+   iEvent.getByToken(gravitonsToken, gravitons);
    numCands = gravitons->size();
    if(numCands != 0 ) {
        const reco::Candidate& graviton  = gravitons->at(0);
        const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
 
        // met
-       Handle<View<reco::Candidate> > metHandle;
-       iEvent.getByLabel(metSrc_.c_str(), metHandle);
-       const reco::Candidate& metCand = metHandle->at(0);
+       Handle<pat::METCollection> metHandle;
+       iEvent.getByToken(metToken, metHandle);
+       const pat::MET& metCand = metHandle->at(0);
        
        // All the quantities which depend on RECO could go here
        if(not isGen_) {
            // electrons and muons
-           Handle<View<pat::Electron> > electrons;
-           Handle<View<pat::Muon> >     muons;
-           iEvent.getByLabel("slimmedElectrons", electrons);
-           iEvent.getByLabel("slimmedMuons",     muons);
+           Handle<pat::ElectronCollection>   electrons;
+           Handle<pat::MuonCollection>           muons;
+           iEvent.getByToken(electronsToken, electrons);
+           iEvent.getByToken(muonsToken,         muons);
 
            // number of jets
-           Handle<std::vector<pat::Jet>> jets;
-           iEvent.getByLabel("slimmedJetsAK8", jets);
+           Handle<pat::JetCollection>    jets;
+           iEvent.getByToken(jetsToken,  jets);
            numjets = jets->size();
            met     = metCand.pt();
            metPhi  = metCand.phi();
@@ -414,7 +446,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
            // Energy density
            Handle< double > rhoHandle;
-           iEvent.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
+           iEvent.getByToken(rhoToken, rhoHandle);
            rho = (float)(*rhoHandle);
 
            //we put the definitions inside the channel
@@ -493,9 +525,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         const pat::Muon *mu2 = (pat::Muon*)leptonicV.daughter((int)!temp);
                         const Ptr<pat::Muon> mu1Ptr(muons, mu1->userInt("slimmedIndex") );
                         const Ptr<pat::Muon> mu2Ptr(muons, mu2->userInt("slimmedIndex") );
-                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaR"),   deltaR_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingMuons","deltaPt"),  deltaPt_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingMuons","matchHlt"), matchHlt_handle);
+                        iEvent.getByToken(deltaRMuHltToken,   deltaR_handle);
+                        iEvent.getByToken(deltaPtMuHltToken,  deltaPt_handle);
+                        iEvent.getByToken(matchMuHltToken, matchHlt_handle);
                         deltaRlep1Obj    =      (*deltaR_handle)[mu1Ptr];
                         deltaRlep2Obj    =      (*deltaR_handle)[mu2Ptr];
                         deltaPtlep1Obj   =      (*deltaPt_handle)[mu1Ptr];
@@ -562,9 +594,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         const pat::Electron *el2 = (pat::Electron*)leptonicV.daughter((int)!temp);
                         const Ptr<pat::Electron> el1Ptr(electrons, el1->userInt("slimmedIndex") );
                         const Ptr<pat::Electron> el2Ptr(electrons, el2->userInt("slimmedIndex") );
-                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaR"),   deltaR_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingElectrons","deltaPt"),  deltaPt_handle);
-                        iEvent.getByLabel(InputTag("hltMatchingElectrons","matchHlt"), matchHlt_handle);
+                        iEvent.getByToken(deltaRElHltToken,   deltaR_handle);
+                        iEvent.getByToken(deltaPtElHltToken,  deltaPt_handle);
+                        iEvent.getByToken(matchElHltToken, matchHlt_handle);
                         deltaRlep1Obj  =      (*deltaR_handle)[el1Ptr];
                         deltaRlep2Obj  =      (*deltaR_handle)[el2Ptr];
                         deltaPtlep1Obj =      (*deltaPt_handle)[el1Ptr];
@@ -723,7 +755,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        if( !isData_ ) {
            // pileup reweight
            Handle<std::vector< PileupSummaryInfo > >  puInfo;
-           iEvent.getByLabel("slimmedAddPileupInfo",  puInfo);
+           iEvent.getByToken(puInfoToken, puInfo);
            std::vector<PileupSummaryInfo>::const_iterator PVI;
            for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
                 int BX = PVI->getBunchCrossing();
@@ -905,6 +937,7 @@ void EDBRTreeMaker::setDummyValues() {
 }
 
 void EDBRTreeMaker::beginJob(){ 
+
      if ( !isData_ ){
         f1 = new TFile( puWeights_.fullPath().c_str() );
         h1 = (TH1D*)f1->Get("pileupWeights");
