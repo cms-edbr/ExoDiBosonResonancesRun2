@@ -14,3 +14,4 @@ config.Data.outLFNDirBase  = '/store/user/jruizvar/data/2015/EDBRtrees'
 config.Data.publication    = False
 
 config.Site.storageSite    =  'T2_BR_SPRACE'
+config.Site.whitelist      = ['T2_BR_SPRACE']
