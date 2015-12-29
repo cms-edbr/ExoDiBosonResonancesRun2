@@ -39,6 +39,7 @@ class MiniPFIsolationProducer : public edm::EDProducer {
       double r_iso_max_;
       double kt_scale_;
       bool charged_only_;
+      edm::EDGetTokenT<double> rhoToken;
       edm::EDGetTokenT<candidateCollection> leptonToken;
       edm::EDGetTokenT<pat::PackedCandidateCollection> pfToken;
       EffectiveAreas eAreasElectrons;
@@ -51,6 +52,7 @@ MiniPFIsolationProducer<T>::MiniPFIsolationProducer(const edm::ParameterSet& iCo
     r_iso_max_(                                           iConfig.getParameter<double>("r_iso_max"       ) ),
     kt_scale_(                                            iConfig.getParameter<double>("kt_scale"        ) ),
     charged_only_(                                        iConfig.getParameter<bool>("charged_only"      ) ),
+    rhoToken(consumes<double>(                            iConfig.getParameter<edm::InputTag>("rho"    ) ) ),
     leptonToken(consumes<candidateCollection>(            iConfig.getParameter<edm::InputTag>("leptons") ) ),
     pfToken(    consumes<pat::PackedCandidateCollection>( iConfig.getParameter<edm::InputTag>("pfCands") ) ),
     eAreasElectrons(edm::FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt").fullPath()),
@@ -73,7 +75,7 @@ void MiniPFIsolationProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
 
     // Energy density
     edm::Handle< double > rhoHandle;
-    iEvent.getByLabel("fixedGridRhoFastjetCentralNeutral", rhoHandle);
+    iEvent.getByToken(rhoToken, rhoHandle);
     double rho = *rhoHandle;
 
     vector<float> miniIso_dBeta;

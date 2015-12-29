@@ -13,6 +13,7 @@ electronsMiniIsolationValueMap = cms.EDProducer("PatElectronMiniIsolationValueMa
                                        r_iso_max = cms.double(0.2),
                                        kt_scale  = cms.double(10.),
                                        charged_only = cms.bool(False),
+                                       rho     = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                        leptons = cms.InputTag("slimmedElectrons"),
                                        pfCands = cms.InputTag("packedPFCandidates"))
 
@@ -21,6 +22,7 @@ muonsMiniIsolationValueMap = cms.EDProducer("PatMuonMiniIsolationValueMap",
                                        r_iso_max = cms.double(0.2),
                                        kt_scale  = cms.double(10.),
                                        charged_only = cms.bool(False),
+                                       rho     = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                        leptons = cms.InputTag("slimmedMuons"),
                                        pfCands = cms.InputTag("packedPFCandidates"))
 

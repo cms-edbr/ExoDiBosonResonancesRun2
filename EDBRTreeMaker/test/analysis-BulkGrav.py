@@ -113,10 +113,8 @@ process.treeDumper = cms.EDAnalyzer(     "EDBRTreeMaker",
                                           isData          = cms.bool      (  False                     ),
                                           originalNEvents = cms.int32     (  usedNevents               ),
                                           crossSectionPb  = cms.double    (  usedXsec                  ),
-                                          targetLumiInvPb = cms.double    (  2461.575                  ),
+                                          targetLumiInvPb = cms.double    (  2630.245                  ),
                                           EDBRChannel     = cms.string    ( "VZ_CHANNEL"               ),
-                                          gravitonSrc     = cms.string    ( "graviton"                 ),
-                                          metSrc          = cms.string    ( "slimmedMETs"              ),
                                           puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 

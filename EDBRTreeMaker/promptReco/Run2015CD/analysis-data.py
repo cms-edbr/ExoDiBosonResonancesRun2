@@ -107,8 +107,6 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           crossSectionPb  = cms.double  (  1.                           ),
                                           targetLumiInvPb = cms.double  (  1.                           ),
                                           EDBRChannel     = cms.string  (  CHANNEL                      ),
-                                          gravitonSrc     = cms.string  ( "graviton"                    ),
-                                          metSrc          = cms.string  ( "slimmedMETs"                 ),
                                           vertex          = cms.InputTag( "goodOfflinePrimaryVertex"    ))
 
 #***************************************** SEQUENCES **********************************************# 
