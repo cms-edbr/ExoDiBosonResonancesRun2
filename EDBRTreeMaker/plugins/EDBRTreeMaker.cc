@@ -102,6 +102,7 @@ private:
   double nhfjet1,   chfjet1;       // neutral and charged hadron energy fraction
   double nemfjet1,  cemfjet1;      // neutral and charged EM fraction
   int    nmultjet1, cmultjet1;     // neutral and charged multiplicity
+  int    nsubjets;                 // number of softdrop subjets
 
   //-------------------- LEPTONS -----------------------------------------------------
   double ptlep1,    ptlep2;
@@ -354,6 +355,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("cmultjet1"        ,&cmultjet1        ,"cmultjet1/I"       );
 
   // Generic kinematic quantities
+  outTree_->Branch("nsubjets"         ,&nsubjets         ,"nsubjets/I"        );
   outTree_->Branch("numjets"          ,&numjets          ,"numjets/I"         );
   outTree_->Branch("ptlep1"           ,&ptlep1           ,"ptlep1/D"          );
   outTree_->Branch("ptlep2"           ,&ptlep2           ,"ptlep2/D"          );
@@ -493,7 +495,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		   // SRR : get rho ratio. This assumes the subjets are corrected to L2L3.
 		   // If not, they must be done on-the-fly with a separate jet corrector. 
 		   auto subjetsSD = hadronicV.subjets("SoftDrop");
-		   if ( subjetsSD.size() >= 2 ) {
+                   nsubjets       = subjetsSD.size();
+		   if ( nsubjets >= 2 ) {
 		     auto groomedJet = subjetsSD[0]->p4() + subjetsSD[1]->p4();
 		     rhojet1 = std::pow( groomedJet.mass() / (groomedJet.pt() * 0.8), 2.0);
 		     massVhadSD     = hadronicV.mass();
@@ -832,6 +835,7 @@ void EDBRTreeMaker::setDummyValues() {
      charge2          = -1e4;
      miniIso1         = -1e4;
      miniIso2         = -1e4;
+     nsubjets         = -1e4; 
      numjets          = -1e4; 
      etjet1           = -1e4;
      ptjet1           = -1e4;
