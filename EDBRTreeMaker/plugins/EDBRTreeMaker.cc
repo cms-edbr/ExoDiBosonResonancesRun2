@@ -110,6 +110,7 @@ private:
   double philep1,   philep2;
   double miniIso1,  miniIso2;
   int    charge1,   charge2;
+  int    pdgId1,    pdgId2;
 
   //--------------------DELTAS ------------------------------------------------------- 
   double deltaRleplep, deltaRlepjet, delPhilepmet, delPhijetmet, deltaphijetmet;
@@ -369,6 +370,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("philep2"          ,&philep2          ,"philep2/D"         );
   outTree_->Branch("charge1"          ,&charge1          ,"charge1/I"         );
   outTree_->Branch("charge2"          ,&charge2          ,"charge2/I"         );
+  outTree_->Branch("pdgId1"           ,&pdgId1           ,"pdgId1/I"          );
+  outTree_->Branch("pdgId2"           ,&pdgId2           ,"pdgId2/I"          );
   outTree_->Branch("phijet1"          ,&phijet1          ,"phijet1/D"         );
   outTree_->Branch("massjet1"         ,&massjet1         ,"massjet1/D"        );
   outTree_->Branch("softjet1"         ,&softjet1         ,"softjet1/D"        );
@@ -475,6 +478,8 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                    philep2        = lepton2->phi();
                    charge1        = lepton1->charge();
                    charge2        = lepton2->charge();
+                   pdgId1         = lepton1->pdgId();
+                   pdgId2         = lepton2->pdgId();
                    lep        = abs(lepton1->pdgId());
                    // hadrons
                    ptVhad         = hadronicV.pt();
@@ -833,6 +838,8 @@ void EDBRTreeMaker::setDummyValues() {
      philep2          = -1e4;
      charge1          = -1e4;
      charge2          = -1e4;
+     pdgId1           = -1e4;
+     pdgId2           = -1e4;
      miniIso1         = -1e4;
      miniIso2         = -1e4;
      nsubjets         = -1e4; 
