@@ -3,14 +3,17 @@ import FWCore.ParameterSet.Config as cms
 Ztoee = cms.EDProducer(           "CandViewCombiner",
                                    decay = cms.string("isoElectrons@+ isoElectrons@-"),
                                    cut = cms.string("(daughter(0).pt > 115 || daughter(1).pt > 115)"),
-                                   #checkCharge = cms.bool(False)
+                                   checkCharge = cms.bool(True)
                                   )
 
+daughterID     = "(daughter(0).userInt('isHighPt')==1 || daughter(1).userInt('isHighPt')==1)"
+daughterKin    = "((daughter(0).pt > 50 & abs(daughter(0).eta) < 2.1) || (daughter(1).pt > 50 & abs(daughter(1).eta) < 2.1))"
+daughterCharge = "(daughter(0).charge == -daughter(1).charge) || (daughter(0).pdgId == -daughter(1).pdgId)"
+
 Ztomumu = cms.EDProducer(         "CandViewCombiner",
-                                  decay = cms.string("isoMuons@+ isoMuons@-"),
-                                  cut = cms.string("((daughter(0).userInt('isHighPt')==1 || daughter(1).userInt('isHighPt')==1)) && "+
-                                                   "((daughter(0).pt > 50 & abs(daughter(0).eta) < 2.1) || (daughter(1).pt > 50 & abs(daughter(1).eta) < 2.1))"),
-                                  #checkCharge = cms.bool(False)
+                                  decay = cms.string("isoMuons isoMuons"),
+                                  cut = cms.string( daughterID + " && " + daughterKin + " && " + daughterCharge),
+                                  checkCharge = cms.bool(False)
                                   )
 
 leptonicV = cms.EDProducer(       "CandViewMerger",
