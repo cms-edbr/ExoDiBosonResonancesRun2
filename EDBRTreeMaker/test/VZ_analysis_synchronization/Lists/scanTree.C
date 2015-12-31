@@ -14,6 +14,6 @@ void scanTree(int mass, int channel){
    t0->SetScanField(0); 
    ((TTreePlayer*)(t0->GetPlayer()))->SetScanRedirect(true); 
    ((TTreePlayer*)(t0->GetPlayer()))->SetScanFileName( Form("list_BulkGrav_M-%d_%s.txt", mass, sufix[channel].c_str()) ); 
-   t0->Scan("run:lumisec:event", "index>19");
+   t0->Scan("run:lumisec:event", "index>20");
 }
 
