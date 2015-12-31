@@ -52,14 +52,14 @@ if TRIGGER == "el" :
     process.idElectrons.filter    = cms.bool(True)
     process.isoElectrons.filter   = cms.bool(True)
     process.leptonicVFilter.src   = "Ztoee"
-    process.leptonicVSelector.src = "Ztoee"
+    process.ZdaughterCharge.src   = "Ztoee"
 
 if TRIGGER == "mu" :
     process.kinMuons.filter       = cms.bool(True)
     process.idMuons.filter        = cms.bool(True)
     process.isoMuons.filter       = cms.bool(True)
     process.leptonicVFilter.src   = "Ztomumu"
-    process.leptonicVSelector.src = "Ztomumu"
+    process.ZdaughterCharge.src   = "Ztomumu"
 
 #*********************************** POOL SOURCE ****************************************************#
 
