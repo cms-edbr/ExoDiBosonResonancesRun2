@@ -89,6 +89,9 @@ my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.heepElectronI
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
+#Change vertex collection in Dxy cut
+process.egmGsfElectronIDs.physicsObjectIDs[0].idDefinition.cutFlow[9].vertexSrcMiniAOD = "goodOfflinePrimaryVertex"
+
 process.bestLeptonicV = cms.EDFilter(    "LargestPtCandSelector",
                                           src = cms.InputTag("leptonicVSelector"),
                                           maxNumber = cms.uint32(1) )
@@ -119,7 +122,6 @@ process.treeDumper = cms.EDAnalyzer(     "EDBRTreeMaker",
 
 process.analysis = cms.Path(              process.leptonicDecay            + 
                                           process.hltSequence              +
-                                          process.egmGsfElectronIDs        + 
                                           process.goodLeptonsProducer      +  
                                           process.leptonicVSequence        +
                                           process.bestLeptonicV            +
@@ -130,6 +132,10 @@ process.analysis = cms.Path(              process.leptonicDecay            +
                                           process.graviton                 +
                                           process.gravitonFilter           +
                                           process.treeDumper               )
+
+process.analysis.replace(                 process.goodOfflinePrimaryVertex,
+                                          process.goodOfflinePrimaryVertex +
+                                          process.egmGsfElectronIDs        )
 
 process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
 process.endpath = cms.EndPath( process.trigReportAnalyzer )
