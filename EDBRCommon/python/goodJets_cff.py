@@ -24,7 +24,7 @@ cleanJets.checkOverlaps.electrons.requireNoOverlaps = True
 cleanJets.checkOverlaps.photons = cms.PSet()
 cleanJets.checkOverlaps.taus = cms.PSet()
 cleanJets.checkOverlaps.tkIsoElectrons = cms.PSet()
-cleanJets.finalCut = "pt > 20 & abs(eta) < 2.4"
+cleanJets.finalCut = ""
 
 # module to filter on the number of Jets
 countCleanJets = cms.EDFilter("PATCandViewCountFilter",
