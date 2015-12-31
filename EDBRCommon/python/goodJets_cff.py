@@ -26,4 +26,11 @@ cleanJets.checkOverlaps.taus = cms.PSet()
 cleanJets.checkOverlaps.tkIsoElectrons = cms.PSet()
 cleanJets.finalCut = ""
 
-fatJetsSequence = cms.Sequence(bestLeptonicVdaughters + goodJets + cleanJets)
+# module to filter on the number of Jets
+countCleanJets = cms.EDFilter("PATCandViewCountFilter",
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(999999),
+    src = cms.InputTag("cleanJets")
+)
+
+fatJetsSequence = cms.Sequence(bestLeptonicVdaughters + goodJets + cleanJets + countCleanJets)
