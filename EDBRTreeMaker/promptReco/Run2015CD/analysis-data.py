@@ -118,11 +118,17 @@ my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.heepElectronI
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
+#Change vertex collection in Dxy cut
+process.egmGsfElectronIDs.physicsObjectIDs[0].idDefinition.cutFlow[9].vertexSrcMiniAOD = "goodOfflinePrimaryVertex"
+
 process.leptonSequence = cms.Sequence(    process.hltSequence              +
-                                          process.egmGsfElectronIDs        + 
                                           process.goodLeptonsProducer      +  
                                           process.leptonicVSequence        + 
                                           process.bestLeptonicV            )
+
+process.leptonSequence.replace(           process.goodOfflinePrimaryVertex,
+                                          process.goodOfflinePrimaryVertex +
+                                          process.egmGsfElectronIDs        )
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence          +
                                           process.hadronicVSequence        +
