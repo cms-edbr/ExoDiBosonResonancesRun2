@@ -66,18 +66,18 @@ void scanTrigReport(int channel){
    int hltB = tB->GetEntries( "index>1" );
    int hltC = tC->GetEntries( "index>1" );
 
-   int vtx1 = t1->GetEntries( "index>5" );
-   int vtx2 = t2->GetEntries( "index>5" );
-   int vtx3 = t3->GetEntries( "index>5" );
-   int vtx4 = t4->GetEntries( "index>5" );
-   int vtx5 = t5->GetEntries( "index>5" );
-   int vtx6 = t6->GetEntries( "index>5" );
-   int vtx7 = t7->GetEntries( "index>5" );
-   int vtx8 = t8->GetEntries( "index>5" );
-   int vtx9 = t9->GetEntries( "index>5" );
-   int vtxA = tA->GetEntries( "index>5" );
-   int vtxB = tB->GetEntries( "index>5" );
-   int vtxC = tC->GetEntries( "index>5" );
+   int vtx1 = t1->GetEntries( "index>4" );
+   int vtx2 = t2->GetEntries( "index>4" );
+   int vtx3 = t3->GetEntries( "index>4" );
+   int vtx4 = t4->GetEntries( "index>4" );
+   int vtx5 = t5->GetEntries( "index>4" );
+   int vtx6 = t6->GetEntries( "index>4" );
+   int vtx7 = t7->GetEntries( "index>4" );
+   int vtx8 = t8->GetEntries( "index>4" );
+   int vtx9 = t9->GetEntries( "index>4" );
+   int vtxA = tA->GetEntries( "index>4" );
+   int vtxB = tB->GetEntries( "index>4" );
+   int vtxC = tC->GetEntries( "index>4" );
 
    int kin1 = t1->GetEntries( Form("index>%d", kin[channel])   );
    int kin2 = t2->GetEntries( Form("index>%d", kin[channel])   );
@@ -170,31 +170,44 @@ void scanTrigReport(int channel){
    int jidB = tB->GetEntries( "index>23" );
    int jidC = tC->GetEntries( "index>23" );
 
-   int jes1 = t1->GetEntries( "index>26" );
-   int jes2 = t2->GetEntries( "index>26" );
-   int jes3 = t3->GetEntries( "index>26" );
-   int jes4 = t4->GetEntries( "index>26" );
-   int jes5 = t5->GetEntries( "index>26" );
-   int jes6 = t6->GetEntries( "index>26" );
-   int jes7 = t7->GetEntries( "index>26" );
-   int jes8 = t8->GetEntries( "index>26" );
-   int jes9 = t9->GetEntries( "index>26" );
-   int jesA = tA->GetEntries( "index>26" );
-   int jesB = tB->GetEntries( "index>26" );
-   int jesC = tC->GetEntries( "index>26" );
+   int jet1 = t1->GetEntries( "index>25" );
+   int jet2 = t2->GetEntries( "index>25" );
+   int jet3 = t3->GetEntries( "index>25" );
+   int jet4 = t4->GetEntries( "index>25" );
+   int jet5 = t5->GetEntries( "index>25" );
+   int jet6 = t6->GetEntries( "index>25" );
+   int jet7 = t7->GetEntries( "index>25" );
+   int jet8 = t8->GetEntries( "index>25" );
+   int jet9 = t9->GetEntries( "index>25" );
+   int jetA = tA->GetEntries( "index>25" );
+   int jetB = tB->GetEntries( "index>25" );
+   int jetC = tC->GetEntries( "index>25" );
 
-   int gra1 = t1->GetEntries( "index>29" );
-   int gra2 = t2->GetEntries( "index>29" );
-   int gra3 = t3->GetEntries( "index>29" );
-   int gra4 = t4->GetEntries( "index>29" );
-   int gra5 = t5->GetEntries( "index>29" );
-   int gra6 = t6->GetEntries( "index>29" );
-   int gra7 = t7->GetEntries( "index>29" );
-   int gra8 = t8->GetEntries( "index>29" );
-   int gra9 = t9->GetEntries( "index>29" );
-   int graA = tA->GetEntries( "index>29" );
-   int graB = tB->GetEntries( "index>29" );
-   int graC = tC->GetEntries( "index>29" );
+   int jek1 = t1->GetEntries( "index>27" );
+   int jek2 = t2->GetEntries( "index>27" );
+   int jek3 = t3->GetEntries( "index>27" );
+   int jek4 = t4->GetEntries( "index>27" );
+   int jek5 = t5->GetEntries( "index>27" );
+   int jek6 = t6->GetEntries( "index>27" );
+   int jek7 = t7->GetEntries( "index>27" );
+   int jek8 = t8->GetEntries( "index>27" );
+   int jek9 = t9->GetEntries( "index>27" );
+   int jekA = tA->GetEntries( "index>27" );
+   int jekB = tB->GetEntries( "index>27" );
+   int jekC = tC->GetEntries( "index>27" );
+
+   int gra1 = t1->GetEntries( "index>30" );
+   int gra2 = t2->GetEntries( "index>30" );
+   int gra3 = t3->GetEntries( "index>30" );
+   int gra4 = t4->GetEntries( "index>30" );
+   int gra5 = t5->GetEntries( "index>30" );
+   int gra6 = t6->GetEntries( "index>30" );
+   int gra7 = t7->GetEntries( "index>30" );
+   int gra8 = t8->GetEntries( "index>30" );
+   int gra9 = t9->GetEntries( "index>30" );
+   int graA = tA->GetEntries( "index>30" );
+   int graB = tB->GetEntries( "index>30" );
+   int graC = tC->GetEntries( "index>30" );
 
    std::map<int, std::string> sufix;
    sufix[11] = "elchannel";
@@ -229,8 +242,10 @@ void scanTrigReport(int channel){
                                gen1  ,  gen2  ,   gen3 ,   gen4 ,   gen5 ,   gen6 ,   gen7 ,   gen8 ,   gen9 ,   genA ,   genB ,   genC);
    ofs << Form("* JetID     *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
                                jid1  ,  jid2  ,   jid3 ,   jid4 ,   jid5 ,   jid6 ,   jid7 ,   jid8 ,   jid9 ,   jidA ,   jidB ,   jidC);
-   ofs << Form("* JetMass   *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               jes1  ,  jes2  ,   jes3 ,   jes4 ,   jes5 ,   jes6 ,   jes7 ,   jes8 ,   jes9 ,   jesA ,   jesB ,   jesC);
+   ofs << Form("* JetClean  *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                               jet1  ,  jet2  ,   jet3 ,   jet4 ,   jet5 ,   jet6 ,   jet7 ,   jet8 ,   jet9 ,   jetA ,   jetB ,   jetC);
+   ofs << Form("* JetKin    *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                               jek1  ,  jek2  ,   jek3 ,   jek4 ,   jek5 ,   jek6 ,   jek7 ,   jek8 ,   jek9 ,   jekA ,   jekB ,   jekC);
    ofs << Form("* Graviton  *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
                                gra1  ,  gra2  ,   gra3 ,   gra4 ,   gra5 ,   gra6 ,   gra7 ,   gra8 ,   gra9 ,   graA ,   graB ,   graC);
    ofs << "*******************************************";
