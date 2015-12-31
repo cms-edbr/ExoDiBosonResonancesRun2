@@ -66,18 +66,18 @@ void scanTrigReport(int channel){
    int hltB = tB->GetEntries( "index>1" );
    int hltC = tC->GetEntries( "index>1" );
 
-   int vtx1 = t1->GetEntries( "index>5" );
-   int vtx2 = t2->GetEntries( "index>5" );
-   int vtx3 = t3->GetEntries( "index>5" );
-   int vtx4 = t4->GetEntries( "index>5" );
-   int vtx5 = t5->GetEntries( "index>5" );
-   int vtx6 = t6->GetEntries( "index>5" );
-   int vtx7 = t7->GetEntries( "index>5" );
-   int vtx8 = t8->GetEntries( "index>5" );
-   int vtx9 = t9->GetEntries( "index>5" );
-   int vtxA = tA->GetEntries( "index>5" );
-   int vtxB = tB->GetEntries( "index>5" );
-   int vtxC = tC->GetEntries( "index>5" );
+   int vtx1 = t1->GetEntries( "index>4" );
+   int vtx2 = t2->GetEntries( "index>4" );
+   int vtx3 = t3->GetEntries( "index>4" );
+   int vtx4 = t4->GetEntries( "index>4" );
+   int vtx5 = t5->GetEntries( "index>4" );
+   int vtx6 = t6->GetEntries( "index>4" );
+   int vtx7 = t7->GetEntries( "index>4" );
+   int vtx8 = t8->GetEntries( "index>4" );
+   int vtx9 = t9->GetEntries( "index>4" );
+   int vtxA = tA->GetEntries( "index>4" );
+   int vtxB = tB->GetEntries( "index>4" );
+   int vtxC = tC->GetEntries( "index>4" );
 
    int kin1 = t1->GetEntries( Form("index>%d", kin[channel])   );
    int kin2 = t2->GetEntries( Form("index>%d", kin[channel])   );
@@ -131,70 +131,96 @@ void scanTrigReport(int channel){
    int dauB = tB->GetEntries( "index>18" );
    int dauC = tC->GetEntries( "index>18" );
 
-   int dil1 = t1->GetEntries( "index>19" );
-   int dil2 = t2->GetEntries( "index>19" );
-   int dil3 = t3->GetEntries( "index>19" );
-   int dil4 = t4->GetEntries( "index>19" );
-   int dil5 = t5->GetEntries( "index>19" );
-   int dil6 = t6->GetEntries( "index>19" );
-   int dil7 = t7->GetEntries( "index>19" );
-   int dil8 = t8->GetEntries( "index>19" );
-   int dil9 = t9->GetEntries( "index>19" );
-   int dilA = tA->GetEntries( "index>19" );
-   int dilB = tB->GetEntries( "index>19" );
-   int dilC = tC->GetEntries( "index>19" );
+   int dch1 = t1->GetEntries( "index>19" );
+   int dch2 = t2->GetEntries( "index>19" );
+   int dch3 = t3->GetEntries( "index>19" );
+   int dch4 = t4->GetEntries( "index>19" );
+   int dch5 = t5->GetEntries( "index>19" );
+   int dch6 = t6->GetEntries( "index>19" );
+   int dch7 = t7->GetEntries( "index>19" );
+   int dch8 = t8->GetEntries( "index>19" );
+   int dch9 = t9->GetEntries( "index>19" );
+   int dchA = tA->GetEntries( "index>19" );
+   int dchB = tB->GetEntries( "index>19" );
+   int dchC = tC->GetEntries( "index>19" );
 
-   int gen1 = t1->GetEntries( "index>21" );
-   int gen2 = t2->GetEntries( "index>21" );
-   int gen3 = t3->GetEntries( "index>21" );
-   int gen4 = t4->GetEntries( "index>21" );
-   int gen5 = t5->GetEntries( "index>21" );
-   int gen6 = t6->GetEntries( "index>21" );
-   int gen7 = t7->GetEntries( "index>21" );
-   int gen8 = t8->GetEntries( "index>21" );
-   int gen9 = t9->GetEntries( "index>21" );
-   int genA = tA->GetEntries( "index>21" );
-   int genB = tB->GetEntries( "index>21" );
-   int genC = tC->GetEntries( "index>21" );
+   int dil1 = t1->GetEntries( "index>20" );
+   int dil2 = t2->GetEntries( "index>20" );
+   int dil3 = t3->GetEntries( "index>20" );
+   int dil4 = t4->GetEntries( "index>20" );
+   int dil5 = t5->GetEntries( "index>20" );
+   int dil6 = t6->GetEntries( "index>20" );
+   int dil7 = t7->GetEntries( "index>20" );
+   int dil8 = t8->GetEntries( "index>20" );
+   int dil9 = t9->GetEntries( "index>20" );
+   int dilA = tA->GetEntries( "index>20" );
+   int dilB = tB->GetEntries( "index>20" );
+   int dilC = tC->GetEntries( "index>20" );
 
-   int jid1 = t1->GetEntries( "index>23" );
-   int jid2 = t2->GetEntries( "index>23" );
-   int jid3 = t3->GetEntries( "index>23" );
-   int jid4 = t4->GetEntries( "index>23" );
-   int jid5 = t5->GetEntries( "index>23" );
-   int jid6 = t6->GetEntries( "index>23" );
-   int jid7 = t7->GetEntries( "index>23" );
-   int jid8 = t8->GetEntries( "index>23" );
-   int jid9 = t9->GetEntries( "index>23" );
-   int jidA = tA->GetEntries( "index>23" );
-   int jidB = tB->GetEntries( "index>23" );
-   int jidC = tC->GetEntries( "index>23" );
+   int gen1 = t1->GetEntries( "index>22" );
+   int gen2 = t2->GetEntries( "index>22" );
+   int gen3 = t3->GetEntries( "index>22" );
+   int gen4 = t4->GetEntries( "index>22" );
+   int gen5 = t5->GetEntries( "index>22" );
+   int gen6 = t6->GetEntries( "index>22" );
+   int gen7 = t7->GetEntries( "index>22" );
+   int gen8 = t8->GetEntries( "index>22" );
+   int gen9 = t9->GetEntries( "index>22" );
+   int genA = tA->GetEntries( "index>22" );
+   int genB = tB->GetEntries( "index>22" );
+   int genC = tC->GetEntries( "index>22" );
 
-   int jes1 = t1->GetEntries( "index>26" );
-   int jes2 = t2->GetEntries( "index>26" );
-   int jes3 = t3->GetEntries( "index>26" );
-   int jes4 = t4->GetEntries( "index>26" );
-   int jes5 = t5->GetEntries( "index>26" );
-   int jes6 = t6->GetEntries( "index>26" );
-   int jes7 = t7->GetEntries( "index>26" );
-   int jes8 = t8->GetEntries( "index>26" );
-   int jes9 = t9->GetEntries( "index>26" );
-   int jesA = tA->GetEntries( "index>26" );
-   int jesB = tB->GetEntries( "index>26" );
-   int jesC = tC->GetEntries( "index>26" );
+   int jid1 = t1->GetEntries( "index>24" );
+   int jid2 = t2->GetEntries( "index>24" );
+   int jid3 = t3->GetEntries( "index>24" );
+   int jid4 = t4->GetEntries( "index>24" );
+   int jid5 = t5->GetEntries( "index>24" );
+   int jid6 = t6->GetEntries( "index>24" );
+   int jid7 = t7->GetEntries( "index>24" );
+   int jid8 = t8->GetEntries( "index>24" );
+   int jid9 = t9->GetEntries( "index>24" );
+   int jidA = tA->GetEntries( "index>24" );
+   int jidB = tB->GetEntries( "index>24" );
+   int jidC = tC->GetEntries( "index>24" );
 
-   int gra1 = t1->GetEntries( "index>29" );
-   int gra2 = t2->GetEntries( "index>29" );
-   int gra3 = t3->GetEntries( "index>29" );
-   int gra4 = t4->GetEntries( "index>29" );
-   int gra5 = t5->GetEntries( "index>29" );
-   int gra6 = t6->GetEntries( "index>29" );
-   int gra7 = t7->GetEntries( "index>29" );
-   int gra8 = t8->GetEntries( "index>29" );
-   int gra9 = t9->GetEntries( "index>29" );
-   int graA = tA->GetEntries( "index>29" );
-   int graB = tB->GetEntries( "index>29" );
-   int graC = tC->GetEntries( "index>29" );
+   int jet1 = t1->GetEntries( "index>26" );
+   int jet2 = t2->GetEntries( "index>26" );
+   int jet3 = t3->GetEntries( "index>26" );
+   int jet4 = t4->GetEntries( "index>26" );
+   int jet5 = t5->GetEntries( "index>26" );
+   int jet6 = t6->GetEntries( "index>26" );
+   int jet7 = t7->GetEntries( "index>26" );
+   int jet8 = t8->GetEntries( "index>26" );
+   int jet9 = t9->GetEntries( "index>26" );
+   int jetA = tA->GetEntries( "index>26" );
+   int jetB = tB->GetEntries( "index>26" );
+   int jetC = tC->GetEntries( "index>26" );
+
+   int jek1 = t1->GetEntries( "index>28" );
+   int jek2 = t2->GetEntries( "index>28" );
+   int jek3 = t3->GetEntries( "index>28" );
+   int jek4 = t4->GetEntries( "index>28" );
+   int jek5 = t5->GetEntries( "index>28" );
+   int jek6 = t6->GetEntries( "index>28" );
+   int jek7 = t7->GetEntries( "index>28" );
+   int jek8 = t8->GetEntries( "index>28" );
+   int jek9 = t9->GetEntries( "index>28" );
+   int jekA = tA->GetEntries( "index>28" );
+   int jekB = tB->GetEntries( "index>28" );
+   int jekC = tC->GetEntries( "index>28" );
+
+   int gra1 = t1->GetEntries( "index>31" );
+   int gra2 = t2->GetEntries( "index>31" );
+   int gra3 = t3->GetEntries( "index>31" );
+   int gra4 = t4->GetEntries( "index>31" );
+   int gra5 = t5->GetEntries( "index>31" );
+   int gra6 = t6->GetEntries( "index>31" );
+   int gra7 = t7->GetEntries( "index>31" );
+   int gra8 = t8->GetEntries( "index>31" );
+   int gra9 = t9->GetEntries( "index>31" );
+   int graA = tA->GetEntries( "index>31" );
+   int graB = tB->GetEntries( "index>31" );
+   int graC = tC->GetEntries( "index>31" );
 
    std::map<int, std::string> sufix;
    sufix[11] = "elchannel";
@@ -203,37 +229,43 @@ void scanTrigReport(int channel){
    std::ofstream ofs;
    ofs.open(outFile, std::ofstream::out);
 
-   ofs << "*******************************************";
+   ofs << "********************************************";
    ofs << "******************************************************************************************************************\n";
-   ofs << Form("*           *  %6s   *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *\n",\
-                            "M-800","M-1000","M-1200","M-1400","M-1600","M-1800","M-2000","M-2500","M-3000","M-3500","M-4000","M-4500");
-   ofs << "*******************************************";
+   ofs << Form("*            *  %6s   *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *   %6s  *\n",\
+                              "M-800" ,"M-1000","M-1200","M-1400","M-1600","M-1800","M-2000","M-2500","M-3000","M-3500","M-4000","M-4500");
+   ofs << "********************************************";
    ofs << "******************************************************************************************************************\n";
-   ofs << Form("* GenZlep   *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               beg1  ,  beg2  ,   beg3 ,   beg4 ,   beg5 ,   beg6 ,   beg7 ,   beg8 ,   beg9 ,   begA ,   begB ,   begC);
-   ofs << Form("* HLT       *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               hlt1  ,  hlt2  ,   hlt3 ,   hlt4 ,   hlt5 ,   hlt6 ,   hlt7 ,   hlt8 ,   hlt9 ,   hltA ,   hltB ,   hltC);
-   ofs << Form("* Vertex    *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               vtx1  ,  vtx2  ,   vtx3 ,   vtx4 ,   vtx5 ,   vtx6 ,   vtx7 ,   vtx8 ,   vtx9 ,   vtxA ,   vtxB ,   vtxC);
-   ofs << Form("* LeptonKin *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               kin1  ,  kin2  ,   kin3 ,   kin4 ,   kin5 ,   kin6 ,   kin7 ,   kin8 ,   kin9 ,   kinA ,   kinB ,   kinC);
-   ofs << Form("* LeptonID  *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               ids1  ,  ids2  ,   ids3 ,   ids4 ,   ids5 ,   ids6 ,   ids7 ,   ids8 ,   ids9 ,   idsA ,   idsB ,   idsC);
-   ofs << Form("* LeptonIso *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               iso1  ,  iso2  ,   iso3 ,   iso4 ,   iso5 ,   iso6 ,   iso7 ,   iso8 ,   iso9 ,   isoA ,   isoB ,   isoC);
-   ofs << Form("* Zdaughter *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               dau1  ,  dau2  ,   dau3 ,   dau4 ,   dau5 ,   dau6 ,   dau7 ,   dau8 ,   dau9 ,   dauA ,   dauB ,   dauC);
-   ofs << Form("* Zpeak     *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               dil1  ,  dil2  ,   dil3 ,   dil4 ,   dil5 ,   dil6 ,   dil7 ,   dil8 ,   dil9 ,   dilA ,   dilB ,   dilC);
-   ofs << Form("* GenZhad   *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               gen1  ,  gen2  ,   gen3 ,   gen4 ,   gen5 ,   gen6 ,   gen7 ,   gen8 ,   gen9 ,   genA ,   genB ,   genC);
-   ofs << Form("* JetID     *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               jid1  ,  jid2  ,   jid3 ,   jid4 ,   jid5 ,   jid6 ,   jid7 ,   jid8 ,   jid9 ,   jidA ,   jidB ,   jidC);
-   ofs << Form("* JetMass   *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               jes1  ,  jes2  ,   jes3 ,   jes4 ,   jes5 ,   jes6 ,   jes7 ,   jes8 ,   jes9 ,   jesA ,   jesB ,   jesC);
-   ofs << Form("* Graviton  *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
-                               gra1  ,  gra2  ,   gra3 ,   gra4 ,   gra5 ,   gra6 ,   gra7 ,   gra8 ,   gra9 ,   graA ,   graB ,   graC);
-   ofs << "*******************************************";
+   ofs << Form("* AllEvts    *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                               50000  , 48400  ,  49200 ,  50000 ,  50000 ,  50000 ,  50000 ,  50000 ,  49200 ,  50000 ,  50000 ,  50000);
+   ofs << Form("* GenZlep    *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                beg1  ,  beg2  ,   beg3 ,   beg4 ,   beg5 ,   beg6 ,   beg7 ,   beg8 ,   beg9 ,   begA ,   begB ,   begC);
+   ofs << Form("* HLT        *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                hlt1  ,  hlt2  ,   hlt3 ,   hlt4 ,   hlt5 ,   hlt6 ,   hlt7 ,   hlt8 ,   hlt9 ,   hltA ,   hltB ,   hltC);
+   ofs << Form("* Vertex     *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                vtx1  ,  vtx2  ,   vtx3 ,   vtx4 ,   vtx5 ,   vtx6 ,   vtx7 ,   vtx8 ,   vtx9 ,   vtxA ,   vtxB ,   vtxC);
+   ofs << Form("* LeptonKin  *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                kin1  ,  kin2  ,   kin3 ,   kin4 ,   kin5 ,   kin6 ,   kin7 ,   kin8 ,   kin9 ,   kinA ,   kinB ,   kinC);
+   ofs << Form("* LeptonID   *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                ids1  ,  ids2  ,   ids3 ,   ids4 ,   ids5 ,   ids6 ,   ids7 ,   ids8 ,   ids9 ,   idsA ,   idsB ,   idsC);
+   ofs << Form("* LeptonIso  *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                iso1  ,  iso2  ,   iso3 ,   iso4 ,   iso5 ,   iso6 ,   iso7 ,   iso8 ,   iso9 ,   isoA ,   isoB ,   isoC);
+   ofs << Form("* Zdaughter  *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                dau1  ,  dau2  ,   dau3 ,   dau4 ,   dau5 ,   dau6 ,   dau7 ,   dau8 ,   dau9 ,   dauA ,   dauB ,   dauC);
+   ofs << Form("* ZdauCharge *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                dch1  ,  dch2  ,   dch3 ,   dch4 ,   dch5 ,   dch6 ,   dch7 ,   dch8 ,   dch9 ,   dchA ,   dchB ,   dchC);
+   ofs << Form("* Zpeak      *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                dil1  ,  dil2  ,   dil3 ,   dil4 ,   dil5 ,   dil6 ,   dil7 ,   dil8 ,   dil9 ,   dilA ,   dilB ,   dilC);
+   ofs << Form("* GenZhad    *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                gen1  ,  gen2  ,   gen3 ,   gen4 ,   gen5 ,   gen6 ,   gen7 ,   gen8 ,   gen9 ,   genA ,   genB ,   genC);
+   ofs << Form("* JetID      *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                jid1  ,  jid2  ,   jid3 ,   jid4 ,   jid5 ,   jid6 ,   jid7 ,   jid8 ,   jid9 ,   jidA ,   jidB ,   jidC);
+   ofs << Form("* JetClean   *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                jet1  ,  jet2  ,   jet3 ,   jet4 ,   jet5 ,   jet6 ,   jet7 ,   jet8 ,   jet9 ,   jetA ,   jetB ,   jetC);
+   ofs << Form("* JetKin     *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                jek1  ,  jek2  ,   jek3 ,   jek4 ,   jek5 ,   jek6 ,   jek7 ,   jek8 ,   jek9 ,   jekA ,   jekB ,   jekC);
+   ofs << Form("* Graviton   *  %6d   *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *   %6d  *\n",\
+                                gra1  ,  gra2  ,   gra3 ,   gra4 ,   gra5 ,   gra6 ,   gra7 ,   gra8 ,   gra9 ,   graA ,   graB ,   graC);
+   ofs << "********************************************";
    ofs << "******************************************************************************************************************\n";
 
    ofs.close();
