@@ -8,7 +8,7 @@ Ztoee = cms.EDProducer(           "CandViewCombiner",
 
 daughterID     = "(daughter(0).userInt('isHighPt')==1 || daughter(1).userInt('isHighPt')==1)"
 daughterKin    = "((daughter(0).pt > 50 & abs(daughter(0).eta) < 2.1) || (daughter(1).pt > 50 & abs(daughter(1).eta) < 2.1))"
-daughterCharge = "(daughter(0).charge == -daughter(1).charge) || (daughter(0).pdgId == -daughter(1).pdgId)"
+daughterCharge = "((daughter(0).charge == -daughter(1).charge) || (daughter(0).pdgId == -daughter(1).pdgId))"
 
 Ztomumu = cms.EDProducer(         "CandViewCombiner",
                                   decay = cms.string("isoMuons isoMuons"),
