@@ -25,18 +25,20 @@ configXsecs = {
                   "HT-200to400" : 40.99,
                   "HT-400to600" : 5.678,
                   "HT-600toInf" : 2.198,
+                  "WW"          : 118.7,
                   "WZ"          : 47.13,
                   "ZZ"          : 16.52,
                   "TT"          : 831.76,
               }
 configNevents = {
-                  "HT-100to200" : 2725655,
-                  "HT-200to400" : 973937,
+                  "HT-100to200" : 2653072,
+                  "HT-200to400" : 466928,
                   "HT-400to600" : 1067758,
-                  "HT-600toInf" : 998912,
-                  "WZ"          : 978512,
-                  "ZZ"          : 996944,
-                  "TT"          : 19806096,
+                  "HT-600toInf" : 1031103,
+                  "WW"          : 988418,
+                  "WZ"          : 1000000,
+                  "ZZ"          : 985600,
+                  "TT"          : 1000000,
                 }
 usedXsec    = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
@@ -116,11 +118,17 @@ my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.heepElectronI
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
+#Change vertex collection in Dxy cut
+process.egmGsfElectronIDs.physicsObjectIDs[0].idDefinition.cutFlow[9].vertexSrcMiniAOD = "goodOfflinePrimaryVertex"
+
 process.leptonSequence = cms.Sequence(    process.hltSequence              +
-                                          process.egmGsfElectronIDs        + 
                                           process.goodLeptonsProducer      +  
                                           process.leptonicVSequence        + 
                                           process.bestLeptonicV            )
+
+process.leptonSequence.replace(           process.goodOfflinePrimaryVertex,
+                                          process.goodOfflinePrimaryVertex +
+                                          process.egmGsfElectronIDs        )
 
 process.jetSequence = cms.Sequence(       process.fatJetsSequence          +
                                           process.hadronicVSequence        +
