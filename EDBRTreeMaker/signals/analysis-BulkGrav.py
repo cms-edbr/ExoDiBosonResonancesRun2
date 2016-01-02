@@ -17,8 +17,6 @@ process.load("ExoDiBosonResonances.EDBRCommon.hltFilter_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.leptonicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.hadronicZ_cff")
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.Fall15MiniAOD76X."+SAMPLE)
-process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
-process.load("ExoDiBosonResonances.EDBRGenStudies.selectHadronicDecay")
 process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
 
 process.maxEvents.input = -1 
@@ -38,12 +36,12 @@ configXsecs = {  "BulkGravToZZToZlepZhad_M-800"         : 7.3592E-05,
               }
 
 configNevents = {"BulkGravToZZToZlepZhad_M-800"         : 50000,
-                 "BulkGravToZZToZlepZhad_M-1000"        : 48400,
-                 "BulkGravToZZToZlepZhad_M-1200"        : 49200,
-                 "BulkGravToZZToZlepZhad_M-1400"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1000"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1200"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1400"        : 49200,
                  "BulkGravToZZToZlepZhad_M-1600"        : 50000,
                  "BulkGravToZZToZlepZhad_M-1800"        : 50000,
-                 "BulkGravToZZToZlepZhad_M-2000"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-2000"        : 48400,
                  "BulkGravToZZToZlepZhad_M-2500"        : 50000,
                  "BulkGravToZZToZlepZhad_M-3000"        : 49200,
                  "BulkGravToZZToZlepZhad_M-3500"        : 50000,
@@ -64,9 +62,6 @@ usedHLT = triggerPath[TRIGGER]
 process.hltFilter.triggerConditions =  ( usedHLT, )
 
 if TRIGGER == "el" :
-    process.leptonicDecay.cut = cms.string("abs(pdgId())==23 "
-                                           "& (abs(daughter(0).pdgId())==11 & abs(daughter(1).pdgId())==11) " 
-                                           "& mother(0).pdgId()==39")
     process.kinElectrons.filter   = cms.bool(True)
     process.idElectrons.filter    = cms.bool(True)
     process.isoElectrons.filter   = cms.bool(True)
@@ -74,9 +69,6 @@ if TRIGGER == "el" :
     process.ZdaughterCharge.src   = "Ztoee"
 
 if TRIGGER == "mu" :
-    process.leptonicDecay.cut = cms.string("abs(pdgId())==23 "
-                                           "& (abs(daughter(0).pdgId())==13 & abs(daughter(1).pdgId())==13) " 
-                                           "& mother(0).pdgId()==39")
     process.kinMuons.filter       = cms.bool(True)
     process.idMuons.filter        = cms.bool(True)
     process.isoMuons.filter       = cms.bool(True)
@@ -120,12 +112,10 @@ process.treeDumper = cms.EDAnalyzer(     "EDBRTreeMaker",
                                           EDBRChannel     = cms.string    ( "VZ_CHANNEL"               ),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 
-process.analysis = cms.Path(              process.leptonicDecay            + 
-                                          process.hltSequence              +
+process.analysis = cms.Path(              process.hltSequence              +
                                           process.goodLeptonsProducer      +  
                                           process.leptonicVSequence        +
                                           process.bestLeptonicV            +
-                                          process.hadronicDecay            +
                                           process.fatJetsSequence          +
                                           process.hadronicVSequence        +
                                           process.bestHadronicV            +
@@ -137,8 +127,8 @@ process.analysis.replace(                 process.goodOfflinePrimaryVertex,
                                           process.goodOfflinePrimaryVertex +
                                           process.egmGsfElectronIDs        )
 
-process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
-process.endpath = cms.EndPath( process.trigReportAnalyzer )
+process.load("ExoDiBosonResonances.EDBRCommon.trigReportData_cff")
+process.endpath = cms.EndPath( process.trigReportData )
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("treeEDBR_"+SAMPLE+"_"+TRIGGER+"Channel.root")
