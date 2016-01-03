@@ -4,6 +4,7 @@
 #
 #       cmsenv; source /cvmfs/cms.cern.ch/crab3/crab.sh; source submitAll.sh
 
+crab submit Data.inputDataset='/SingleMuon/Run2015C_25ns-16Dec2015-v1/MINIAOD'
 crab submit Data.inputDataset='/SingleMuon/Run2015D-16Dec2015-v1/MINIAOD'
 
 # Switch to electron channel

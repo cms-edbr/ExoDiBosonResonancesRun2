@@ -110,6 +110,7 @@ process.treeDumper = cms.EDAnalyzer(     "EDBRTreeMaker",
                                           crossSectionPb  = cms.double    (  usedXsec                  ),
                                           targetLumiInvPb = cms.double    (  2630.245                  ),
                                           EDBRChannel     = cms.string    ( "VZ_CHANNEL"               ),
+                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 
 process.analysis = cms.Path(              process.hltSequence              +
