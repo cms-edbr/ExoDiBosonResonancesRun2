@@ -32,7 +32,7 @@ configXsecs = {
               }
 configNevents = {
                   "HT-100to200" : 2653072,
-                  "HT-200to400" : 466928,
+                  "HT-200to400" : 506223,
                   "HT-400to600" : 1067758,
                   "HT-600toInf" : 1031103,
                   "WW"          : 988418,
@@ -107,6 +107,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           crossSectionPb  = cms.double    (  usedXsec                   ),
                                           targetLumiInvPb = cms.double    (  2630.245                   ),
                                           EDBRChannel     = cms.string    (  CHANNEL                    ),
+                                          puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"  ))
 
 #***************************************** SEQUENCES **********************************************# 

@@ -175,8 +175,8 @@ private:
 
   edm::Service<TFileService> fs;
   TTree* outTree_;
-  //TFile *f1;
-  //TH1D *h1;
+  TFile *f1;
+  TH1D *h1;
 
 };
 
@@ -761,17 +761,17 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        lumiWeight    = 1.0;
        if( !isData_ ) {
            // pileup reweight
-           //Handle<std::vector< PileupSummaryInfo > >  puInfo;
-           //iEvent.getByToken(puInfoToken, puInfo);
-           //std::vector<PileupSummaryInfo>::const_iterator PVI;
-           //for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
-           //     int BX = PVI->getBunchCrossing();
-           //     if( BX == 0 ){
-           //          int  bin     = h1->FindBin(PVI->getTrueNumInteractions());
-           //          pileupWeight = h1->GetBinContent(bin);
-           //          continue;
-           //     }
-           //}
+           Handle<std::vector< PileupSummaryInfo > >  puInfo;
+           iEvent.getByToken(puInfoToken, puInfo);
+           std::vector<PileupSummaryInfo>::const_iterator PVI;
+           for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
+                int BX = PVI->getBunchCrossing();
+                if( BX == 0 ){
+                     int  bin     = h1->FindBin(PVI->getTrueNumInteractions());
+                     pileupWeight = h1->GetBinContent(bin);
+                     continue;
+                }
+           }
            // lumi weight
            double targetEvents = targetLumiInvPb_*crossSectionPb_;
            lumiWeight = targetEvents/originalNEvents_;
@@ -947,10 +947,10 @@ void EDBRTreeMaker::setDummyValues() {
 }
 
 void EDBRTreeMaker::beginJob(){ 
-     //if ( !isData_ ){
-     //   f1 = new TFile( puWeights_.fullPath().c_str() );
-     //   h1 = (TH1D*)f1->Get("pileupWeights");
-     //}
+     if ( !isData_ ){
+        f1 = new TFile( puWeights_.fullPath().c_str() );
+        h1 = (TH1D*)f1->Get("pileupWeights");
+     }
 }
 
 void EDBRTreeMaker::endJob(){ }
