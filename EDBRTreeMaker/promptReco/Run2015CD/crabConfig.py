@@ -15,3 +15,4 @@ config.Data.publication    = False
 config.Data.allowNonValidInputDataset = True
 
 config.Site.storageSite    =  'T2_BR_SPRACE'
+config.Site.whitelist      = ['T2_BR_SPRACE']
