@@ -38,6 +38,10 @@ class EDBRGenStudies : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
 
+      edm::EDGetTokenT<reco::CandidateCollection>     genZToken;
+      edm::EDGetTokenT<reco::VertexCollection>      vertexToken;
+      edm::EDGetTokenT<reco::CompositeCandidateView> ZcandToken;
+
       TTree* t; 
       double genPt1;
       double genPt2;
@@ -59,6 +63,10 @@ class EDBRGenStudies : public edm::EDAnalyzer {
 
 EDBRGenStudies::EDBRGenStudies(const edm::ParameterSet& iConfig)
 {
+   genZToken   = consumes<reco::CandidateCollection>(    edm::InputTag("leptonicDecay") );
+   vertexToken = consumes<reco::VertexCollection>(       edm::InputTag("goodVertices" ) );
+   ZcandToken  = consumes<reco::CompositeCandidateView>( edm::InputTag("Ztomumu"      ) );
+
    edm::Service<TFileService> fs;
    t = fs->make<TTree>("t","basic kinematic variables");
    t->Branch("genPt1",    &genPt1,    "genPt1/D");
@@ -88,8 +96,8 @@ EDBRGenStudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   Handle<reco::CandidateCollection>  genZ;
-   iEvent.getByLabel("leptonicDecay", genZ);
+   Handle<reco::CandidateCollection> genZ;
+   iEvent.getByToken(genZToken, genZ);
    const reco::Candidate& G    = (*genZ)[0];
    const reco::Candidate *gen1 = (reco::Candidate*)G.daughter(0);
    const reco::Candidate *gen2 = (reco::Candidate*)G.daughter(1);
@@ -105,15 +113,15 @@ EDBRGenStudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( !acceptance ) return;
 
    // handle goodOfflinePrimaryVertex collection
-   Handle<reco::VertexCollection>    vertices;
-   iEvent.getByLabel("goodVertices", vertices);
+   Handle<reco::VertexCollection> vertices;
+   iEvent.getByToken(vertexToken, vertices);
    const reco::Vertex& vertex = (*vertices)[0];
 
    //****************************************************************//
    //                  loop over reco Z candidates                   //
    //****************************************************************//                                             
    Handle<reco::CompositeCandidateView> Zcands ;
-   iEvent.getByLabel("Ztomumu",         Zcands);
+   iEvent.getByToken(ZcandToken,        Zcands);
    int mult = Zcands->size();
    for( int i=0; i<mult; i++ ) {
       const reco::Candidate& Z = (*Zcands)[i];
