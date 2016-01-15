@@ -35,7 +35,7 @@ ZdaughterCharge = cms.EDFilter(   "CandViewSelector",
 
 leptonicVSelector = cms.EDFilter( "CandViewSelector",
                                    src = cms.InputTag("ZdaughterCharge"),
-                                   cut = cms.string( "pt > 200. & 70. < mass < 110."),
+                                   cut = cms.string( "pt > 180. & 70. < mass < 110."),
                                    filter = cms.bool(True) )
 
 leptonicVSequence = cms.Sequence(  Ztoee             + 
