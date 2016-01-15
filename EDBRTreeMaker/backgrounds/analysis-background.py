@@ -21,10 +21,10 @@ VZ_JetMET       = False        # True
 import sys
 SAMPLE = str(sys.argv[2])
 configXsecs = {
-                  "HT-100to200" : 147.40,
-                  "HT-200to400" : 40.99,
-                  "HT-400to600" : 5.678,
-                  "HT-600toInf" : 2.198,
+                  "HT-100to200" : 221.37, # 139.4 x 1.588
+                  "HT-200to400" : 61.47,  # 42.75 x 1.438
+                  "HT-400to600" : 8.212,  # 5.497 x 1.494
+                  "HT-600toInf" : 2.517,  # 2.21  x 1.139
                   "WW"          : 118.7,
                   "WZ"          : 47.13,
                   "ZZ"          : 16.52,
@@ -92,7 +92,7 @@ process.bestHadronicV = cms.EDFilter(    "LargestPtCandSelector",
 process.graviton = cms.EDProducer(        "CandViewCombiner",
                                           decay           = cms.string  ( "bestLeptonicV bestHadronicV" ),
                                           checkCharge     = cms.bool    (  False                        ),
-                                          cut             = cms.string  ( "mass > 400."                 ),
+                                          cut             = cms.string  ( ""                            ),
                                           roles           = cms.vstring ( 'leptonicV', 'hadronicV'      ))
 
 process.gravitonFilter =  cms.EDFilter(   "CandViewCountFilter",
