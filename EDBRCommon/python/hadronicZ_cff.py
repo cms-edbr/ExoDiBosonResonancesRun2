@@ -9,7 +9,7 @@ corrJetsProducer = cms.EDProducer ( "CorrJetsProducer",
 
 hadronicV = cms.EDFilter( "CandViewSelector",
                           src = cms.InputTag("corrJetsProducer:corrJets"),
-                          cut = cms.string('pt > 180. & abs(eta)<2.4'),
+                          cut = cms.string('abs(eta)<2.4'),
                           filter = cms.bool(True) )
 
 hadronicVSequence = cms.Sequence( corrJetsProducer + hadronicV )
