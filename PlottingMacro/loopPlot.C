@@ -1,9 +1,11 @@
 #include <Riostream.h>
+#include <map>
 #include <vector>
 #include <string>
 
 #include "TROOT.h"
 #include "TError.h"
+#include "TChain.h"
 #include "TFile.h"
 #include "TCollection.h"
 #include "TKey.h"
@@ -21,13 +23,16 @@ void loopPlot(){
   /// Boolean flags to steer the histogram making
   bool wantElectrons = false; // Will make histograms for electrons
   bool wantMuons     = true; // Will make histograms for muons
-  bool wantSideband  = false; // Will make histograms for sideband region
-  bool wantSignal    = true; // Will make histograms for signal region
+  bool wantSideband  = true; // Will make histograms for sideband region
+  bool wantSignal    = false; // Will make histograms for signal region
   bool wantFullRange = false; // Will not check signal or sideband, ie, pick all jet mass range
   int  wantNXJets    = 1; // Will make histograms for 1 or 2 jet topology
   int  isZZchannel   = 1; //plot label for zz (1) or ww (0)
   int  flavour = 0; 
-  if(wantElectrons) flavour=11; if(wantMuons) flavour=13; if(wantElectrons and wantMuons) flavour=0;
+  std::string outputDir;
+  if(wantElectrons) {flavour=11;   outputDir = "../controlPlots/plots_ELP_SidebandRegion";}
+  if(wantMuons)     {flavour=13;   outputDir = "../controlPlots/plots_MLP_SidebandRegion";}
+  if(wantElectrons and wantMuons)  outputDir = "../controlPlots/plots_ALP_SidebandRegion";
   
   /// Luminosity value in fb^-1
   /// Scale histograms (line 403 EDBRHistoPloter.h) 
@@ -38,32 +43,27 @@ void loopPlot(){
   // Should we scale only wjets to make total MC = DATA?
   bool scaleOnlyWJets = false;
   /// Should we plot the Data/Bkg and Data-Bkg/Error ratios?
-  bool makeRatio = false;
+  bool makeRatio = true; 
   /// Should we REDO histograms?
   bool redoHistograms = true;
   /// Should we put the signal MC stacked on top of the background (or just plot the signal alone)?
   bool isSignalStackOnBkg = false;
+  /// Should we do pileup reweighting?
+  bool pileupReweight = true;
 
   /// Path to wherever the files with the trees are. 
   std::string pathToTrees="../trees/";
 
-  /// Path to wherever you want to put the histograms (figures) in.
-  std::string outputDir = "../plots_MuonChannelHighPurity";
- 
-
   /// Setup names of data files for trees.
 
-  /*
-  const int nDATA=4;
-  std::string dataLabels[nDATA]={"DoubleMu_Run2012A_22Jan2013",
-				 "DoubleMuParked_Run2012B_22Jan2013",
-				 "DoubleMuParked_Run2012C_22Jan2013",
-				 "DoubleMuParked_Run2012D_22Jan2013"};
-  */
-  const int nDATA=2;//set to zero if you don't want to plot
+  const int nDATA=4;//set to zero if you don't want to plot
   //std::string dataLabels[nDATA]={ };
-  std::string dataLabels[nDATA]={"SingleMuon",
-                                 "SingleElectron"};
+  std::string dataLabels[nDATA]={"SingleMuon1",      // SingleMuon/Run2015C_25ns-05Oct2015
+                                 "SingleMuon2",      // SingleMuon/Run2015D-05Oct2015
+                                 "SingleElectron1",  // SingleElectron/Run2015C_25ns-05Oct2015
+                                 "SingleElectron2"   // SingleElectron/Run2015D-04Dec2015
+                                };
+
   std::vector<std::string> fData;
   
   for(int ii=0;ii<nDATA;ii++){
@@ -71,21 +71,37 @@ void loopPlot(){
   }
 
   /// Setup names of MC files for trees.
-
-  const int nMC=3;//set to zero if you don't want to plot
+  const int nMC=2;//set to zero if you don't want to plot
   std::string mcLabels[nMC]={ 
-                             "TT",
                              "Diboson",
                              "DYJets",
 			    };
 
-  double kFactorsMC_array[nMC] = {1, 1, 1};
-  
-  std::vector<std::string> fMC;
-  for(int ii=0;ii<nMC;ii++){
-    fMC.push_back(pathToTrees+"treeEDBR_"+mcLabels[ii]+".root");
-  }
+  std::vector<std::string> DBsamples; 
+  std::vector<std::string> DYsamples; 
 
+  if(wantElectrons){
+     DBsamples.push_back(pathToTrees+"treeEDBR_WZ_el.root");
+     DBsamples.push_back(pathToTrees+"treeEDBR_WW_el.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT100to200_el.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT200to400_el.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT400to600_el.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT600toInf_el.root");
+  }
+  if(wantMuons){
+     DBsamples.push_back(pathToTrees+"treeEDBR_WZ_mu.root");
+     DBsamples.push_back(pathToTrees+"treeEDBR_WW_mu.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT100to200_mu.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT200to400_mu.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT400to600_mu.root");
+     DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT600toInf_mu.root");
+  }
+  
+  std::map<int, std::vector<std::string> > fMC; 
+  fMC[0] = DBsamples;
+  fMC[1] = DYsamples;
+
+  double kFactorsMC_array[nMC] = {1, 1};
   std::vector<double> kFactorsMC;
   //std::cout << "The contents of kFactorsMC are:" << std::endl;
   for (int index=0; index<nMC; index++)
@@ -96,9 +112,9 @@ void loopPlot(){
 
   /// Setup names of MC signal files for trees.
   const int nMCSig=0;//set to zero if you don't want to plot
-  //std::string mcLabelsSig[nMCSig]={"BulkGrav_-M_1200"};
+  //std::string mcLabelsSig[nMCSig]={"BulkGrav_-M_2000"};
   std::string mcLabelsSig[nMCSig]={};
-  //double kFactorsSig_array[nMCSig] = {0.5e5};
+  //double kFactorsSig_array[nMCSig] = {0.5e7};
   double kFactorsSig_array[nMCSig] = {};
 
   std::vector<double> kFactorsMCSig;
@@ -133,7 +149,8 @@ void loopPlot(){
   ///		       bool wantSideband,
   ///		       bool wantSignal,
   ///		       int  wantNXJets,
-  ///              bool isZZchannel)
+  ///                  bool isZZchannel,
+  ///                  bool pileupReweight )
 
   printf("\nStart making histograms\n\n");
 
@@ -155,7 +172,8 @@ void loopPlot(){
 						 wantSignal,
 						 wantFullRange,
 						 wantNXJets,
-						 isZZchannel);
+						 isZZchannel,
+                                                 pileupReweight);
       maker->setUnitaryWeights(true);
       maker->Loop(buffer);
       //delete maker; // This class is badly written and deleting it isn't safe!
@@ -169,26 +187,27 @@ void loopPlot(){
   //loop over MC files and make histograms individually for each of them
   for(int i=0;i<nMC;i++){
     std::cout<<"\n-------\nRunning over "<<mcLabels[i].c_str()<<std::endl;
-    std::cout<<"The file is " <<fMC.at(i)<<std::endl;    
     sprintf(buffer,"histos_%s.root",mcLabels[i].c_str());
     fHistosMC.push_back(buffer);
-    
     if(redoHistograms){
-      TFile *fileMC = TFile::Open(fMC.at(i).c_str());
-      TTree *treeMC = (TTree*)fileMC->Get("treeDumper/EDBRCandidates");
-      EDBRHistoMaker* maker = new EDBRHistoMaker(treeMC, 
+      TChain treeMC("treeDumper/EDBRCandidates");
+      while( !fMC[i].empty() ){
+         treeMC.Add(fMC[i].back().c_str());
+         fMC[i].pop_back();
+      }
+      EDBRHistoMaker* maker = new EDBRHistoMaker(&treeMC, 
 						 wantElectrons, 
 						 wantMuons, 
 						 wantSideband, 
 						 wantSignal, 
 						 wantFullRange,
 						 wantNXJets,
-						 isZZchannel);
+						 isZZchannel,
+                                                 pileupReweight);
       maker->setUnitaryWeights(false);
       maker->Loop(buffer);
       //maker->saveAllHistos(buffer);
       //delete maker; // This class is badly written and deleting it isn't safe!
-      fileMC->Close();
     }
     
   }//end loop on MC files
