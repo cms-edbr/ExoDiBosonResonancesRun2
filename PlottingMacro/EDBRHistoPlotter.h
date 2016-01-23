@@ -6,6 +6,7 @@
 #include "THStack.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TPaveText.h"
 #include "TLine.h"
 #include "TString.h"
 #include "TObjString.h"
@@ -476,8 +477,42 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   /// Draw both MC and DATA in the stack
   ///-----------------------------------
 
+  std::map<std::string, std::string> axisTitle;
+  axisTitle["h_nVtx"]          = "number of primary vertices";
+  axisTitle["h_ptZll"]         = "leptonic Z p_{T} (GeV)"; 
+  axisTitle["h_ptZjj"]         = "jet p_{T} (GeV)"; 
+  axisTitle["h_yZll"]          = "leptonic Z #eta"; 
+  axisTitle["h_yZjj"]          = "jet #eta"; 
+  axisTitle["h_phiZll"]        = "leptonic Z #phi"; 
+  axisTitle["h_phiZjj"]        = "jet #phi"; 
+  axisTitle["h_massZll"]       = "leptonic Z mass (GeV)"; 
+  axisTitle["h_massZjj"]       = "jet pruned mass (GeV)"; 
+  axisTitle["h_tau21"]         = "#tau_{2}/#tau_{1}"; 
+  axisTitle["h_ptlep1"]        = "leading lepton p_{T} (GeV)"; 
+  axisTitle["h_ptlep2"]        = "second lepton p_{T} (GeV)"; 
+  axisTitle["h_ptjet1"]        = "jet p_{T} (GeV)"; 
+  axisTitle["h_etalep1"]       = "leading lepton #eta"; 
+  axisTitle["h_etalep2"]       = "second lepton #eta"; 
+  axisTitle["h_etajet1"]       = "jet #eta"; 
+  axisTitle["h_philep1"]       = "leading lepton #phi"; 
+  axisTitle["h_philep2"]       = "second lepton #phi"; 
+  axisTitle["h_phijet1"]       = "jet #phi"; 
+  axisTitle["h_miniIso1"]      = "leading lepton miniISO_{rel}"; 
+  axisTitle["h_miniIso2"]      = "second lepton miniISO_{rel}"; 
+  axisTitle["h_miniIsoAbs1"]   = "leading lepton miniISO_{abs}"; 
+  axisTitle["h_miniIsoAbs2"]   = "second lepton miniISO_{abs}"; 
+  axisTitle["h_lep"]           = "lepton flavor"; 
+  axisTitle["h_region"]        = "region"; 
+  axisTitle["h_triggerWeight"] = "trigger weight"; 
+  axisTitle["h_lumiWeight"]    = "luminosity weight"; 
+  axisTitle["h_pileupWeight"]  = "pileup weight"; 
+  axisTitle["h_deltaRleplep"]  = "#DeltaR(lep,lep)"; 
+  axisTitle["h_deltaRlepjet"]  = "#DeltaR(lep,jet)"; 
+  axisTitle["h_candMass"]      = "VZ candidadte mass (GeV)"; 
+  axisTitle["h_candMass2"]     = "VZ candidadte mass (GeV)"; 
+
   hs->Draw("HIST");
-  hs->GetXaxis()->SetTitle(histoName.c_str());
+  hs->GetXaxis()->SetTitle(axisTitle[histoName].c_str());
   hs->GetYaxis()->SetTitle("Events");
   hs->GetYaxis()->SetTitleOffset(1.15);
   hs->GetYaxis()->CenterTitle();
@@ -505,11 +540,10 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   sumMC->SetTitle("");
   TH1* histoForErrors = (TH1*)sumMC->Clone("histoForErrors");
   histoForErrors->Draw("HISTO SAME");
-  histoForErrors->SetMarkerSize(0);
   histoForErrors = (TH1*)sumMC->Clone("histoForErrors2");
   histoForErrors->SetMarkerSize(0);
-  histoForErrors->SetFillColor(kBlack);
-  histoForErrors->SetFillStyle(3001);
+  histoForErrors->SetFillColorAlpha(kYellow-7,0.6);
+  histoForErrors->SetFillStyle(1001);
   histoForErrors->Draw("E2SAME");
 
   if (isDataPresent_)
@@ -538,9 +572,9 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
 
   // For the legend, we have to tokenize the name "histos_XXX.root"
-  TLegend* leg = new TLegend(0.60, 0.80, 0.87, 0.92);
-  leg->SetMargin(0.2);
-  leg->SetTextSize(0.016);
+  TLegend* leg = new TLegend(0.75, 0.65, 0.93, 0.93);
+  leg->SetMargin(0.4);
+  leg->SetTextSize(0.038);
   if (isDataPresent_)
     leg->AddEntry(sumDATA, "Data", "p");
   for (int i = histosMC.size()-1; i != -1; --i)
@@ -608,6 +642,14 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
     lineAtOne = new TLine(histoRatio->GetXaxis()->GetXmin(), 1, histoRatio->GetXaxis()->GetXmax(), 1);
     lineAtOne->SetLineColor(2);
     lineAtOne->Draw();
+
+    TPaveText *pave1 = new TPaveText(0.70,0.70,0.91,0.93,"NDC");
+    pave1->SetBorderSize(0);
+    pave1->SetFillStyle(0);
+    pave1->SetTextSize(0.12);
+    pave1->AddText(Form("Scale Factor = %.4f",sumDataIntegral / sumBkgAtTargetLumi));
+    pave1->Draw();
+
   }
 
   //============ Data-MC/Error ==============
@@ -679,6 +721,13 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
     lineAtMinusTwo->SetLineColor(2);
     lineAtMinusTwo->SetLineStyle(2);
     lineAtMinusTwo->Draw();
+
+    Double_t chi2ndf = sumDATA->Chi2Test(sumMC,"UW CHI2/NDF");
+    TPaveText *pave2 = new TPaveText(0.72,0.72,0.92,0.92,"NDC");
+    pave2->SetBorderSize(0);
+    pave2->SetFillStyle(0);
+    pave2->AddText(Form("#chi^{2} / ndf = %.4f",chi2ndf));
+    pave2->Draw();
   }
 
   // Save the picture

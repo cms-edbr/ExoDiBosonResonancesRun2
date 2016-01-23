@@ -282,7 +282,7 @@ void EDBRHistoMaker::Init(TTree *tree)
    fChain->SetBranchAddress("delPhilepmet", &delPhilepmet, &b_delPhilepmet);
    fChain->SetBranchAddress("deltaRlepjet", &deltaRlepjet, &b_deltaRlepjet);
    fChain->SetBranchAddress("delPhijetmet", &delPhijetmet, &b_delPhijetmet);
-   fChain->SetBranchAddress("candMass", &candMass, &b_candMass);
+   fChain->SetBranchAddress("candMass", &candMass,  &b_candMass);
 }
 
 EDBRHistoMaker::EDBRHistoMaker(TTree* tree, 
@@ -345,18 +345,18 @@ void EDBRHistoMaker::createAllHistos() {
   /// Much simpler to create histos now: just add them to
   /// hs with hs.setHisto(name,nbins,min,max);
   hs.setHisto("nVtx", 40,0,40);
-  hs.setHisto("ptZll",50,0,1000); // 20 GeV bins
-  hs.setHisto("ptZjj",50,0,1000); // 20 GeV bins
+  hs.setHisto("ptZll",30,20,920); // 20 GeV bins
+  hs.setHisto("ptZjj",30,20,920); // 20 GeV bins
   hs.setHisto("yZll",28,-2.8,2.8);
   hs.setHisto("yZjj",28,-2.8,2.8);
   hs.setHisto("phiZll",74,-3.7,3.7);
   hs.setHisto("phiZjj",74,-3.7,3.7);
   hs.setHisto("massZll",50,50,150); // 2 GeV bins 
-  hs.setHisto("massZjj",32,40,120); // 2.5 GeV bins  
-  hs.setHisto("tau21",50,0,1);
+  hs.setHisto("massZjj",44,0,220);  // 5 GeV bins  
+  hs.setHisto("tau21",20,0,1);
   hs.setHisto("ptlep1",40,0,800); 
   hs.setHisto("ptlep2",50,0,500);
-  hs.setHisto("ptjet1",50,0,1000);
+  hs.setHisto("ptjet1",30,20,920);
   hs.setHisto("etalep1",28,-2.8,2.8);
   hs.setHisto("etalep2",28,-2.8,2.8);
   hs.setHisto("etajet1",28,-2.8,2.8);
@@ -374,7 +374,8 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("pileupWeight",70,0,7);
   hs.setHisto("deltaRleplep",70,0,3.5); 
   hs.setHisto("deltaRlepjet",70,0,7); 
-  hs.setHisto("candMass", 30,600,3600); // 100 GeV bins...
+  hs.setHisto("candMass",  30,300,3300); // 100 GeV bins...
+  hs.setHisto("candMass2", 20,300,1300); // 50 GeV bins...
   //but to have the signal spread around 4 bins maybe we want 25 GeV bins?
   
   char buffer[256];
@@ -461,7 +462,7 @@ bool EDBRHistoMaker::eventInSidebandRegion(){
 
   bool isInSideband = false;
 
-  isInSideband = (region == 0);
+  isInSideband = (region==-1 or region==0 or region==3);
 
   return isInSideband;
 }
@@ -570,9 +571,10 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       //if(candMass>2400.0)
       //cout<<"Found one event with MZZ="<<candMass<<endl;
       
-      if(candMass<600.) continue;
-      //if(tau21<0.6 or tau21>0.75) continue; //Low purity category
-      if(tau21>0.6) continue; // High purity category
+      //if(candMass<500.) continue;
+      if(massVhad<20.) continue;
+      if(tau21<0.45) continue; //Low purity category
+      //if(tau21>0.45) continue; // High purity category
      
       double miniIsoAbs1 = miniIso1*ptlep1;
       double miniIsoAbs2 = miniIso2*ptlep2;
@@ -603,6 +605,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["massZjj"])->Fill(massVhad,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["tau21"])->Fill(tau21,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["candMass"])->Fill(candMass,actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["candMass2"])->Fill(candMass,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["lep"])->Fill(lep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["region"])->Fill(region,actualWeight);//printf("line number %i\n",__LINE__);
       
