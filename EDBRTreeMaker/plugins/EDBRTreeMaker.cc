@@ -787,9 +787,9 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            upperSB,
        }; 
 
-       if( massVhad < 40. )
+       if( massVhad < 20. )
 	   reg = excluded;
-       if( massVhad > 40.  and  massVhad < 65.  )
+       if( massVhad > 20.  and  massVhad < 65.  )
 	   reg = lowerSB;
        if( massVhad > 65.  and  massVhad < 105. )
 	   reg = lowerSIG;
