@@ -134,5 +134,5 @@ process.load("ExoDiBosonResonances.EDBRCommon.trigReportData_cff")
 process.endpath = cms.EndPath( process.trigReportData )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_"+SAMPLE+"_"+TRIGGER+"Channel.root")
+                                   fileName = cms.string("treeEDBR_"+SAMPLE+"_"+TRIGGER+".root")
                                   )
