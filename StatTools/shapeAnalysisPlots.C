@@ -75,6 +75,7 @@ void shapeAnalysisPlots(std::string key)
   if( key[0]=='E' or key[0]=='A' ){ 
       treeData.Add(     "trees/treeEDBR_SingleElectron1.root"             ); 
       treeData.Add(     "trees/treeEDBR_SingleElectron2.root"             ); 
+      treeMC2.Add(      "trees/treeEDBR_TT_el.root"                       );
       treeMC2.Add(      "trees/treeEDBR_WW_el.root"                       );
       treeMC2.Add(      "trees/treeEDBR_WZ_el.root"                       );
       treeMC2.Add(      "trees/treeEDBR_ZZ_el.root"                       );
@@ -86,6 +87,7 @@ void shapeAnalysisPlots(std::string key)
   if( key[0]=='M' or key[0]=='A' ){
       treeData.Add(     "trees/treeEDBR_SingleMuon1.root"                 ); 
       treeData.Add(     "trees/treeEDBR_SingleMuon2.root"                 ); 
+      treeMC2.Add(      "trees/treeEDBR_TT_mu.root"                       );
       treeMC2.Add(      "trees/treeEDBR_WW_mu.root"                       );
       treeMC2.Add(      "trees/treeEDBR_WZ_mu.root"                       );
       treeMC2.Add(      "trees/treeEDBR_ZZ_mu.root"                       );

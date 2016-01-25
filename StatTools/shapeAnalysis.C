@@ -23,25 +23,25 @@ void shapeAnalysis(std::string key, Int_t mass)
   // Silent RooFit
   RooMsgService::instance().setGlobalKillBelow(FATAL);
 
-  RooRealVar candMass("candMass","M_{VZ}",            600., 4800., "GeV");
-  RooRealVar massVhad("massVhad","M_{j}" ,             45.,  220., "GeV");
-  RooRealVar tau21("tau21","tau21",                     0.,    1.       );
+  RooRealVar candMass("candMass","M_{VZ}",            500., 9999., "GeV");
+  RooRealVar massVhad("massVhad","M_{j}" ,             20.,  220., "GeV");
+  RooRealVar tau21("tau21","tau21",                     0.,  0.75       );
   RooRealVar lep("lep","lep",                           10,    15       );
   RooRealVar totalWeight("totalWeight", "total weight", 0.,    10.      );
   RooArgSet variables(candMass,massVhad,tau21,lep,totalWeight);
 
-  massVhad.setRange("lowerSB",      45.,   65.);
+  massVhad.setRange("lowerSB",      20.,   65.);
   massVhad.setRange("lowerSIG",     65.,  105.);
   massVhad.setRange("upperSIG",    105.,  135.);
   massVhad.setRange("upperSB",     135.,  220.);
 
   std::map<std::string, std::string> selection;
-  selection["ENP"] = "candMass>600 && lep<12";
-  selection["MNP"] = "candMass>600 && lep>12";
-  selection["EHP"] = "candMass>600 && lep<12 && tau21<0.6";
-  selection["MHP"] = "candMass>600 && lep>12 && tau21<0.6";
-  selection["ELP"] = "candMass>600 && lep<12 && tau21>0.6 && tau21<0.75";
-  selection["MLP"] = "candMass>600 && lep>12 && tau21>0.6 && tau21<0.75";
+  selection["ENP"] = "lep<12";
+  selection["MNP"] = "lep>12";
+  selection["EHP"] = "lep<12 && tau21<0.45";
+  selection["MHP"] = "lep>12 && tau21<0.45";
+  selection["ELP"] = "lep<12 && tau21>0.45";
+  selection["MLP"] = "lep>12 && tau21>0.45";
 
   TCut selectedCategory = selection[key].c_str();
   TCut lowerSIG = "massVhad>65.  && massVhad<105" + selectedCategory;
@@ -63,50 +63,56 @@ void shapeAnalysis(std::string key, Int_t mass)
   std::string lepton_scale;
 
   if( key[0]=='E' ){ 
-      treeData.Add(     "../elTrees/nov21/treeEDBR_SingleElectron.root"              ); 
-      treeMC2.Add(      "../elTrees/nov21/treeEDBR_WZ.root"                          );
-      treeMC2.Add(      "../elTrees/nov21/treeEDBR_ZZ.root"                          );
-      treeMC2.Add(      "../elTrees/nov21/treeEDBR_T_T.root"                         );
-      treeMC1.Add(      "../elTrees/nov21/treeEDBR_DYJetsToLL_HT-100to200.root"      );
-      treeMC1.Add(      "../elTrees/nov21/treeEDBR_DYJetsToLL_HT-200to400.root"      );
-      treeMC1.Add(      "../elTrees/nov21/treeEDBR_DYJetsToLL_HT-400to600.root"      );
-      treeMC1.Add(      "../elTrees/nov21/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
-      inputFile[800]  = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
-      inputFile[1000] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
-      inputFile[1200] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
-      inputFile[1400] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
-      inputFile[1600] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
-      inputFile[1800] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
-      inputFile[2000] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
-      inputFile[2500] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
-      inputFile[3000] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
-      inputFile[3500] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
-      inputFile[4000] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
-      inputFile[4500] = "../elTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      treeData.Add(     "trees/treeEDBR_SingleElectron1.root"                ); 
+      treeData.Add(     "trees/treeEDBR_SingleElectron2.root"                ); 
+      treeMC2.Add(      "trees/treeEDBR_TT_el.root"                          );
+      treeMC2.Add(      "trees/treeEDBR_WW_el.root"                          );
+      treeMC2.Add(      "trees/treeEDBR_WZ_el.root"                          );
+      treeMC2.Add(      "trees/treeEDBR_ZZ_el.root"                          );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT100to200_el.root"       );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT200to400_el.root"       );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT400to600_el.root"       );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT600toInf_el.root"       );
+      inputFile[600]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0600_el.root";
+      inputFile[800]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0800_el.root";
+      inputFile[1000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_el.root";
+      inputFile[1200] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_el.root";
+      inputFile[1400] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1400_el.root";
+      inputFile[1600] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1600_el.root";
+      inputFile[1800] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1800_el.root";
+      inputFile[2000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-2000_el.root";
+      inputFile[2500] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-2500_el.root";
+      inputFile[3000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-3000_el.root";
+      inputFile[3500] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-3500_el.root";
+      inputFile[4000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-4000_el.root";
+      inputFile[4500] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-4500_el.root";
       lepton_scale    = "1.005";
   }
 
   if( key[0]=='M' ){
-      treeData.Add(     "../muTrees/nov21/treeEDBR_SingleMuon.root"                  ); 
-      treeMC2.Add(      "../muTrees/nov21/treeEDBR_WZ.root"                          );
-      treeMC2.Add(      "../muTrees/nov21/treeEDBR_ZZ.root"                          );
-      treeMC2.Add(      "../muTrees/nov21/treeEDBR_T_T.root"                         );
-      treeMC1.Add(      "../muTrees/nov21/treeEDBR_DYJetsToLL_HT-100to200.root"      );
-      treeMC1.Add(      "../muTrees/nov21/treeEDBR_DYJetsToLL_HT-200to400.root"      );
-      treeMC1.Add(      "../muTrees/nov21/treeEDBR_DYJetsToLL_HT-400to600.root"      );
-      treeMC1.Add(      "../muTrees/nov21/treeEDBR_DYJetsToLL_HT-600toInf.root"      );
-      inputFile[800]  = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-800.root" ;
-      inputFile[1000] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1000.root";
-      inputFile[1200] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1200.root";
-      inputFile[1400] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1400.root";
-      inputFile[1600] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1600.root";
-      inputFile[1800] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-1800.root";
-      inputFile[2000] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-2000.root";
-      inputFile[2500] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-2500.root";
-      inputFile[3000] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-3000.root";
-      inputFile[3500] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-3500.root";
-      inputFile[4000] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-4000.root";
-      inputFile[4500] = "../muTrees/nov21/treeEDBR_BulkGravToZZToZlepZhad_M-4500.root";
+      treeData.Add(     "trees/treeEDBR_SingleMuon1.root"                    ); 
+      treeData.Add(     "trees/treeEDBR_SingleMuon2.root"                    ); 
+      treeMC2.Add(      "trees/treeEDBR_TT_mu.root"                          );
+      treeMC2.Add(      "trees/treeEDBR_WW_mu.root"                          );
+      treeMC2.Add(      "trees/treeEDBR_WZ_mu.root"                          );
+      treeMC2.Add(      "trees/treeEDBR_ZZ_mu.root"                          );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT100to200_mu.root"       );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT200to400_mu.root"       );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT400to600_mu.root"       );
+      treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT600toInf_mu.root"       );
+      inputFile[600]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0600_mu.root";
+      inputFile[800]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0800_mu.root";
+      inputFile[1000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_mu.root";
+      inputFile[1200] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_mu.root";
+      inputFile[1400] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1400_mu.root";
+      inputFile[1600] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1600_mu.root";
+      inputFile[1800] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1800_mu.root";
+      inputFile[2000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-2000_mu.root";
+      inputFile[2500] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-2500_mu.root";
+      inputFile[3000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-3000_mu.root";
+      inputFile[3500] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-3500_mu.root";
+      inputFile[4000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-4000_mu.root";
+      inputFile[4500] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-4500_mu.root";
       lepton_scale    = "1.03";
   }
 
@@ -132,7 +138,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   // Error Function * Exponential
   RooRealVar c1("c1","slope of the exp",             -0.020,  -1.,    0.);
   RooRealVar c2("c2","slope of the exp",             -0.020,  -1.,    0.);
-  RooRealVar offset1("offset1","offset of the erf",    10.0,   1.,  200.);
+  RooRealVar offset1("offset1","offset of the erf",    20.0,   1.,  200.);
   RooRealVar offset2("offset2","offset of the erf",    10.0,   1.,  200.);
   RooRealVar width1("width1",  "width of the erf",     50.0,   1.,  200.);
   RooRealVar width2("width2",  "width of the erf",     50.0,   1.,  200.);
@@ -196,7 +202,7 @@ void shapeAnalysis(std::string key, Int_t mass)
   reg.defineType("nsMC");
   reg.defineType("sbMC");
   reg.defineType("sbDA");
-  RooDataSet bigSample("bigSample","bigSample", variables, WeightVar(totalWeight), Index(reg), Import("nsMC",nsBkg), Import("sbMC",sbBkg), Import("sbDA",sbObs));
+  RooDataSet bigSample("bigSample","bigSample",variables,WeightVar(totalWeight),Index(reg),Import("nsMC",nsBkg),Import("sbMC",sbBkg),Import("sbDA",sbObs));
   RooSimultaneous bigSample_pdf("bigSample_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf,sbObs_pdf), reg); 
   RooFitResult *fitres = bigSample_pdf.fitTo(bigSample, Save(1), SumW2Error(kTRUE), PrintLevel(-1));
   s0.setConstant(true);
@@ -213,29 +219,31 @@ void shapeAnalysis(std::string key, Int_t mass)
   //*******************************************************//
 
   std::map<Int_t, Double_t> low;
+  low[600]  =  500.;
   low[800]  =  600.;
   low[1000] =  800.;
   low[1200] = 1000.;
-  low[1400] = 1200.;
+  low[1400] = 1100.;
   low[1600] = 1300.;
-  low[1800] = 1500.;
-  low[2000] = 1700.;
-  low[2500] = 2100.;
+  low[1800] = 1400.;
+  low[2000] = 1600.;
+  low[2500] = 2000.;
   low[3000] = 2400.;
   low[3500] = 2900.;
   low[4000] = 3200.;
   low[4500] = 3700.;
 
   std::map<Int_t, Double_t> upp;
+  upp[600]  =  700.;
   upp[800]  = 1000.;
   upp[1000] = 1200.;
   upp[1200] = 1400.;
-  upp[1400] = 1600.;
+  upp[1400] = 1700.;
   upp[1600] = 1900.;
-  upp[1800] = 2100.;
-  upp[2000] = 2300.;
-  upp[2500] = 2900.;
-  upp[3000] = 3500.;
+  upp[1800] = 2200.;
+  upp[2000] = 2500.;
+  upp[2500] = 3000.;
+  upp[3000] = 3600.;
   upp[3500] = 4000.;
   upp[4000] = 4800.;
   upp[4500] = 5300.;
@@ -262,23 +270,24 @@ void shapeAnalysis(std::string key, Int_t mass)
 
   // Total number of signal events in the sample 
   std::map<Int_t, Int_t> nEvents;
+  nEvents[600]  = 50000;
   nEvents[800]  = 50000;
-  nEvents[1000] = 48400;
-  nEvents[1200] = 49200;
-  nEvents[1400] = 50000;
+  nEvents[1000] = 50000;
+  nEvents[1200] = 50000;
+  nEvents[1400] = 49200;
   nEvents[1600] = 50000;
-  nEvents[1800] = 50000;
+  nEvents[1800] = 48400;
   nEvents[2000] = 50000;
   nEvents[2500] = 50000;
-  nEvents[3000] = 49200;
+  nEvents[3000] = 50000;
   nEvents[3500] = 50000;
   nEvents[4000] = 50000;
   nEvents[4500] = 50000;
 
   // selection efficiency
   Double_t sel_eff = (Double_t)dsSig.numEntries()/nEvents[mass];
-  Double_t sig_xs_fb = 1.;            // signal cross section in fb
-  Double_t target_lumi_fbInv = 2.462; // target luminosity in fb^-1
+  Double_t sig_xs_fb = 1.;           // signal cross section in fb
+  Double_t target_lumi_fbInv = 2.63; // target luminosity in fb^-1
   // Signal yield  
   Double_t sigYield = target_lumi_fbInv * sel_eff * sig_xs_fb;
 
