@@ -21,8 +21,8 @@ void loopPlot(){
   
   //#####################EDIT THE OPTIONS##############################
   /// Boolean flags to steer the histogram making
-  bool wantElectrons = false; // Will make histograms for electrons
-  bool wantMuons     = true; // Will make histograms for muons
+  bool wantElectrons = true; // Will make histograms for electrons
+  bool wantMuons     = false; // Will make histograms for muons
   bool wantSideband  = true; // Will make histograms for sideband region
   bool wantSignal    = false; // Will make histograms for signal region
   bool wantFullRange = false; // Will not check signal or sideband, ie, pick all jet mass range
@@ -30,9 +30,9 @@ void loopPlot(){
   int  isZZchannel   = 1; //plot label for zz (1) or ww (0)
   int  flavour = 0; 
   std::string outputDir;
-  if(wantElectrons) {flavour=11;   outputDir = "../controlPlots/plots_ELP_SidebandRegion";}
-  if(wantMuons)     {flavour=13;   outputDir = "../controlPlots/plots_MLP_SidebandRegion";}
-  if(wantElectrons and wantMuons)  outputDir = "../controlPlots/plots_ALP_SidebandRegion";
+  if(wantElectrons) {flavour=11;   outputDir = "../controlPlots/plots_EHP_SidebandRegion";}
+  if(wantMuons)     {flavour=13;   outputDir = "../controlPlots/plots_MHP_SidebandRegion";}
+  if(wantElectrons and wantMuons)  outputDir = "../controlPlots/plots_AHP_SidebandRegion";
   
   /// Luminosity value in fb^-1
   /// Scale histograms (line 403 EDBRHistoPloter.h) 
@@ -42,8 +42,8 @@ void loopPlot(){
   bool scaleToData = false;
   // Should we scale only wjets to make total MC = DATA?
   bool scaleOnlyWJets = false;
-  /// Should we plot the Data/Bkg and Data-Bkg/Error ratios?
-  bool makeRatio = true; 
+  /// Should we plot the Data-Bkg/Error ratios?
+  bool makeRatio = false; 
   /// Should we REDO histograms?
   bool redoHistograms = true;
   /// Should we put the signal MC stacked on top of the background (or just plot the signal alone)?
@@ -71,26 +71,32 @@ void loopPlot(){
   }
 
   /// Setup names of MC files for trees.
-  const int nMC=2;//set to zero if you don't want to plot
+  const int nMC=3;//set to zero if you don't want to plot
   std::string mcLabels[nMC]={ 
+                             "TT",
                              "Diboson",
                              "DYJets",
 			    };
 
-  std::vector<std::string> DBsamples; 
+  std::vector<std::string> TTsamples; 
+  std::vector<std::string> VVsamples; 
   std::vector<std::string> DYsamples; 
 
   if(wantElectrons){
-     DBsamples.push_back(pathToTrees+"treeEDBR_WZ_el.root");
-     DBsamples.push_back(pathToTrees+"treeEDBR_WW_el.root");
+     TTsamples.push_back(pathToTrees+"treeEDBR_TT_el.root");
+     VVsamples.push_back(pathToTrees+"treeEDBR_ZZ_el.root");
+     VVsamples.push_back(pathToTrees+"treeEDBR_WZ_el.root");
+     VVsamples.push_back(pathToTrees+"treeEDBR_WW_el.root");
      DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT100to200_el.root");
      DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT200to400_el.root");
      DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT400to600_el.root");
      DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT600toInf_el.root");
   }
   if(wantMuons){
-     DBsamples.push_back(pathToTrees+"treeEDBR_WZ_mu.root");
-     DBsamples.push_back(pathToTrees+"treeEDBR_WW_mu.root");
+     TTsamples.push_back(pathToTrees+"treeEDBR_TT_mu.root");
+     VVsamples.push_back(pathToTrees+"treeEDBR_ZZ_mu.root");
+     VVsamples.push_back(pathToTrees+"treeEDBR_WZ_mu.root");
+     VVsamples.push_back(pathToTrees+"treeEDBR_WW_mu.root");
      DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT100to200_mu.root");
      DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT200to400_mu.root");
      DYsamples.push_back(pathToTrees+"treeEDBR_DYJetsToLL_HT400to600_mu.root");
@@ -98,10 +104,11 @@ void loopPlot(){
   }
   
   std::map<int, std::vector<std::string> > fMC; 
-  fMC[0] = DBsamples;
-  fMC[1] = DYsamples;
+  fMC[0] = TTsamples;
+  fMC[1] = VVsamples;
+  fMC[2] = DYsamples;
 
-  double kFactorsMC_array[nMC] = {1, 1};
+  double kFactorsMC_array[nMC] = {1, 1, 1};
   std::vector<double> kFactorsMC;
   //std::cout << "The contents of kFactorsMC are:" << std::endl;
   for (int index=0; index<nMC; index++)
@@ -307,14 +314,14 @@ void loopPlot(){
   //fColorsMC.push_back(kRed);
   //fColorsMC.push_back(kAzure+1);
   //fColorsMC.push_back(kAzure+2);
-  fColorsMC.push_back(kGreen-7);
-  fColorsMC.push_back(kRed-7);
-  fColorsMC.push_back(kAzure-7);
+  fColorsMC.push_back(kTeal-8);
+  fColorsMC.push_back(kYellow-7);
+  fColorsMC.push_back(kWhite);
   
   ////// {"BulkG_WW_lvjj_c1p0_M600_xww","BulkG_WW_lvjj_c1p0_M1000_xww","BulkG_WW_lvjj_c1p0_M1500_xww"};
   std::vector<int> fColorsMCSig;
-  //fColorsMCSig.push_back(kMagenta-7);
-  fColorsMCSig.push_back(kYellow-5);
+  fColorsMCSig.push_back(kMagenta-7);
+  //fColorsMCSig.push_back(kYellow-5);
   
   plotter->setFillColor(fColorsMC);
   plotter->setLineColor(fColorsMCSig);
