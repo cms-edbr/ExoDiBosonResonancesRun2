@@ -244,6 +244,10 @@ void EDBRHistoPlotter::setOutDir(std::string outDirNew)
   char buffer[256];
   nameOutDir_ = outDirNew;
 
+  sprintf(buffer, "%s/eps", nameOutDir_.c_str());
+  printf("%s\n", buffer);
+  gSystem->mkdir(buffer, true);
+
   sprintf(buffer, "%s/pdf", nameOutDir_.c_str());
   printf("%s\n", buffer);
   gSystem->mkdir(buffer, true);
@@ -274,24 +278,32 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   TPad* fPads2 = NULL;
   TPad* fPads3 = NULL;
 
-  if (makeRatio_ && isDataPresent_) {
-    fPads1 = new TPad("pad1", "", 0.00, 0.40, 0.99, 0.99);
-    fPads2 = new TPad("pad2", "", 0.00, 0.20, 0.99, 0.40);
-    fPads3 = new TPad("pad3", "", 0.00, 0.00, 0.99, 0.20);
+  if (isDataPresent_) {
+    fPads1 = new TPad("pad1", "", 0.00, 0.25, 0.99, 0.99);
+    fPads2 = new TPad("pad2", "", 0.00, 0.00, 0.99, 0.25);
     fPads1->SetFillColor(0);
     fPads1->SetLineColor(0);
     fPads2->SetFillColor(0);
     fPads2->SetLineColor(0);
-    fPads3->SetFillColor(0);
-    fPads3->SetLineColor(0);
-    fPads1->Draw();
-    fPads2->Draw();
-    fPads3->Draw();
+    if (makeRatio_) {
+       fPads1->SetPad(0.00,0.40,0.99,0.99);
+       fPads2->SetPad(0.00,0.20,0.99,0.40);
+       fPads3 = new TPad("pad3", "", 0.00, 0.00, 0.99, 0.20);
+       fPads3->SetFillColor(0);
+       fPads3->SetLineColor(0);
+       fPads1->Draw();
+       fPads2->Draw();
+       fPads3->Draw();
+    }
+    else{
+       fPads1->Draw();
+       fPads2->Draw();
+    }
   }
 
   //============ Data vs MC plots ==============
 
-  if (makeRatio_ && isDataPresent_) {
+  if (isDataPresent_) {
     fPads1->cd();
   }
 
@@ -487,6 +499,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   axisTitle["h_phiZjj"]        = "jet #phi"; 
   axisTitle["h_massZll"]       = "leptonic Z mass (GeV)"; 
   axisTitle["h_massZjj"]       = "jet pruned mass (GeV)"; 
+  axisTitle["h_massZjj2"]      = "jet pruned mass (GeV)"; 
   axisTitle["h_tau21"]         = "#tau_{2}/#tau_{1}"; 
   axisTitle["h_ptlep1"]        = "leading lepton p_{T} (GeV)"; 
   axisTitle["h_ptlep2"]        = "second lepton p_{T} (GeV)"; 
@@ -508,8 +521,8 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   axisTitle["h_pileupWeight"]  = "pileup weight"; 
   axisTitle["h_deltaRleplep"]  = "#DeltaR(lep,lep)"; 
   axisTitle["h_deltaRlepjet"]  = "#DeltaR(lep,jet)"; 
-  axisTitle["h_candMass"]      = "VZ candidadte mass (GeV)"; 
-  axisTitle["h_candMass2"]     = "VZ candidadte mass (GeV)"; 
+  axisTitle["h_candMass"]      = "VZ candidate mass (GeV)"; 
+  axisTitle["h_candMass2"]     = "VZ candidate mass (GeV)"; 
 
   hs->Draw("HIST");
   hs->GetXaxis()->SetTitle(axisTitle[histoName].c_str());
@@ -539,15 +552,15 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   hs->Draw("HIST");
   sumMC->SetTitle("");
   TH1* histoForErrors = (TH1*)sumMC->Clone("histoForErrors");
-  histoForErrors->Draw("HISTO SAME");
-  histoForErrors = (TH1*)sumMC->Clone("histoForErrors2");
+  histoForErrors->SetLineWidth(3);
+  histoForErrors->SetLineColor(kRed-4);
+  histoForErrors->SetFillColorAlpha(kRed-4,0.8);
   histoForErrors->SetMarkerSize(0);
-  histoForErrors->SetFillColorAlpha(kYellow-7,0.6);
   histoForErrors->SetFillStyle(1001);
   histoForErrors->Draw("E2SAME");
 
   if (isDataPresent_)
-    sumDATA->Draw("SAME E1");
+    sumDATA->Draw("SAME E X0");
   for (size_t is = 0; is != histosMCSig.size(); is++) {
     if (isSignalStackOnBkg_ == true)
       histosMCSig.at(is)->Draw("HISTO SAME");
@@ -572,11 +585,14 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
 
   // For the legend, we have to tokenize the name "histos_XXX.root"
-  TLegend* leg = new TLegend(0.75, 0.65, 0.93, 0.93);
+  TLegend* leg = new TLegend(0.40, 0.73, 0.93, 0.93);
   leg->SetMargin(0.4);
-  leg->SetTextSize(0.038);
-  if (isDataPresent_)
-    leg->AddEntry(sumDATA, "Data", "p");
+  leg->SetNColumns(2);
+  leg->SetFillStyle(0);
+  if (makeRatio_ ) leg->SetTextSize(0.038);
+  else leg->SetTextSize(0.033);
+  if (isDataPresent_) leg->AddEntry(sumDATA, Form("Data (%.0f)",sumDataIntegral), "ep");
+  leg->AddEntry(histoForErrors, Form("MC (%.0f)",sumBkgAtTargetLumi), "lp");
   for (int i = histosMC.size()-1; i != -1; --i)
     leg->AddEntry(histosMC.at(i), labels.at(i).c_str(), "f");
   if (histosMCSig.size() > 0) {
@@ -589,7 +605,6 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
       else leg->AddEntry(histosMCSigOrig.at(i), (labelsSig.at(i)).c_str(), "f");
     }
   }
-
   leg->SetFillColor(kWhite);
   leg->Draw();
 
@@ -618,9 +633,8 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   //============ Data/MC ratio ==============
 
   TLine* lineAtOne = NULL;
-  if (makeRatio_ && isDataPresent_) {
+  if (isDataPresent_) {
     fPads2->cd();
-
     fPads2->SetGridx();
     fPads2->SetGridy();
 
@@ -628,8 +642,8 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
     histoRatio->SetDirectory(0);
     histoRatio->SetTitle("");
     histoRatio->Divide(sumMC);
-    histoRatio->GetYaxis()->SetRangeUser(0.5, 1.5);
-    histoRatio->GetYaxis()->SetTitle("Data/Bkg");
+    histoRatio->GetYaxis()->SetRangeUser(0, 2);
+    histoRatio->GetYaxis()->SetTitle("Data / MC");
     histoRatio->GetYaxis()->SetTitleOffset(0.43);
     histoRatio->GetYaxis()->SetTitleSize(0.15);
     histoRatio->GetYaxis()->SetLabelSize(0.07);
@@ -643,11 +657,12 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
     lineAtOne->SetLineColor(2);
     lineAtOne->Draw();
 
-    TPaveText *pave1 = new TPaveText(0.70,0.70,0.91,0.93,"NDC");
+    TPaveText *pave1 = new TPaveText(0.20,0.83,0.42,0.93,"NDC");
     pave1->SetBorderSize(0);
-    pave1->SetFillStyle(0);
-    pave1->SetTextSize(0.12);
-    pave1->AddText(Form("Scale Factor = %.4f",sumDataIntegral / sumBkgAtTargetLumi));
+    pave1->SetFillColor(0);
+    pave1->SetFillStyle(1001);
+    pave1->SetTextSize(0.10);
+    pave1->AddText(Form("Scale Factor = %.3f",sumDataIntegral / sumBkgAtTargetLumi));
     pave1->Draw();
 
   }
@@ -740,7 +755,9 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   cv->SaveAs(buffer);
   sprintf(buffer, "%s/pdf/can_%s.pdf", nameOutDir_.c_str(), histoName.c_str());
   cv->SaveAs(buffer);
-  if (makeRatio_ && isDataPresent_) {
+  sprintf(buffer, "%s/eps/can_%s.eps", nameOutDir_.c_str(), histoName.c_str());
+  cv->SaveAs(buffer);
+  if (isDataPresent_) {
     fPads1->cd();
     fPads1->SetLogy(true);
   } else {
@@ -756,6 +773,8 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   sprintf(buffer, "%s/root/LOG_can_%s.root", nameOutDir_.c_str(), histoName.c_str());
   cv->SaveAs(buffer);
   sprintf(buffer, "%s/pdf/LOG_can_%s.pdf", nameOutDir_.c_str(), histoName.c_str());
+  cv->SaveAs(buffer);
+  sprintf(buffer, "%s/eps/LOG_can_%s.eps", nameOutDir_.c_str(), histoName.c_str());
   cv->SaveAs(buffer);
 
   if (debug_) {

@@ -351,8 +351,9 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("yZjj",28,-2.8,2.8);
   hs.setHisto("phiZll",74,-3.7,3.7);
   hs.setHisto("phiZjj",74,-3.7,3.7);
-  hs.setHisto("massZll",50,50,150); // 2 GeV bins 
+  hs.setHisto("massZll",40,50,130); // 2 GeV bins 
   hs.setHisto("massZjj",44,0,220);  // 5 GeV bins  
+  hs.setHisto("massZjj2",44,0,110);  // 2.5 GeV bins  
   hs.setHisto("tau21",20,0,1);
   hs.setHisto("ptlep1",40,0,800); 
   hs.setHisto("ptlep2",50,0,500);
@@ -375,7 +376,7 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("deltaRleplep",70,0,3.5); 
   hs.setHisto("deltaRlepjet",70,0,7); 
   hs.setHisto("candMass",  30,300,3300); // 100 GeV bins...
-  hs.setHisto("candMass2", 20,300,1300); // 50 GeV bins...
+  hs.setHisto("candMass2", 20,400,1400); // 50 GeV bins...
   //but to have the signal spread around 4 bins maybe we want 25 GeV bins?
   
   char buffer[256];
@@ -571,10 +572,10 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       //if(candMass>2400.0)
       //cout<<"Found one event with MZZ="<<candMass<<endl;
       
-      //if(candMass<500.) continue;
+      if(candMass<500.) continue;
       if(massVhad<20.) continue;
-      if(tau21<0.45) continue; //Low purity category
-      //if(tau21>0.45) continue; // High purity category
+      //if(tau21<0.45) continue; //Low purity category
+      if(tau21>0.45) continue; // High purity category
      
       double miniIsoAbs1 = miniIso1*ptlep1;
       double miniIsoAbs2 = miniIso2*ptlep2;
@@ -603,6 +604,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["deltaRlepjet"])->Fill(deltaRlepjet,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["massZll"])->Fill(massVlep,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["massZjj"])->Fill(massVhad,actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["massZjj2"])->Fill(massVhad,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["tau21"])->Fill(tau21,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["candMass"])->Fill(candMass,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["candMass2"])->Fill(candMass,actualWeight);//printf("line number %i\n",__LINE__);
