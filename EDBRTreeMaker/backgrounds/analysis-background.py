@@ -35,14 +35,14 @@ configXsecs = {
                   "TT"          : 831.76,
               }
 configNevents = {
-                  "HT-100to200" : 2653072,
+                  "HT-100to200" : 2655294,
                   "HT-200to400" : 962195,
                   "HT-400to600" : 1069003,
                   "HT-600toInf" : 1031103,
                   "WW"          : 988418,
                   "WZ"          : 1000000,
                   "ZZ"          : 985600,
-                  "TT"          : 1000000,
+                  "TT"          : 19090400,
                 }
 usedXsec    = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
