@@ -47,7 +47,7 @@ idElectrons = cms.EDFilter("PATElectronSelector",
 
 isoElectrons = cms.EDFilter("PATElectronSelector",
                             src = cms.InputTag("idElectrons"),
-                            cut = cms.string("userFloat('miniIso') < 0.1")
+                            cut = cms.string("userFloat('miniIso') < 9999.")
                             )
 
 kinMuons = cms.EDFilter("PATMuonSelector",
@@ -62,7 +62,7 @@ idMuons = cms.EDFilter("PATMuonSelector",
 
 isoMuons = cms.EDFilter("PATMuonSelector",
                         src = cms.InputTag("idMuons"),
-                        cut = cms.string("userFloat('miniIso') < 0.2")
+                        cut = cms.string("userFloat('miniIso') < 9999.")
                         )
 
 goodLeptonsProducer = cms.Sequence(    goodOfflinePrimaryVertex       +
