@@ -566,13 +566,17 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         isTrackerMu2     = mu2->isTrackerMuon();
                         matchedStations1 = mu1->numberOfMatchedStations();
                         matchedStations2 = mu2->numberOfMatchedStations();
+                        trackIso1        = mu1->isolationR03().sumPt;                       // tracker isolation
+                        trackIso2        = mu2->isolationR03().sumPt;                       // tracker isolation
                         if ( mu1->innerTrack().isNonnull() ){
                            pixelHits1     = mu1->innerTrack()->hitPattern().numberOfValidPixelHits();
                            trackerLayers1 = mu1->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+                           trackIso2     -= deltaRleplep<0.3 ? mu1->innerTrack()->pt() : 0; // footprint removal
                         }
                         if ( mu2->innerTrack().isNonnull() ){
                            pixelHits2     = mu2->innerTrack()->hitPattern().numberOfValidPixelHits();
                            trackerLayers2 = mu2->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+                           trackIso1     -= deltaRleplep<0.3 ? mu2->innerTrack()->pt() : 0; // footprint removal
                         }
                         if ( mu1->muonBestTrack().isNonnull() ){
                            relativeError1 = mu1->muonBestTrack()->ptError()/mu1->muonBestTrack()->pt();
@@ -587,9 +591,6 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         // relative mini-isolation
                         miniIso1         = mu1->userFloat("miniIso");
                         miniIso2         = mu2->userFloat("miniIso");
-                        // tracker-based relative isolation
-                        trackIso1        = mu1->isolationR03().sumPt/mu1->pt();
-                        trackIso2        = mu2->isolationR03().sumPt/mu2->pt();
                    }
                    //*****************************************************************//
                    //************************* ID for electrons **********************//
