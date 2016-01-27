@@ -23,7 +23,8 @@ process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
 
 process.maxEvents.input = -1 
 
-configXsecs = {  "BulkGravToZZToZlepZhad_M-800"         : 7.3592E-05,
+configXsecs = {  "BulkGravToZZToZlepZhad_M-600"         : 7.3592E-05,
+                 "BulkGravToZZToZlepZhad_M-800"         : 1.9648E-05,
                  "BulkGravToZZToZlepZhad_M-1000"        : 1.9648E-05,
                  "BulkGravToZZToZlepZhad_M-1200"        : 6.5205E-06,
                  "BulkGravToZZToZlepZhad_M-1400"        : 2.4833E-06,
@@ -37,9 +38,10 @@ configXsecs = {  "BulkGravToZZToZlepZhad_M-800"         : 7.3592E-05,
                  "BulkGravToZZToZlepZhad_M-4500"        : 8.9900E-10,
               }
 
-configNevents = {"BulkGravToZZToZlepZhad_M-800"         : 50000,
-                 "BulkGravToZZToZlepZhad_M-1000"        : 48400,
-                 "BulkGravToZZToZlepZhad_M-1200"        : 49200,
+configNevents = {"BulkGravToZZToZlepZhad_M-600"         : 50000,
+                 "BulkGravToZZToZlepZhad_M-800"         : 50000,
+                 "BulkGravToZZToZlepZhad_M-1000"        : 50000,
+                 "BulkGravToZZToZlepZhad_M-1200"        : 50000,
                  "BulkGravToZZToZlepZhad_M-1400"        : 50000,
                  "BulkGravToZZToZlepZhad_M-1600"        : 50000,
                  "BulkGravToZZToZlepZhad_M-1800"        : 50000,
@@ -142,5 +144,5 @@ process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
 process.endpath = cms.EndPath( process.trigReportAnalyzer )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("treeEDBR_"+SAMPLE+"_"+TRIGGER+"Channel.root")
+                                   fileName = cms.string("treeEDBR_"+SAMPLE+"_"+TRIGGER+".root")
                                   )
