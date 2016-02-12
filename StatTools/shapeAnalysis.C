@@ -23,11 +23,11 @@ void shapeAnalysis(std::string key, Int_t mass)
   // Silent RooFit
   RooMsgService::instance().setGlobalKillBelow(FATAL);
 
-  RooRealVar candMass("candMass","M_{VZ}",            500., 9999., "GeV");
-  RooRealVar massVhad("massVhad","M_{j}" ,             20.,  220., "GeV");
-  RooRealVar tau21("tau21","tau21",                     0.,  0.75       );
-  RooRealVar lep("lep","lep",                           10,    15       );
-  RooRealVar totalWeight("totalWeight", "total weight", 0.,    10.      );
+  RooRealVar candMass("candMass","M_{VZ}",                     500., 5300., "GeV");
+  RooRealVar massVhad("massVhad","pruned m_{jet}",              20.,  220., "GeV");
+  RooRealVar tau21("tau21","tau21",                              0.,  0.75       );
+  RooRealVar lep("lep","lep",                                    10,    15       );
+  RooRealVar totalWeight("totalWeight", "total weight",          0.,    10.      );
   RooArgSet variables(candMass,massVhad,tau21,lep,totalWeight);
 
   massVhad.setRange("lowerSB",      20.,   65.);
@@ -36,8 +36,8 @@ void shapeAnalysis(std::string key, Int_t mass)
   massVhad.setRange("upperSB",     135.,  220.);
 
   std::map<std::string, std::string> selection;
-  selection["ENP"] = "lep<12";
-  selection["MNP"] = "lep>12";
+  selection["ENP"] = "lep<12 && tau21<0.6";
+  selection["MNP"] = "lep>12 && tau21<0.6";
   selection["EHP"] = "lep<12 && tau21<0.45";
   selection["MHP"] = "lep>12 && tau21<0.45";
   selection["ELP"] = "lep<12 && tau21>0.45";
@@ -73,8 +73,8 @@ void shapeAnalysis(std::string key, Int_t mass)
       treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT200to400_el.root"       );
       treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT400to600_el.root"       );
       treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT600toInf_el.root"       );
-      inputFile[600]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0600_el.root";
-      inputFile[800]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0800_el.root";
+      inputFile[600]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_el.root";
+      inputFile[800]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-800_el.root";
       inputFile[1000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_el.root";
       inputFile[1200] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_el.root";
       inputFile[1400] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1400_el.root";
@@ -100,8 +100,8 @@ void shapeAnalysis(std::string key, Int_t mass)
       treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT200to400_mu.root"       );
       treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT400to600_mu.root"       );
       treeMC1.Add(      "trees/treeEDBR_DYJetsToLL_HT600toInf_mu.root"       );
-      inputFile[600]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0600_mu.root";
-      inputFile[800]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-0800_mu.root";
+      inputFile[600]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_mu.root";
+      inputFile[800]  = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-800_mu.root";
       inputFile[1000] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_mu.root";
       inputFile[1200] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_mu.root";
       inputFile[1400] = "trees/treeEDBR_BulkGravToZZToZlepZhad_M-1400_mu.root";
@@ -122,8 +122,8 @@ void shapeAnalysis(std::string key, Int_t mass)
   // MC datasets
   RooDataSet bkg1("bkg1", "bkg1", variables, Cut(selectedCategory), WeightVar(totalWeight), Import(treeMC1));
   RooDataSet bkg2("bkg2", "bkg2", variables, Cut(selectedCategory), WeightVar(totalWeight), Import(treeMC2));
-  RooRealVar coef("coef", "coef", bkg2.sumEntries()/bkg1.sumEntries(),0.,1.);
-  coef.setConstant(true);
+  RooRealVar nbkg1("nbkg1","nbkg1",bkg1.sumEntries(),bkg1.sumEntries()/10,bkg1.sumEntries()*10);
+  RooRealVar nbkg2("nbkg2","nbkg2",bkg2.sumEntries(),bkg2.sumEntries()/10,bkg1.sumEntries()*10);
 
 /////////////////////////////////////////////////////////////////////////////////////
 //        _   _                                                                    //
@@ -139,34 +139,33 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooRealVar c1("c1","slope of the exp",             -0.020,  -1.,    0.);
   RooRealVar c2("c2","slope of the exp",             -0.020,  -1.,    0.);
   RooRealVar offset1("offset1","offset of the erf",    20.0,   1.,  200.);
-  RooRealVar offset2("offset2","offset of the erf",    10.0,   1.,  200.);
+  RooRealVar offset2("offset2","offset of the erf",    20.0,   1.,  200.);
   RooRealVar width1("width1",  "width of the erf",     50.0,   1.,  200.);
   RooRealVar width2("width2",  "width of the erf",     50.0,   1.,  200.);
   RooErfExpPdf model1("model1","fiting mj spectrum1",massVhad,c1,offset1,width1);
   RooErfExpPdf model2("model2","fiting mj spectrum2",massVhad,c2,offset2,width2);
-  RooFitResult *rf1 = model1.fitTo(bkg1, Save(1), PrintLevel(-1));
-  RooFitResult *rf2 = model2.fitTo(bkg2, Save(1), PrintLevel(-1));
-  // Final background model
-  RooAddPdf model("model","model",RooArgList(model2,model1),coef);
+  RooExtendPdf emodel1("emodel1","extended dom backgrounds",model1,nbkg1);
+  RooExtendPdf emodel2("emodel2","extended sub backgrounds",model2,nbkg2);
+  emodel1.fitTo(bkg1, PrintLevel(-1));
+  emodel2.fitTo(bkg2, PrintLevel(-1));
   c1.setConstant(true);
   c2.setConstant(true);
   offset1.setConstant(true);
   offset2.setConstant(true);
   width1.setConstant(true);
   width2.setConstant(true);
-  // Extended model
-  RooRealVar yieldLowerSB( "lower SB",  "Lower SB normalization",  10, 0., 1.e3);
-  RooExtendPdf model_ext( "model_ext", "extended p.d.f",   model,  yieldLowerSB);
-  model_ext.fitTo(sbObs,ConditionalObservables(RooArgSet(massVhad)),Extended(kTRUE),Range("lowerSB"),PrintLevel(-1));
+  // Final background model
+  RooAddPdf model_ext("model_ext","sum of extended models",RooArgList(emodel1,emodel2));
+  RooFitResult* erf = model_ext.fitTo(sbObs,Extended(kTRUE),Range("lowerSB,upperSB"),PrintLevel(-1),Save());
 
   // Calculate integral of the model
-  RooAbsReal* nSIG = model_ext.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
-  RooAbsReal* nSB  = model_ext.createIntegral(massVhad,NormSet(massVhad),Range("lowerSB"));
-  // scale from lowerSB to lowerSIG
-  RooFormulaVar lowerSIGyield("lowerSIGyield","extrapolation to lowerSIG","(@0/@1)*@2",RooArgList(*nSIG,*nSB,yieldLowerSB));
+  RooAbsReal* domBkgIntegralSR = model1.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
+  RooAbsReal* subBkgIntegralSR = model2.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
+  RooFormulaVar domBkgSRyield("domBkgSRyield","@0*@1",RooArgList(*domBkgIntegralSR,nbkg1));
+  RooFormulaVar subBkgSRyield("subBkgSRyield","@0*@1",RooArgList(*subBkgIntegralSR,nbkg2));
+  RooFormulaVar lowerSIGyield("lowerSIGyield","extrapolation to lowerSIG","@0+@1", RooArgList(domBkgSRyield,subBkgSRyield));
   Double_t bkgYield       =     lowerSIGyield.getVal(); 
-  Double_t bkgYield_error = 1 + lowerSIGyield.getPropagatedError(*rf1)/bkgYield;
-  //cout << "Normalization = " << bkgYield << " +/- " << lowerSIGyield.getPropagatedError(*rf1) << endl;
+  Double_t bkgYield_error = 1 + lowerSIGyield.getPropagatedError(*erf)/bkgYield;
   RooRealVar ZZ_bkg_eig_norm("ZZ_bkg_eig_norm","expected yield in lowerSIG",bkgYield,0.,1.e4);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,12 +180,12 @@ void shapeAnalysis(std::string key, Int_t mass)
 ///////////////////////////////////////////////////////////////////////////////
 
   // Declare PDFs (3 levelled-exponentials) 
-  RooRealVar s0("s0","slope of the exp0",500.,1.,1.e3);
-  RooRealVar s1("s1","slope of the exp1",500.,1.,1.e3);
-  RooRealVar s2("s2","slope of the exp2",500.,1.,1.e3);
-  RooRealVar a0("a0","parameter of exp0",0.1 ,0.,1.);
-  RooRealVar a1("a1","parameter of exp1",0.1 ,0.,1.);
-  RooRealVar a2("a2","parameter of exp2",0.1 ,0.,1.);
+  RooRealVar s0("s0","slope of the exp0", 100.,    0., 1000.);
+  RooRealVar s1("s1","slope of the exp1", 100.,    0., 1000.);
+  RooRealVar s2("s2","slope of the exp2", 100.,    0., 1000.);
+  RooRealVar a0("a0","parameter of exp0", 0.1 , 0.001,   10.);
+  RooRealVar a1("a1","parameter of exp1", 0.1 , 0.001,   10.);
+  RooRealVar a2("a2","parameter of exp2", 0.1 , 0.001,   10.);
   RooExpTailPdf       nsBkg_pdf("nsBkg_pdf", "fit bkg  in nominal  reg",   candMass,s0,a0);
   RooExpTailPdf       sbBkg_pdf("sbBkg_pdf", "fit bkg  in sideband reg",   candMass,s1,a1);
   RooExpTailPdf       sbObs_pdf("sbObs_pdf", "fit data in sideband reg",   candMass,s2,a2);
@@ -204,7 +203,10 @@ void shapeAnalysis(std::string key, Int_t mass)
   reg.defineType("sbDA");
   RooDataSet bigSample("bigSample","bigSample",variables,WeightVar(totalWeight),Index(reg),Import("nsMC",nsBkg),Import("sbMC",sbBkg),Import("sbDA",sbObs));
   RooSimultaneous bigSample_pdf("bigSample_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf,sbObs_pdf), reg); 
-  RooFitResult *fitres = bigSample_pdf.fitTo(bigSample, Save(1), SumW2Error(kTRUE), PrintLevel(-1));
+
+  candMass.setRange("range", 500., 5300);
+  RooFitResult *fitres = bigSample_pdf.fitTo(bigSample, Save(1), Range("range"), SumW2Error(kTRUE), PrintLevel(-1));
+
   s0.setConstant(true);
   s1.setConstant(true);
   s2.setConstant(true);
@@ -253,14 +255,14 @@ void shapeAnalysis(std::string key, Int_t mass)
   RooDataSet dsSig("dsSig","dsSig",RooArgSet(candMass,massVhad,tau21,lep),Cut(lowerSIG),Import(bulkG));
 
   // Double Crystall ball
-  RooRealVar mean("mean","mean of the Crystal Ball",mass,400.,4800.);
+  RooRealVar mean("mean","mean of the Crystal Ball",mass,low[mass],upp[mass]);
   RooRealVar sigma("sigma","Crystal Ball sigma",50.,10.,100.);
   RooRealVar alphaL("alphaL","alpha left",  1., 0.1, 5.);
   RooRealVar alphaR("alphaR","alpha right", 2., 0.1, 5.);
   RooRealVar nL("nL","n left", 30., 0.1, 50.);
   RooRealVar nR("nR","n right", 1., 0.1,  5.);
   RooDoubleCrystalBall ZZ_sig("ZZ_sig","Double Crystall Ball",candMass,mean,sigma,alphaL,nL,alphaR,nR);
-  ZZ_sig.fitTo(dsSig, Minimizer("Minuit2"), Range(low[mass],upp[mass]), SumW2Error(kTRUE), PrintLevel(-1));
+  ZZ_sig.fitTo(dsSig, Minimizer("Minuit"), Range(low[mass],upp[mass]), SumW2Error(kTRUE), PrintLevel(-1));
   mean.setConstant(true);
   sigma.setConstant(true);
   alphaL.setConstant(true);
