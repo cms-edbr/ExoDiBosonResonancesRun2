@@ -13,7 +13,6 @@ daughterCharge  = "((daughter(0).charge == -daughter(1).charge) || \
 import sys
 SAMPLE = str(sys.argv[2])
 process.load("ExoDiBosonResonances.EDBRCommon.simulation.Fall15MiniAOD76X."+SAMPLE)
-#process.load("ExoDiBosonResonances.EDBRCommon.simulation.Fall15MiniAOD76X.BulkGravToZZToZlepZhad_M-2000")
 process.maxEvents.input = -1
 
 process.load("ExoDiBosonResonances.EDBRGenStudies.selectLeptonicDecay")
@@ -27,14 +26,6 @@ my_id_modules = [
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
-process.goodVertices = cms.EDFilter(    "VertexSelector",
-                                         src = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                         cut = cms.string( "chi2 != 0 "
-                                                           "& ndof >= 4.0 "
-                                                           "& abs(z) <= 24.0 "
-                                                           "& abs(position.Rho) <= 2.0 "),
-                                         filter = cms.bool(True) )
-
 process.electronsMiniIsolationValueMap = cms.EDProducer("PatElectronMiniIsolationValueMap",
                                          r_iso_min = cms.double(0.05),
                                          r_iso_max = cms.double(0.2),
@@ -43,9 +34,6 @@ process.electronsMiniIsolationValueMap = cms.EDProducer("PatElectronMiniIsolatio
                                          rho     = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
                                          leptons = cms.InputTag("slimmedElectrons"),
                                          pfCands = cms.InputTag("packedPFCandidates"))
-
-#Change vertex collection in Dxy cut
-process.egmGsfElectronIDs.physicsObjectIDs[0].idDefinition.cutFlow[9].vertexSrcMiniAOD = "goodVertices"
 
 process.goodElectrons = cms.EDProducer( "GoodElectronsProducer",
                                          electrons  = cms.InputTag("slimmedElectrons"),
@@ -73,7 +61,6 @@ process.ZdaughterCharge = cms.EDFilter( "CandViewSelector",
 process.ana = cms.EDAnalyzer(           "EDBRGenElstudies" )
 
 process.p = cms.Path(                    process.leptonicDecay                  + 
-                                         process.goodVertices                   +
                                          process.electronsMiniIsolationValueMap +
                                          process.egmGsfElectronIDs              +
                                          process.goodElectrons                  +

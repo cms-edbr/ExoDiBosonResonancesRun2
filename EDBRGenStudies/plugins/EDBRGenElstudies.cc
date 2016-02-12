@@ -37,6 +37,10 @@ class EDBRGenElstudies : public edm::EDAnalyzer {
       edm::EDGetTokenT<reco::CompositeCandidateView> ZcandToken;
 
       TTree* t; 
+      double pt1;
+      double pt2;
+      double eta1;
+      double eta2;
       double genPt1;
       double genPt2;
       double genEta1;
@@ -45,6 +49,8 @@ class EDBRGenElstudies : public edm::EDAnalyzer {
       double dRGenRec1;
       double dRGenRec2;
       int    matchGen;
+      int    isPF1;
+      int    isPF2;
       int    loose1;
       int    loose2;
       int    medium1;
@@ -81,6 +87,12 @@ EDBRGenElstudies::EDBRGenElstudies(const edm::ParameterSet& iConfig)
 
    edm::Service<TFileService> fs;
    t = fs->make<TTree>("t","basic kinematic variables");
+   t->Branch("pt1",        &pt1,        "pt1/D");
+   t->Branch("pt2",        &pt2,        "pt2/D");
+   t->Branch("eta1",       &eta1,       "eta1/D");
+   t->Branch("eta2",       &eta2,       "eta2/D");
+   t->Branch("genEta1",    &genEta1,    "genEta1/D");
+   t->Branch("genEta2",    &genEta2,    "genEta2/D");
    t->Branch("genPt1",     &genPt1,     "genPt1/D");
    t->Branch("genPt2",     &genPt2,     "genPt2/D");
    t->Branch("genEta1",    &genEta1,    "genEta1/D");
@@ -89,6 +101,8 @@ EDBRGenElstudies::EDBRGenElstudies(const edm::ParameterSet& iConfig)
    t->Branch("dRGenRec1",  &dRGenRec1,  "dRGenRec1/D");
    t->Branch("dRGenRec2",  &dRGenRec2,  "dRGenRec2/D");
    t->Branch("matchGen",   &matchGen,   "matchGen/I");
+   t->Branch("isPF1",      &isPF1,      "isPF1/I");
+   t->Branch("isPF2",      &isPF2,      "isPF2/I");
    t->Branch("loose1",     &loose1,     "loose1/I");
    t->Branch("loose2",     &loose2,     "loose2/I");
    t->Branch("medium1",    &medium1,    "medium1/I");
@@ -158,6 +172,12 @@ EDBRGenElstudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    if ( !matchGen ) { setDummyValues(); t->Fill(); return; }
 
+   pt1         = el1->pt();
+   pt2         = el2->pt();
+   eta1        = el1->eta();
+   eta2        = el2->eta();
+   isPF1       = (int)el1->isPF();
+   isPF2       = (int)el2->isPF();
    loose1      = el1->userInt("loose");
    loose2      = el2->userInt("loose");
    medium1     = el1->userInt("medium");
@@ -190,6 +210,12 @@ EDBRGenElstudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 void EDBRGenElstudies::setDummyValues(){
+      pt1        = -1e4;
+      pt2        = -1e4;
+      eta1       = -1e4;
+      eta2       = -1e4;
+      isPF1      = -1e4;
+      isPF2      = -1e4;
       loose1     = -1e4;
       loose2     = -1e4;
       medium1    = -1e4;
