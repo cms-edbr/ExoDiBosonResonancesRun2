@@ -91,7 +91,7 @@ void plotLimit(std::string key)
   gr2->SetFillColor(5);
   gr2->GetYaxis()->SetTitleOffset(1.2);
   gr2->SetMinimum(5.e-1);
-  gr2->SetMaximum(3.e3);
+  gr2->SetMaximum(4.e3);
   gr2->SetTitle("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 2.6 fb^{-1};M_{VZ} [GeV];\
                  #sigma_{95%} #times BR(G #rightarrow ZZ) [fb]");
 
@@ -149,7 +149,7 @@ void plotLimit(std::string key)
      
   graph->Draw("sameCP");
 
-  TLegend *leg = new TLegend(0.40,0.11,0.88,0.38);
+  TLegend *leg = new TLegend(0.40,0.11,0.88,0.35);
   leg->SetHeader(legTitle[key].c_str());
   leg->AddEntry(gr5,"Observed limit","lp");
   leg->AddEntry(gr0,"Expected 95% C.L. upper limit","lp");
@@ -161,7 +161,7 @@ void plotLimit(std::string key)
   TLegendEntry *header = (TLegendEntry*)leg->GetListOfPrimitives()->First();
   header->SetTextAlign(22);
   header->SetTextColor(2);
-  header->SetTextSize(.04);
+  header->SetTextSize(.033);
 
   c1->Print(outFile[key].c_str());
 }
