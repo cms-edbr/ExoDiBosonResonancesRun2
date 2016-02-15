@@ -45,7 +45,7 @@ process.goodElectrons = cms.EDProducer( "GoodElectronsProducer",
 
 process.Ztoee = cms.EDProducer(         "CandViewCombiner",
                                          decay = cms.string("goodElectrons goodElectrons"),
-                                         cut = cms.string("70 < mass < 110"),
+                                         cut = cms.string(""),
                                          checkCharge = cms.bool(False) )
 
 process.dilepton = cms.EDFilter(        "CandViewCountFilter",
