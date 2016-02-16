@@ -66,7 +66,15 @@ if TRIGGER == "mu" :
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/data/Run2015D/SingleMuon/MINIAOD/16Dec2015-v1/10000/00006301-CAA8-E511-AD39-549F35AD8BC9.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/22D686FF-01A7-E511-BA85-0CC47A4D7678.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/D0E3C325-F7A6-E511-87FE-0CC47A78A418.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/D419EB24-FBA6-E511-9603-003048FFCB6A.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/E6EE1304-02A7-E511-B398-002618943832.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20002/BAFAA604-4DA7-E511-9057-0CC47A4D767C.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20002/C0A50B0A-4BA7-E511-B9F8-0CC47A4D7666.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20002/F0407414-85A7-E511-8EFD-0CC47A4C8E5E.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/60000/0808F6E4-DDB3-E511-A121-00261894393C.root',
+       '/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/60000/FA4BF7E4-DDB3-E511-91B7-00261894396D.root'   
     )
 )
 
@@ -111,6 +119,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
 
 #***************************************** SEQUENCES **********************************************# 
 process.load("ExoDiBosonResonances.EDBRCommon.goodJets_cff")
+process.patJetCorrFactorsReapplyJEC.levels = ['L1FastJet','L2Relative','L3Absolute','L2L3Residual']
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
