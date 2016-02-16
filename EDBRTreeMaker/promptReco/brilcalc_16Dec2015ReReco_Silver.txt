@@ -1,4 +1,4 @@
-$HOME/.local/bin/brilcalc lumi --normtag ~lumipro/public/normtag_file/OfflineNormtagV2.json -i Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt -u /pb
+$HOME/.local/bin/brilcalc lumi --normtag ~lumipro/public/normtag_file/OfflineNormtagV2.json -i Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt -u /pb
 
 +-------------+-------------------+------+------+----------------+---------------+
 | run:fill    | time              | nls  | ncms | delivered(/pb) | recorded(/pb) |
