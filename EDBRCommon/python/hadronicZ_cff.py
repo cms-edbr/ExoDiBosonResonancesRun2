@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 corrJetsProducer = cms.EDProducer ( "CorrJetsProducer",
-                                    jets    = cms.InputTag( "cleanJets"                ),
+                                    jets    = cms.InputTag( "cleanPatJets"             ),
                                     vertex  = cms.InputTag( "goodOfflinePrimaryVertex" ), 
                                     rho     = cms.InputTag( "fixedGridRhoFastjetAll"   ),
                                     payload = cms.string  ( "AK8PFchs"                 ),
