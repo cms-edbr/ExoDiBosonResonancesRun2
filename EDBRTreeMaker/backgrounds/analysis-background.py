@@ -8,7 +8,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v12'
+process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v0'
 
 #*********************************** CHOOSE YOUR CHANNEL  *******************************************#
                                                                                                     
@@ -80,7 +80,8 @@ if TRIGGER == "mu" :
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/mc/RunIIFall15MiniAODv1/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/345E23FA-FCA7-E511-9212-02163E01654F.root')
+         '/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/04D51FB4-B2B8-E511-A399-047D7B881D6A.root')
+         #'/store/mc/RunIIFall15MiniAODv1/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/345E23FA-FCA7-E511-9212-02163E01654F.root')
 )
 
 #********************************  MODULES *********************************************************#
