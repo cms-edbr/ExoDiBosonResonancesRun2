@@ -19,6 +19,8 @@
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TTree.h"
 
@@ -41,14 +43,19 @@ class EDBRGenElstudies : public edm::EDAnalyzer {
       double pt2;
       double eta1;
       double eta2;
+      double Zpt;
+      double Zmass;
       double genPt1;
       double genPt2;
       double genEta1;
       double genEta2;
+      double genZpt;
+      double genZmass;
       double dRGenGen;
       double dRGenRec1;
       double dRGenRec2;
       int    matchGen;
+      int    nVtx;
       int    isPF1;
       int    isPF2;
       int    loose1;
@@ -75,13 +82,12 @@ class EDBRGenElstudies : public edm::EDAnalyzer {
       double pfIso03R2;
       double miniIso1;
       double miniIso2;
-
-      void setDummyValues();
 };
 
 
 EDBRGenElstudies::EDBRGenElstudies(const edm::ParameterSet& iConfig)
 {
+   vertexToken = consumes<reco::VertexCollection>(       edm::InputTag("offlineSlimmedPrimaryVertices") ),
    genZToken   = consumes<reco::CandidateCollection>(    edm::InputTag("leptonicDecay") );
    ZcandToken  = consumes<reco::CompositeCandidateView>( edm::InputTag("Ztoee"      ) );
 
@@ -91,16 +97,21 @@ EDBRGenElstudies::EDBRGenElstudies(const edm::ParameterSet& iConfig)
    t->Branch("pt2",        &pt2,        "pt2/D");
    t->Branch("eta1",       &eta1,       "eta1/D");
    t->Branch("eta2",       &eta2,       "eta2/D");
+   t->Branch("Zpt",        &Zpt,        "Zpt/D");
+   t->Branch("Zmass",      &Zmass,      "Zmass/D");
    t->Branch("genEta1",    &genEta1,    "genEta1/D");
    t->Branch("genEta2",    &genEta2,    "genEta2/D");
    t->Branch("genPt1",     &genPt1,     "genPt1/D");
    t->Branch("genPt2",     &genPt2,     "genPt2/D");
    t->Branch("genEta1",    &genEta1,    "genEta1/D");
    t->Branch("genEta2",    &genEta2,    "genEta2/D");
+   t->Branch("genZpt",     &genZpt,     "genZpt/D");
+   t->Branch("genZmass",   &genZmass,   "genZmass/D");
    t->Branch("dRGenGen",   &dRGenGen,   "dRGenGen/D");
    t->Branch("dRGenRec1",  &dRGenRec1,  "dRGenRec1/D");
    t->Branch("dRGenRec2",  &dRGenRec2,  "dRGenRec2/D");
    t->Branch("matchGen",   &matchGen,   "matchGen/I");
+   t->Branch("nVtx",       &nVtx,       "nVtx/I");
    t->Branch("isPF1",      &isPF1,      "isPF1/I");
    t->Branch("isPF2",      &isPF2,      "isPF2/I");
    t->Branch("loose1",     &loose1,     "loose1/I");
@@ -129,16 +140,20 @@ EDBRGenElstudies::EDBRGenElstudies(const edm::ParameterSet& iConfig)
    t->Branch("miniIso2",   &miniIso2,   "miniIso2/D");
 }
 
-EDBRGenElstudies::~EDBRGenElstudies()
-{
-}
-
+EDBRGenElstudies::~EDBRGenElstudies(){ }
 
 void
 EDBRGenElstudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+   Handle<reco::VertexCollection> vertices;
+   iEvent.getByToken(vertexToken, vertices);
+   nVtx = vertices->size();
+
+   //****************************************************************//
+   //                       GEN Z candidate                          //
+   //****************************************************************//                                             
    Handle<reco::CandidateCollection> genZ;
    iEvent.getByToken(genZToken, genZ);
    const reco::Candidate& G    = (*genZ)[0];
@@ -146,17 +161,19 @@ EDBRGenElstudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    const reco::Candidate *gen2 = (reco::Candidate*)G.daughter(1);
    math::XYZTLorentzVector v1  = gen1->pt() > gen2->pt() ? gen1->p4() : gen2->p4();
    math::XYZTLorentzVector v2  = gen1->pt() < gen2->pt() ? gen1->p4() : gen2->p4();
-   bool acceptance = v1.pt() > 20 and fabs(v1.eta()) < 2.5 and
-                     v2.pt() > 20 and fabs(v2.eta()) < 2.5;
+   bool acceptance = v1.pt() > 35 and fabs(v1.eta()) < 2.5 and
+                     v2.pt() > 35 and fabs(v2.eta()) < 2.5;
    if( !acceptance ) return;
    genPt1   = v1.pt();
    genPt2   = v2.pt();
    genEta1  = v1.eta();
    genEta2  = v2.eta();
+   genZpt   = G.pt();
+   genZmass = G.mass();
    dRGenGen = reco::deltaR( v1, v2 );
 
    //****************************************************************//
-   //                      Get reco Z candidates                     //
+   //                       Reco Z candidate                         //
    //****************************************************************//                                             
    Handle<reco::CompositeCandidateView> Zcands ;
    iEvent.getByToken(ZcandToken,        Zcands);
@@ -164,18 +181,15 @@ EDBRGenElstudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    int temp = Z.daughter(0)->pt() > Z.daughter(1)->pt() ? 0 : 1; 
    const pat::Electron *el1 = (pat::Electron*)Z.daughter(      temp);
    const pat::Electron *el2 = (pat::Electron*)Z.daughter((int)!temp);
-   double  dR1 = reco::deltaR( v1, el1->p4() );
-   double  dR2 = reco::deltaR( v2, el2->p4() );
-   dRGenRec1   = dR1; 
-   dRGenRec2   = dR2; 
-   matchGen    = (int) dR1<0.05 and dR2<0.05;
-
-   if ( !matchGen ) { setDummyValues(); t->Fill(); return; }
-
+   dRGenRec1   = reco::deltaR( v1, el1->p4() );
+   dRGenRec2   = reco::deltaR( v2, el2->p4() );
+   matchGen    = (int) dRGenRec1<0.05 and dRGenRec2<0.05;
    pt1         = el1->pt();
    pt2         = el2->pt();
    eta1        = el1->eta();
    eta2        = el2->eta();
+   Zpt         = Z.pt();
+   Zmass       = Z.mass();
    isPF1       = (int)el1->isPF();
    isPF2       = (int)el2->isPF();
    loose1      = el1->userInt("loose");
@@ -204,42 +218,6 @@ EDBRGenElstudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    miniIso2    = el2->userFloat("miniIso");
    // fill tree
    t->Fill();
-   //****************************************************************//
-   //                  End loop over pat::Muons                  //
-   //****************************************************************//
-}
-
-void EDBRGenElstudies::setDummyValues(){
-      pt1        = -1e4;
-      pt2        = -1e4;
-      eta1       = -1e4;
-      eta2       = -1e4;
-      isPF1      = -1e4;
-      isPF2      = -1e4;
-      loose1     = -1e4;
-      loose2     = -1e4;
-      medium1    = -1e4;
-      medium2    = -1e4;
-      tight1     = -1e4;
-      tight2     = -1e4;
-      heep1      = -1e4;
-      heep2      = -1e4;
-      LOOSE1     = -1e4;
-      LOOSE2     = -1e4;
-      MEDIUM1    = -1e4;
-      MEDIUM2    = -1e4;
-      TIGHT1     = -1e4;
-      TIGHT2     = -1e4;
-      HEEP1      = -1e4;
-      HEEP2      = -1e4;
-      caloIso1   = -1e4;
-      caloIso2   = -1e4;
-      trackIso1  = -1e4;
-      trackIso2  = -1e4;
-      pfIso03R1  = -1e4;
-      pfIso03R2  = -1e4;
-      miniIso1   = -1e4;
-      miniIso2   = -1e4;
 }
 
 void EDBRGenElstudies::beginJob() { }
