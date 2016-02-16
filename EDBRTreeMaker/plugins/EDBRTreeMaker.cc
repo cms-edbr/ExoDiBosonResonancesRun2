@@ -30,6 +30,7 @@
 
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "EDBRChannels.h"
@@ -74,14 +75,14 @@ private:
   edm::EDGetTokenT<pat::MuonCollection> muonsToken;
   edm::EDGetTokenT<pat::JetCollection> jetsToken;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puInfoToken;
-
+  edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken;
 
   //------------------------ GENERAL ----------------------------------------------
   int nVtx;
   int numCands;
   int nevent, run, lumisec;
   int channel, lep, reg;
-  double triggerWeight, lumiWeight, pileupWeight;
+  double triggerWeight, lumiWeight, pileupWeight, genWeight;
   double totalWeight;
 
   //------------------------ V quantities ------------------------------------------
@@ -213,6 +214,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   muonsToken        = consumes<pat::MuonCollection>(           InputTag("slimmedMuons"        ));
   jetsToken         = consumes<pat::JetCollection>(            InputTag("slimmedJetsAK8"      ));
   puInfoToken       = consumes<std::vector<PileupSummaryInfo>>(InputTag("slimmedAddPileupInfo"));
+  genEvtInfoToken   = consumes<GenEventInfoProduct>(           InputTag("generator"           ));
 
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -384,6 +386,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("triggerWeight"    ,&triggerWeight    ,"triggerWeight/D"   );
   outTree_->Branch("lumiWeight"       ,&lumiWeight       ,"lumiWeight/D"      );
   outTree_->Branch("pileupWeight"     ,&pileupWeight     ,"pileupWeight/D"    );
+  outTree_->Branch("genWeight"        ,&genWeight        ,"genWeight/D"       );
   outTree_->Branch("totalWeight"      ,&totalWeight      ,"totalWeight/D"     );
   outTree_->Branch("deltaRleplep"     ,&deltaRleplep     ,"deltaRleplep/D"    );
   outTree_->Branch("delPhilepmet"     ,&delPhilepmet     ,"delPhilepmet/D"    );
@@ -760,6 +763,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        triggerWeight = 1.0;
        pileupWeight  = 1.0;
        lumiWeight    = 1.0;
+       genWeight     = 1.0;
        if( !isData_ ) {
            // pileup reweight
            Handle<std::vector< PileupSummaryInfo > >  puInfo;
@@ -773,6 +777,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                      continue;
                 }
            }
+           // generator weight
+           edm::Handle<GenEventInfoProduct>   genEvtInfo; 
+           iEvent.getByToken(genEvtInfoToken, genEvtInfo );
+           genWeight = genEvtInfo->weight();
            // lumi weight
            double targetEvents = targetLumiInvPb_*crossSectionPb_;
            lumiWeight = targetEvents/originalNEvents_;
