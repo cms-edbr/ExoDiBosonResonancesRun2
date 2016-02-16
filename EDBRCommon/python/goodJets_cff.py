@@ -1,36 +1,48 @@
 import FWCore.ParameterSet.Config as cms
+
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import cleanPatJets 
 from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
 
-goodJets = cms.EDFilter("PFJetIDSelectionFunctorFilter",
-                        filterParams = pfJetIDSelector.clone(),
-                        src = cms.InputTag("slimmedJetsAK8"),
-                        filter = cms.bool(True) )
+patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+                                    src     = cms.InputTag("slimmedJetsAK8"),
+                                    levels  = ['L1FastJet','L2Relative','L3Absolute'],
+                                    payload = 'AK8PFchs')
 
-### Cleaning
-# We want to make sure that the jets are not the electrons or muons done previously
+patJetsReapplyJEC = patJetsUpdated.clone(
+                                    jetSource = cms.InputTag("slimmedJetsAK8"),
+                                    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC") ))
+
+goodJets = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+                         filterParams = pfJetIDSelector.clone(),
+                         src = cms.InputTag("patJetsReapplyJEC"),
+                         filter = cms.bool(True) )
 
 bestLeptonicVdaughters = cms.EDProducer("LeptonicVdaughters", src = cms.InputTag("bestLeptonicV"))
 
-import PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi as jetCleaner_cfi
-
-cleanJets = jetCleaner_cfi.cleanPatJets.clone()
-cleanJets.src = "goodJets"
-cleanJets.checkOverlaps.muons.src = "bestLeptonicVdaughters:Muons"
-cleanJets.checkOverlaps.muons.deltaR = 0.8
-cleanJets.checkOverlaps.muons.requireNoOverlaps = True
-cleanJets.checkOverlaps.electrons.src = "bestLeptonicVdaughters:Electrons"
-cleanJets.checkOverlaps.electrons.deltaR = 0.8
-cleanJets.checkOverlaps.electrons.requireNoOverlaps = True
-cleanJets.checkOverlaps.photons = cms.PSet()
-cleanJets.checkOverlaps.taus = cms.PSet()
-cleanJets.checkOverlaps.tkIsoElectrons = cms.PSet()
-cleanJets.finalCut = ""
+### Cleaning
+cleanPatJets.src = "goodJets"
+cleanPatJets.checkOverlaps.muons.src = "bestLeptonicVdaughters:Muons"
+cleanPatJets.checkOverlaps.muons.deltaR = 0.8
+cleanPatJets.checkOverlaps.muons.requireNoOverlaps = True
+cleanPatJets.checkOverlaps.electrons.src = "bestLeptonicVdaughters:Electrons"
+cleanPatJets.checkOverlaps.electrons.deltaR = 0.8
+cleanPatJets.checkOverlaps.electrons.requireNoOverlaps = True
+cleanPatJets.checkOverlaps.photons = cms.PSet()
+cleanPatJets.checkOverlaps.taus = cms.PSet()
+cleanPatJets.checkOverlaps.tkIsoElectrons = cms.PSet()
+cleanPatJets.finalCut = ""
 
 # module to filter on the number of Jets
 countCleanJets = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(1),
-    maxNumber = cms.uint32(999999),
-    src = cms.InputTag("cleanJets")
-)
+                               minNumber = cms.uint32(1),
+                               maxNumber = cms.uint32(999999),
+                               src = cms.InputTag("cleanPatJets"))
 
-fatJetsSequence = cms.Sequence(bestLeptonicVdaughters + goodJets + cleanJets + countCleanJets)
+fatJetsSequence = cms.Sequence( patJetCorrFactorsReapplyJEC +
+                                patJetsReapplyJEC           +
+                                goodJets                    +
+                                bestLeptonicVdaughters      + 
+                                cleanPatJets                + 
+                                countCleanJets              )
