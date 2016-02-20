@@ -621,10 +621,10 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         etel2          = el2->superCluster()->energy();
                         etaSC1         = el1->superCluster()->eta();
                         etaSC2         = el2->superCluster()->eta();
-                        barrel1        = fabs(etaSC1)<1.4442 ? 1:0;
-                        barrel2        = fabs(etaSC2)<1.4442 ? 1:0;
-                        endcap1        = fabs(etaSC1)>1.566 && fabs(etaSC1)<2.5 ? 1:0;
-                        endcap2        = fabs(etaSC2)>1.566 && fabs(etaSC2)<2.5 ? 1:0;
+                        barrel1        = fabs(etaSC1)<1.479 ? 1:0;
+                        barrel2        = fabs(etaSC2)<1.479 ? 1:0;
+                        endcap1        = fabs(etaSC1)>1.479 ? 1:0;
+                        endcap2        = fabs(etaSC2)>1.479 ? 1:0;
                         // isolation with effective area correction
                         reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
                         reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
