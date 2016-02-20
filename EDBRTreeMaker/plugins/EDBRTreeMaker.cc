@@ -159,7 +159,7 @@ private:
   // Muon ID 
   int    highPtMu1,        highPtMu2;
   int    trackerMu1,       trackerMu2;
-  int    isPF1,          isPF2;
+  int    isPF1,            isPF2;
   int    isGlobalMu1,      isGlobalMu2;
   int    isTrackerMu1,     isTrackerMu2;
   int    matchedStations1, matchedStations2;
