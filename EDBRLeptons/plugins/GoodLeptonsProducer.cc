@@ -46,7 +46,7 @@ class GoodLeptonsProducer : public edm::EDProducer {
       edm::EDGetTokenT<pat::MuonCollection>                    muonToken;
       edm::EDGetTokenT<edm::ValueMap<float> >              elIsoMapToken;
       edm::EDGetTokenT<edm::ValueMap<float> >              muIsoMapToken;
-      edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> >  heepToken;
+      edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> >     heepToken;
       edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> >    looseToken;
 };
 
@@ -57,7 +57,7 @@ GoodLeptonsProducer::GoodLeptonsProducer(const edm::ParameterSet& iConfig):
     muonToken(     consumes<pat::MuonCollection>(                iConfig.getParameter<edm::InputTag>("muons"     ) ) ),
     elIsoMapToken( consumes<edm::ValueMap<float> >(              iConfig.getParameter<edm::InputTag>("elIsoMap"  ) ) ),
     muIsoMapToken( consumes<edm::ValueMap<float> >(              iConfig.getParameter<edm::InputTag>("muIsoMap"  ) ) ),
-    heepToken(  consumes<edm::ValueMap<vid::CutFlowResult> >( iConfig.getParameter<edm::InputTag>("heep"   ) ) ),
+    heepToken(  consumes<edm::ValueMap<vid::CutFlowResult> >(    iConfig.getParameter<edm::InputTag>("heep"      ) ) ),
     looseToken(    consumes<edm::ValueMap<vid::CutFlowResult> >( iConfig.getParameter<edm::InputTag>("loose"     ) ) )
 {
     produces<std::vector<pat::Electron> >("Electrons");
