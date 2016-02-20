@@ -28,8 +28,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
@@ -150,17 +148,18 @@ private:
   double eeDeltaR;
   int    barrel1,          barrel2;
   int    endcap1,          endcap2;
-  int    heepV601,         heepV602;
-  int    modheep1,         modheep2;
+  int    HEEP1,            HEEP2;
+  int    heep1,            heep2;
+  int    LOOSE1,           LOOSE2;
+  int    loose1,           loose2;
   int    ecalDriven1,      ecalDriven2;
   int    missingHits1,     missingHits2;
   int    passConVeto1,     passConVeto2;
-  EffectiveAreas effectiveAreas;
 
   // Muon ID 
   int    highPtMu1,        highPtMu2;
   int    trackerMu1,       trackerMu2;
-  int    isPFMu1,          isPFMu2;
+  int    isPF1,            isPF2;
   int    isGlobalMu1,      isGlobalMu2;
   int    isTrackerMu1,     isTrackerMu2;
   int    matchedStations1, matchedStations2;
@@ -169,8 +168,8 @@ private:
   double relativeError1,   relativeError2;
   double dBCut1,           dBCut2;
   double longiCut1,        longiCut2;
-  double relIsoR03_1,      relIsoR03_2;
-  double relIsoR04_1,      relIsoR04_2;
+  double pfIso03R1,        pfIso03R2;
+  double pfIso04R1,        pfIso04R2;
 
   void setDummyValues();
 
@@ -187,8 +186,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   crossSectionPb_  (                                   iConfig.getParameter<double>        ( "crossSectionPb"    ) ),
   targetLumiInvPb_ (                                   iConfig.getParameter<double>        ( "targetLumiInvPb"   ) ),
   EDBRChannel_     (                                   iConfig.getParameter<std::string>   ( "EDBRChannel"       ) ),
-  vertexToken_     ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"          ) ) ),
-  effectiveAreas   ( edm::FileInPath("RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt").fullPath())
+  vertexToken_     ( consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag> ( "vertex"          ) ) )
 {
   using namespace edm;
 
@@ -274,8 +272,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("trackerMu2"       ,&trackerMu2       ,"trackerMu2/I"      );
   outTree_->Branch("highPtMu1"        ,&highPtMu1        ,"highPtMu1/I"       );
   outTree_->Branch("highPtMu2"        ,&highPtMu2        ,"highPtMu2/I"       );
-  outTree_->Branch("isPFMu1"          ,&isPFMu1          ,"isPFMu1/I"         );
-  outTree_->Branch("isPFMu2"          ,&isPFMu2          ,"isPFMu2/I"         );
+  outTree_->Branch("isPF1"            ,&isPF1            ,"isPF1/I"           );
+  outTree_->Branch("isPF2"            ,&isPF2            ,"isPF2/I"           );
   outTree_->Branch("isGlobalMu1"      ,&isGlobalMu1      ,"isGlobalMu1/I"     );
   outTree_->Branch("isGlobalMu2"      ,&isGlobalMu2      ,"isGlobalMu2/I"     );
   outTree_->Branch("isTrackerMu1"     ,&isTrackerMu1     ,"isTrackerMu1/I"    );
@@ -292,10 +290,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("dBCut2"           ,&dBCut2           ,"dBCut2/D"          );
   outTree_->Branch("longiCut1"        ,&longiCut1        ,"longiCut1/D"       );
   outTree_->Branch("longiCut2"        ,&longiCut2        ,"longiCut2/D"       );
-  outTree_->Branch("relIsoR03_1"      ,&relIsoR03_1      ,"relIsoR03_1/D"     );
-  outTree_->Branch("relIsoR03_2"      ,&relIsoR03_2      ,"relIsoR03_2/D"     );
-  outTree_->Branch("relIsoR04_1"      ,&relIsoR04_1      ,"relIsoR04_1/D"     );
-  outTree_->Branch("relIsoR04_2"      ,&relIsoR04_2      ,"relIsoR04_2/D"     );
+  outTree_->Branch("pfIso03R1"        ,&pfIso03R1        ,"pfIso03R1/D"       );
+  outTree_->Branch("pfIso03R2"        ,&pfIso03R2        ,"pfIso03R2/D"       );
+  outTree_->Branch("pfIso04R1"        ,&pfIso04R1        ,"pfIso04R1/D"       );
+  outTree_->Branch("pfIso04R2"        ,&pfIso04R2        ,"pfIso04R2/D"       );
 
   // Electron ID quantities
   outTree_->Branch("barrel1"          ,&barrel1          ,"barrel1/I"         );
@@ -340,10 +338,14 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("missingHits2"     ,&missingHits2     ,"missingHits2/I"    );
   outTree_->Branch("passConVeto1"     ,&passConVeto1     ,"passConVeto1/I"    );
   outTree_->Branch("passConVeto2"     ,&passConVeto2     ,"passConVeto2/I"    );
-  outTree_->Branch("heepV601"         ,&heepV601         ,"heepV601/I"        );
-  outTree_->Branch("heepV602"         ,&heepV602         ,"heepV602/I"        );
-  outTree_->Branch("modheep1"         ,&modheep1         ,"modheep1/I"        );
-  outTree_->Branch("modheep2"         ,&modheep2         ,"modheep2/I"        );
+  outTree_->Branch("HEEP1"            ,&HEEP1            ,"HEEP1/I"           );
+  outTree_->Branch("HEEP2"            ,&HEEP2            ,"HEEP2/I"           );
+  outTree_->Branch("heep1"            ,&heep1            ,"heep1/I"           );
+  outTree_->Branch("heep2"            ,&heep2            ,"heep2/I"           );
+  outTree_->Branch("LOOSE1"           ,&LOOSE1           ,"LOOSE1/I"          );
+  outTree_->Branch("LOOSE2"           ,&LOOSE2           ,"LOOSE2/I"          );
+  outTree_->Branch("loose1"           ,&loose1           ,"loose1/I"          );
+  outTree_->Branch("loose2"           ,&loose2           ,"loose2/I"          );
 
   // mini isolation for leptons
   outTree_->Branch("miniIso1"         ,&miniIso1         ,"miniIso1/D"        );
@@ -544,33 +546,33 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         deltaPtlep2Obj   =      (*deltaPt_handle)[mu2Ptr];
                         matchHlt1        = (int)(*matchHlt_handle)[mu1Ptr]; 
                         matchHlt2        = (int)(*matchHlt_handle)[mu2Ptr]; 
-                        reco::MuonPFIsolation pfIsoR03_1 = mu1->pfIsolationR03();
-                        reco::MuonPFIsolation pfIsoR03_2 = mu2->pfIsolationR03();
-                        reco::MuonPFIsolation pfIsoR04_1 = mu1->pfIsolationR04();
-                        reco::MuonPFIsolation pfIsoR04_2 = mu2->pfIsolationR04();
-                        // isolation wi  th delta beta correction
-                        double absisoR03_1 = pfIsoR03_1.sumChargedHadronPt + std::max(0.0,  pfIsoR03_1.sumNeutralHadronEt + pfIsoR03_1.sumPhotonEt - 0.5*pfIsoR03_1.sumPUPt );
-                        double absisoR03_2 = pfIsoR03_2.sumChargedHadronPt + std::max(0.0,  pfIsoR03_2.sumNeutralHadronEt + pfIsoR03_2.sumPhotonEt - 0.5*pfIsoR03_2.sumPUPt );
-                        double absisoR04_1 = pfIsoR04_1.sumChargedHadronPt + std::max(0.0,  pfIsoR04_1.sumNeutralHadronEt + pfIsoR04_1.sumPhotonEt - 0.5*pfIsoR04_1.sumPUPt );
-                        double absisoR04_2 = pfIsoR04_2.sumChargedHadronPt + std::max(0.0,  pfIsoR04_2.sumNeutralHadronEt + pfIsoR04_2.sumPhotonEt - 0.5*pfIsoR04_2.sumPUPt );
-                        relIsoR03_1      = absisoR03_1/mu1->pt();
-                        relIsoR03_2      = absisoR03_2/mu2->pt();
-                        relIsoR04_1      = absisoR04_1/mu1->pt();
-                        relIsoR04_2      = absisoR04_2/mu2->pt();
-                        trackerMu1       = (int)hptm::isTrackerMuon(*mu1, vertex);
-                        trackerMu2       = (int)hptm::isTrackerMuon(*mu2, vertex);
-                        highPtMu1        = (int)muon::isHighPtMuon( *mu1, vertex);
-                        highPtMu2        = (int)muon::isHighPtMuon( *mu2, vertex);
-                        isPFMu1          = mu1->isPFMuon();
-                        isPFMu2          = mu2->isPFMuon();
-                        isGlobalMu1      = mu1->isGlobalMuon();
-                        isGlobalMu2      = mu2->isGlobalMuon();
-                        isTrackerMu1     = mu1->isTrackerMuon();
-                        isTrackerMu2     = mu2->isTrackerMuon();
-                        matchedStations1 = mu1->numberOfMatchedStations();
-                        matchedStations2 = mu2->numberOfMatchedStations();
-                        trackIso1        = mu1->isolationR03().sumPt;                       // tracker isolation
-                        trackIso2        = mu2->isolationR03().sumPt;                       // tracker isolation
+                        reco::MuonPFIsolation iso03R1 = mu1->pfIsolationR03();
+                        reco::MuonPFIsolation iso03R2 = mu2->pfIsolationR03();
+                        reco::MuonPFIsolation iso04R1 = mu1->pfIsolationR04();
+                        reco::MuonPFIsolation iso04R2 = mu2->pfIsolationR04();
+                        // isolation with delta beta correction
+                        double absIso03R1 = iso03R1.sumChargedHadronPt + std::max(0.0,  iso03R1.sumNeutralHadronEt + iso03R1.sumPhotonEt - 0.5*iso03R1.sumPUPt );
+                        double absIso03R2 = iso03R2.sumChargedHadronPt + std::max(0.0,  iso03R2.sumNeutralHadronEt + iso03R2.sumPhotonEt - 0.5*iso03R2.sumPUPt );
+                        double absIso04R1 = iso04R1.sumChargedHadronPt + std::max(0.0,  iso04R1.sumNeutralHadronEt + iso04R1.sumPhotonEt - 0.5*iso04R1.sumPUPt );
+                        double absIso04R2 = iso04R2.sumChargedHadronPt + std::max(0.0,  iso04R2.sumNeutralHadronEt + iso04R2.sumPhotonEt - 0.5*iso04R2.sumPUPt );
+                        pfIso03R1         = absIso03R1/mu1->pt();
+                        pfIso03R2         = absIso03R2/mu2->pt();
+                        pfIso04R1         = absIso04R1/mu1->pt();
+                        pfIso04R2         = absIso04R2/mu2->pt();
+                        trackerMu1        = (int)hptm::isTrackerMuon(*mu1, vertex);
+                        trackerMu2        = (int)hptm::isTrackerMuon(*mu2, vertex);
+                        highPtMu1         = (int)muon::isHighPtMuon( *mu1, vertex);
+                        highPtMu2         = (int)muon::isHighPtMuon( *mu2, vertex);
+                        isPF1             = mu1->isPFMuon();
+                        isPF2             = mu2->isPFMuon();
+                        isGlobalMu1       = mu1->isGlobalMuon();
+                        isGlobalMu2       = mu2->isGlobalMuon();
+                        isTrackerMu1      = mu1->isTrackerMuon();
+                        isTrackerMu2      = mu2->isTrackerMuon();
+                        matchedStations1  = mu1->numberOfMatchedStations();
+                        matchedStations2  = mu2->numberOfMatchedStations();
+                        trackIso1         = mu1->isolationR03().sumPt;                       // tracker isolation
+                        trackIso2         = mu2->isolationR03().sumPt;                       // tracker isolation
                         if ( mu1->innerTrack().isNonnull() ){
                            pixelHits1     = mu1->innerTrack()->hitPattern().numberOfValidPixelHits();
                            trackerLayers1 = mu1->innerTrack()->hitPattern().trackerLayersWithMeasurement();
@@ -621,31 +623,33 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         etel2          = el2->superCluster()->energy();
                         etaSC1         = el1->superCluster()->eta();
                         etaSC2         = el2->superCluster()->eta();
-                        barrel1        = fabs(etaSC1)<1.4442 ? 1:0;
-                        barrel2        = fabs(etaSC2)<1.4442 ? 1:0;
-                        endcap1        = fabs(etaSC1)>1.566 && fabs(etaSC1)<2.5 ? 1:0;
-                        endcap2        = fabs(etaSC2)>1.566 && fabs(etaSC2)<2.5 ? 1:0;
-                        // isolation with effective area correction
-                        reco::GsfElectron::PflowIsolationVariables pfIso1 = el1->pfIsolationVariables();
-                        reco::GsfElectron::PflowIsolationVariables pfIso2 = el2->pfIsolationVariables();
-                        double     eA1 = effectiveAreas.getEffectiveArea( etaSC1 );
-                        double     eA2 = effectiveAreas.getEffectiveArea( etaSC2 );
-                        double absiso1 = pfIso1.sumChargedHadronPt + std::max(0.0, pfIso1.sumNeutralHadronEt + pfIso1.sumPhotonEt - rho*eA1 );
-                        double absiso2 = pfIso2.sumChargedHadronPt + std::max(0.0, pfIso2.sumNeutralHadronEt + pfIso2.sumPhotonEt - rho*eA2 );
-                        relIsoR03_1    = absiso1/el1->pt();
-                        relIsoR03_2    = absiso2/el2->pt();
+                        barrel1        = fabs(etaSC1)<1.479 ? 1:0;
+                        barrel2        = fabs(etaSC2)<1.479 ? 1:0;
+                        endcap1        = fabs(etaSC1)>1.479 ? 1:0;
+                        endcap2        = fabs(etaSC2)>1.479 ? 1:0;
+                        // isolation 
+                        pfIso03R1      = el1->userFloat("pfIso03R");
+                        pfIso03R2      = el2->userFloat("pfIso03R");
                         caloIso1       = el1->dr03EcalRecHitSumEt() + el1->dr03HcalDepth1TowerSumEt();
                         caloIso2       = el2->dr03EcalRecHitSumEt() + el2->dr03HcalDepth1TowerSumEt();
                         trackIso1      = el1->dr03TkSumPt();
                         trackIso2      = el2->dr03TkSumPt();
+                        // particle flow electrons
+                        isPF1          = el1->isPF();
+                        isPF2          = el2->isPF();
                         // retrieve mini isolation
                         miniIso1       = el1->userFloat("miniIso");
                         miniIso2       = el2->userFloat("miniIso");
                         // heepV60
-                        heepV601       = el1->userInt("heepV60"); 
-                        heepV602       = el1->userInt("heepV60"); 
-                        modheep1       = el1->userInt("heepV60_noiso"); 
-                        modheep2       = el1->userInt("heepV60_noiso"); 
+                        HEEP1          = el1->userInt("HEEP"); 
+                        HEEP2          = el2->userInt("HEEP"); 
+                        heep1          = el1->userInt("heep"); 
+                        heep2          = el2->userInt("heep"); 
+                        // loose 
+                        LOOSE1         = el1->userInt("LOOSE"); 
+                        LOOSE2         = el2->userInt("LOOSE"); 
+                        loose1         = el1->userInt("loose"); 
+                        loose2         = el2->userInt("loose"); 
                         // shower shapes
                         sigmaIEtaIEta1 = el1->full5x5_sigmaIetaIeta();
                         sigmaIEtaIEta2 = el2->full5x5_sigmaIetaIeta();
@@ -906,8 +910,10 @@ void EDBRTreeMaker::setDummyValues() {
      ecalDriven1      = -1e4;
      missingHits1     = -1e4; 
      passConVeto1     = -1e4;
-     heepV601         = -1e4;
-     modheep1         = -1e4;
+     HEEP1            = -1e4;
+     heep1            = -1e4;
+     LOOSE1           = -1e4;
+     loose1           = -1e4;
      etel2            = -1e4;
      ptel2            = -1e4;
      etaSC2           = -1e4;
@@ -925,14 +931,16 @@ void EDBRTreeMaker::setDummyValues() {
      ecalDriven2      = -1e4;
      missingHits2     = -1e4; 
      passConVeto2     = -1e4;
-     heepV602         = -1e4; 
-     modheep2         = -1e4; 
+     HEEP2            = -1e4; 
+     heep2            = -1e4; 
+     LOOSE2           = -1e4; 
+     loose2           = -1e4; 
      trackerMu1       = -1e4;
      trackerMu2       = -1e4;
      highPtMu1        = -1e4;
      highPtMu2        = -1e4;
-     isPFMu1          = -1e4;
-     isPFMu2          = -1e4;
+     isPF1            = -1e4;
+     isPF2            = -1e4;
      isGlobalMu1      = -1e4;
      isGlobalMu2      = -1e4;
      isTrackerMu1     = -1e4;
@@ -949,10 +957,10 @@ void EDBRTreeMaker::setDummyValues() {
      dBCut2           = -1e4;
      longiCut1        = -1e4;
      longiCut2        = -1e4;
-     relIsoR03_1      = -1e4;
-     relIsoR03_2      = -1e4;
-     relIsoR04_1      = -1e4;
-     relIsoR04_2      = -1e4;
+     pfIso03R1        = -1e4;
+     pfIso03R2        = -1e4;
+     pfIso04R1        = -1e4;
+     pfIso04R2        = -1e4;
 }
 
 void EDBRTreeMaker::beginJob(){ 
