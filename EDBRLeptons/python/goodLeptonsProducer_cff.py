@@ -37,7 +37,10 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
 
 kinElectrons = cms.EDFilter("PATElectronSelector",
                             src = cms.InputTag("goodLeptons:Electrons"),
-                            cut = cms.string("pt > 35 & abs(eta) < 2.5")
+                            cut = cms.string("pt > 20 & abs(eta) < 2.5 & "+\
+                                             "(abs(superCluster().eta()) < 1.442 ||"+\
+                                             " abs(superCluster().eta()) > 1.566)"  
+                                            )
                             )
 
 idElectrons = cms.EDFilter("PATElectronSelector",
