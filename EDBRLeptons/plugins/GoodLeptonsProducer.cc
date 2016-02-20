@@ -40,7 +40,6 @@ class GoodLeptonsProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
-      bool filter_;
       edm::EDGetTokenT<reco::VertexCollection>               vertexToken;
       edm::EDGetTokenT<pat::ElectronCollection>            electronToken;
       edm::EDGetTokenT<pat::MuonCollection>                    muonToken;
@@ -51,7 +50,6 @@ class GoodLeptonsProducer : public edm::EDProducer {
 };
 
 GoodLeptonsProducer::GoodLeptonsProducer(const edm::ParameterSet& iConfig):
-    filter_(                                                     iConfig.getParameter<bool>(         "filter"      ) ),
     vertexToken(   consumes<reco::VertexCollection> (            iConfig.getParameter<edm::InputTag>("vertex"    ) ) ),
     electronToken( consumes<pat::ElectronCollection>(            iConfig.getParameter<edm::InputTag>("electrons" ) ) ),
     muonToken(     consumes<pat::MuonCollection>(                iConfig.getParameter<edm::InputTag>("muons"     ) ) ),

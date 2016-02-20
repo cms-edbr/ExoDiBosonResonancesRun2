@@ -27,7 +27,6 @@ muonsMiniIsolationValueMap = cms.EDProducer("PatMuonMiniIsolationValueMap",
                                        pfCands = cms.InputTag("packedPFCandidates"))
 
 goodLeptons = cms.EDProducer("GoodLeptonsProducer",
-                                       filter     = cms.bool(True),
                                        vertex     = cms.InputTag("goodOfflinePrimaryVertex"),
                                        electrons  = cms.InputTag("slimmedElectrons"),
                                        muons      = cms.InputTag("slimmedMuons"),
