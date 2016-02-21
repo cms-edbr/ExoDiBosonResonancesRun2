@@ -45,7 +45,7 @@ kinElectrons = cms.EDFilter("PATElectronSelector",
 
 idElectrons = cms.EDFilter("PATElectronSelector",
                            src = cms.InputTag("kinElectrons"),
-                           cut = cms.string("userInt('loose') == 1")
+                           cut = cms.string("userInt('LOOSE') == 1")
                            )
 
 isoElectrons = cms.EDFilter("PATElectronSelector",

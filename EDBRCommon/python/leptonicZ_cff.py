@@ -1,13 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-daughterID      =                 "(daughter(0).userInt('isHighPt')==1 || \
-                                    daughter(1).userInt('isHighPt')==1)"
+daughterID      =  "(daughter(0).userInt('isHighPt')==1 || \
+                     daughter(1).userInt('isHighPt')==1)"
 
-daughterKin     =                 "((daughter(0).pt > 50 & abs(daughter(0).eta) < 2.1) || \
-                                    (daughter(1).pt > 50 & abs(daughter(1).eta) < 2.1))"
+daughterKin     =  "((daughter(0).pt > 50 & abs(daughter(0).eta) < 2.1) || \
+                     (daughter(1).pt > 50 & abs(daughter(1).eta) < 2.1))"
 
-daughterCharge  =                 "((daughter(0).charge == -daughter(1).charge) || \
-                                    (daughter(0).pdgId  == -daughter(1).pdgId))"
+daughterIso     =  "? deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi)>0.3 ? \
+                     daughter(0).userInt('passTrackIso') * daughter(1).userInt('passTrackIso') : \
+                    (daughter(0).userFloat('trackIso')-daughter(1).userFloat('innerIso'))/daughter(0).pt < 0.2  & \
+                    (daughter(1).userFloat('trackIso')-daughter(0).userFloat('innerIso'))/daughter(1).pt < 0.2  "
+
+daughterCharge  =  "((daughter(0).charge == -daughter(1).charge) || \
+                     (daughter(0).pdgId  == -daughter(1).pdgId))"
 
 Ztoee = cms.EDProducer(           "CandViewCombiner",
                                    decay = cms.string("isoElectrons isoElectrons"),
@@ -16,7 +21,7 @@ Ztoee = cms.EDProducer(           "CandViewCombiner",
 
 Ztomumu = cms.EDProducer(         "CandViewCombiner",
                                    decay = cms.string("isoMuons isoMuons"),
-                                   cut = cms.string( daughterID +" && "+ daughterKin ),
+                                   cut = cms.string( daughterID +" & "+ daughterKin +" & "+ daughterIso),
                                    checkCharge = cms.bool(False) )
 
 leptonicV = cms.EDProducer(       "CandViewMerger",
