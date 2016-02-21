@@ -50,16 +50,17 @@ process.load("ExoDiBosonResonances.EDBRLeptons.goodLeptonsProducer_cff")
 if TRIGGER == "el" :
     process.kinElectrons.filter   = cms.bool(True)
     process.idElectrons.filter    = cms.bool(True)
-    process.isoElectrons.filter   = cms.bool(True)
     process.leptonicVFilter.src   = "Ztoee"
     process.ZdaughterCharge.src   = "Ztoee"
 
 if TRIGGER == "mu" :
     process.kinMuons.filter       = cms.bool(True)
     process.idMuons.filter        = cms.bool(True)
-    process.isoMuons.filter       = cms.bool(True)
     process.leptonicVFilter.src   = "Ztomumu"
     process.ZdaughterCharge.src   = "Ztomumu"
+    process.leptonicVSelector.src = "ZdaughterIso"
+    process.leptonicVSequence.replace( process.ZdaughterCharge, 
+                                       process.ZdaughterCharge + process.ZdaughterIso )
 
 #*********************************** POOL SOURCE ****************************************************#
 

@@ -36,46 +36,28 @@ goodLeptons = cms.EDProducer("GoodLeptonsProducer",
                                        loose      = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"))
 
 kinElectrons = cms.EDFilter("PATElectronSelector",
-                            src = cms.InputTag("goodLeptons:Electrons"),
-                            cut = cms.string("pt > 20 & abs(eta) < 2.5 & "+\
-                                             "(abs(superCluster().eta()) < 1.442 ||"+\
-                                             " abs(superCluster().eta()) > 1.566)"  
-                                            )
-                            )
+                                       src = cms.InputTag("goodLeptons:Electrons"),
+                                       cut = cms.string("pt > 20 & abs(eta) < 2.5 & "+\
+                                                        "(abs(superCluster().eta()) < 1.442 ||"+\
+                                                        " abs(superCluster().eta()) > 1.566)"  ))
 
 idElectrons = cms.EDFilter("PATElectronSelector",
-                           src = cms.InputTag("kinElectrons"),
-                           cut = cms.string("userInt('loose') == 1")
-                           )
-
-isoElectrons = cms.EDFilter("PATElectronSelector",
-                            src = cms.InputTag("idElectrons"),
-                            cut = cms.string("userFloat('pfIso03R') < 9999.")
-                            )
+                                       src = cms.InputTag("kinElectrons"),
+                                       cut = cms.string("userInt('LOOSE') == 1"))
 
 kinMuons = cms.EDFilter("PATMuonSelector",
-                        src = cms.InputTag("goodLeptons:Muons"),
-                        cut = cms.string("pt > 20 & abs(eta) < 2.4")
-                        )
+                                       src = cms.InputTag("goodLeptons:Muons"),
+                                       cut = cms.string("pt > 20 & abs(eta) < 2.4"))
 
 idMuons = cms.EDFilter("PATMuonSelector",
-                       src = cms.InputTag("kinMuons"),
-                       cut = cms.string("userInt('isTracker') == 1 || userInt('isHighPt') == 1")
-                       )
-
-isoMuons = cms.EDFilter("PATMuonSelector",
-                        src = cms.InputTag("idMuons"),
-                        cut = cms.string("userFloat('miniIso') < 9999.")
-                        )
+                                       src = cms.InputTag("kinMuons"),
+                                       cut = cms.string("userInt('isTracker') == 1 || userInt('isHighPt') == 1"))
 
 goodLeptonsProducer = cms.Sequence(    goodOfflinePrimaryVertex       +
                                        electronsMiniIsolationValueMap +
                                        muonsMiniIsolationValueMap     +
                                        goodLeptons                    +
-                                       kinElectrons +
-                                       idElectrons +
-                                       isoElectrons +
-                                       kinMuons +
-                                       idMuons + 
-                                       isoMuons
-                                       )
+                                       kinElectrons                   +
+                                       idElectrons                    +
+                                       kinMuons                       +
+                                       idMuons                        )

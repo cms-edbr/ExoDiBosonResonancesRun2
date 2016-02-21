@@ -127,14 +127,18 @@ GoodLeptonsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const Ptr<pat::Muon> muPtr(muons, i);
         const pat::Muon& mu    = (*muons)[i];
         float miniIso          = (*muIsoMap)[muPtr]; 
+        float trackIso         = mu.isolationR03().sumPt;
+        float innerPt          = mu.innerTrack().isNonnull() ? mu.innerTrack()->pt() : -1.e4;
         bool  trackerID        = hptm::isTrackerMuon(mu, vertex);  
         bool  highPtID         = muon::isHighPtMuon( mu, vertex);  
         pat::Muon* cloneMu = mu.clone();
-        cloneMu->addUserInt("slimmedIndex", i         );
-        cloneMu->addUserInt("isTracker",    trackerID );
-        cloneMu->addUserInt("isHighPt",     highPtID  );
-        cloneMu->addUserFloat("miniIso",    miniIso   );
-        goodMuons->push_back(               *cloneMu  );
+        cloneMu->addUserInt("slimmedIndex", i            );
+        cloneMu->addUserInt("isTracker",    trackerID    );
+        cloneMu->addUserInt("isHighPt",     highPtID     );
+        cloneMu->addUserFloat("trackIso",   trackIso     );
+        cloneMu->addUserFloat("innerPt",    innerPt      );
+        cloneMu->addUserFloat("miniIso",    miniIso      );
+        goodMuons->push_back(               *cloneMu     );
     }
 
     iEvent.put(goodElectrons, "Electrons");
