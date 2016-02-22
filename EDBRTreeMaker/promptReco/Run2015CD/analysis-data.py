@@ -11,16 +11,16 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.GlobalTag.globaltag = '76X_dataRun2_v15'
 
 # Use private JECs
-usePrivateSQlite = False 
+usePrivateSQlite = True 
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     process.jec = cms.ESSource("PoolDBESSource",
         CondDBSetup,
-        connect = cms.string("sqlite_file:Summer15_25nsV6_DATA.db"),
+        connect = cms.string("sqlite_file:Fall15_25nsV2_DATA.db"),
         toGet =  cms.VPSet(
             cms.PSet(
                 record = cms.string("JetCorrectionsRecord"),
-                tag = cms.string("JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK8PFchs"),
+                tag = cms.string("JetCorrectorParametersCollection_Fall15_25nsV2_DATA_AK8PFchs"),
                 label= cms.untracked.string("AK8PFchs")
             ),
         )

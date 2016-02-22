@@ -4,6 +4,7 @@ config = config()
 config.JobType.pluginName  = 'Analysis'
 config.JobType.psetName    = 'analysis-data.py'
 config.JobType.pyCfgParams = ['','mu']
+config.JobType.inputFiles  = ['../../data/Fall15_25nsV2_DATA.db']
 config.JobType.maxJobRuntimeMin = 180
 
 config.Data.inputDataset   = '/SingleMuon/Run2015D-16Dec2015-v1/MINIAOD'
@@ -15,4 +16,4 @@ config.Data.publication    = False
 config.Data.allowNonValidInputDataset = True
 
 config.Site.storageSite    =  'T2_BR_SPRACE'
-config.Site.whitelist      = ['T2_BR_SPRACE','T2_CH_CERN','T2_FR_IPHC','T2_IT_Legnaro']
+config.Site.whitelist      = ['T2_US_Wisconsin','T2_FR_IPHC','T2_IT_Legnaro']
