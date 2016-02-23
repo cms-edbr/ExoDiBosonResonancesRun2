@@ -26,25 +26,25 @@ void shapeAnalysisPlots(std::string key)
   // Silent RooFit
   RooMsgService::instance().setGlobalKillBelow(FATAL);
 
-  std::map<std::string, double> fitRangeLow;
-  fitRangeLow["EHP"] = 500;
-  fitRangeLow["MHP"] = 500;
-  fitRangeLow["ELP"] = 500;
-  fitRangeLow["MLP"] = 500;
-  fitRangeLow["ENP"] = 500;
-  fitRangeLow["MNP"] = 500;
+  std::map<std::string, double> candMassLow, massVhadLow, massVhadUpp;
+  candMassLow["EHP"] = 550.; massVhadLow["EHP"] = 20.; massVhadUpp["EHP"] = 165.;
+  candMassLow["MHP"] = 550.; massVhadLow["MHP"] = 20.; massVhadUpp["MHP"] = 150.;
+  candMassLow["ELP"] = 550.; massVhadLow["ELP"] = 20.; massVhadUpp["ELP"] = 165.;
+  candMassLow["MLP"] = 550.; massVhadLow["MLP"] = 20.; massVhadUpp["MLP"] = 150.;
+  candMassLow["ENP"] = 550.; massVhadLow["ENP"] = 20.; massVhadUpp["ENP"] = 165.;
+  candMassLow["MNP"] = 550.; massVhadLow["MNP"] = 20.; massVhadUpp["MNP"] = 150.;
 
-  RooRealVar candMass("candMass","M_{VZ}",         fitRangeLow[key], 5300., "GeV");
-  RooRealVar massVhad("massVhad","pruned m_{jet}",              20.,  220., "GeV");
-  RooRealVar tau21("tau21","tau21",                              0.,  0.75       );
-  RooRealVar lep("lep","lep",                                    10,    15       );
-  RooRealVar totalWeight("totalWeight", "total weight",          0.,    10.      );
+  RooRealVar candMass("candMass","M_{VZ}",         candMassLow[key],                 5000., "GeV");
+  RooRealVar massVhad("massVhad","pruned m_{jet}", massVhadLow[key], massVhadLow[key]+200., "GeV");
+  RooRealVar tau21("tau21","tau21",                              0.,                  0.75       );
+  RooRealVar lep("lep","lep",                                    10,                    15       );
+  RooRealVar totalWeight("totalWeight", "total weight",          0.,                    10.      );
   RooArgSet variables(candMass,massVhad,tau21,lep,totalWeight);
 
-  massVhad.setRange("lowerSB",      20.,   65.);
-  massVhad.setRange("lowerSIG",     65.,  105.);
-  massVhad.setRange("upperSIG",    105.,  135.);
-  massVhad.setRange("upperSB",     135.,  220.);
+  massVhad.setRange("lowerSB",  massVhadLow[key],   65.);
+  massVhad.setRange("lowerSIG",              65.,  105.);
+  massVhad.setRange("upperSIG",             105.,  135.);
+  massVhad.setRange("upperSB",              135.,  massVhadUpp[key]);
 
   std::map<std::string, std::string> selection;
   selection["ENP"] = "lep<12";
@@ -111,8 +111,8 @@ void shapeAnalysisPlots(std::string key)
   }
 
   // datasets to host data in sideband
-  RooDataSet sbObs("sbObs","sbObs", variables, Cut(allSB),    Import(treeData));
   RooDataSet nsObs("nsObs","nsObs", variables, Cut(lowerSIG), Import(treeData));
+  RooDataSet sbObs("sbObs","sbObs", variables, Cut(allSB),    Import(treeData));
 
   // MC datasets
   RooDataSet bkg1( "bkg1", "bkg1", variables, Cut(selectedCategory), WeightVar(totalWeight), Import(treeMC1));
@@ -144,7 +144,6 @@ void shapeAnalysisPlots(std::string key)
   RooRealVar width2("width2",  "width of the erf",     50.0,   1.,  200.);
   RooErfExpPdf model1("model1","fiting mj spectrum1",massVhad,c1,offset1,width1);
   RooErfExpPdf model2("model2","fiting mj spectrum2",massVhad,c2,offset2,width2);
-  // Extended models
   RooExtendPdf emodel1("emodel1","extended dom backgrounds",model1,nbkg1);
   RooExtendPdf emodel2("emodel2","extended sub backgrounds",model2,nbkg2);
   RooFitResult *rf1 = emodel1.fitTo(bkg1, Save(1), PrintLevel(-1));
@@ -171,9 +170,9 @@ void shapeAnalysisPlots(std::string key)
   ZZ_bkg_norm.setError( lowerSIGyield.getPropagatedError(*rf1) );
  
   // Prepare beautiful plot
-  RooBinning xbins(40,20,220);
+  RooBinning xbins(40,massVhadLow[key],massVhadLow[key]+200.);
   RooPlot *plot = massVhad.frame(Title("#bf{CMS} Preliminary #sqrt{s} = 13 TeV"));
-  plot->SetAxisRange(20.,220.,"X");
+  plot->SetAxisRange(massVhadLow[key],massVhadLow[key]+200.,"X");
   allMC.plotOn(    plot, Name("allmc"), Binning(xbins),DrawOption("B"),LineColor(0),FillColor(kAzure-9));
   if(not isBlind)
   nsObs.plotOn(    plot, Name("sigDa"), Binning(xbins),MarkerColor(kRed));
@@ -243,27 +242,27 @@ void shapeAnalysisPlots(std::string key)
   RooSimultaneous bigSample_pdf("bigSample_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf,sbObs_pdf), reg); 
 
   std::map<std::string, double> fitRangeUpp;
-  fitRangeUpp["EHP"] = 4500;
-  fitRangeUpp["MHP"] = 4500;
-  fitRangeUpp["ELP"] = 4500;
-  fitRangeUpp["MLP"] = 4500;
+  fitRangeUpp["EHP"] = 4000;
+  fitRangeUpp["ELP"] = 4000;
+  fitRangeUpp["MHP"] = 4000;
+  fitRangeUpp["MLP"] = 4000;
 
-  candMass.setRange("fitRange", fitRangeLow[key], fitRangeUpp[key]);
+  candMass.setRange("fitRange", candMassLow[key], fitRangeUpp[key]);
   RooFitResult *fitres = bigSample_pdf.fitTo(bigSample, Save(1), Range("fitRange"), SumW2Error(kTRUE), PrintLevel(-1));
 
   // Generate data for alpha
   RooDataSet *alpha = alpha_pdf.generate(candMass,1.e6); 
   alpha->SetName("alpha");
 
-  RooBinning xbins2(40,fitRangeLow[key],fitRangeLow[key]+2000.);
+  RooBinning xbins2(40,candMassLow[key],candMassLow[key]+2000.);
   RooPlot *plot1 = candMass.frame(Title("#bf{MC SIG}"));
   RooPlot *plot2 = candMass.frame(Title("#bf{MC SB}"));
   RooPlot *plot3 = candMass.frame(Title("#bf{MC SIG / MC SB}"));
   RooPlot *plot4 = candMass.frame(Title("#bf{Data SB}"));
-  plot1->SetAxisRange(fitRangeLow[key],fitRangeLow[key]+2000,"X");
-  plot2->SetAxisRange(fitRangeLow[key],fitRangeLow[key]+2000,"X");
-  plot3->SetAxisRange(fitRangeLow[key],fitRangeLow[key]+2000,"X");
-  plot4->SetAxisRange(fitRangeLow[key],fitRangeLow[key]+2000,"X");
+  plot1->SetAxisRange(candMassLow[key],candMassLow[key]+2000,"X");
+  plot2->SetAxisRange(candMassLow[key],candMassLow[key]+2000,"X");
+  plot3->SetAxisRange(candMassLow[key],candMassLow[key]+2000,"X");
+  plot4->SetAxisRange(candMassLow[key],candMassLow[key]+2000,"X");
 
   nsBkg.plotOn(plot1,Binning(xbins2),RooFit::Invisible());
   nsBkg_pdf.plotOn( plot1,VisualizeError(*fitres,1),FillStyle(1001),FillColor(kYellow-7));
@@ -328,9 +327,9 @@ void shapeAnalysisPlots(std::string key)
   RooExtendPdf ZZ_bkg_ext( "ZZ_bkg_ext", "extended p.d.f",  ZZ_bkg, ZZ_bkg_norm);
   RooDataSet allMCns("allMCns","allMCns", variables, Cut(lowerSIG), WeightVar(totalWeight), Index(MC), Import("dominant",bkg1), Import("subdominant",bkg2));
 
-  RooBinning xbins3(60,fitRangeLow[key],fitRangeLow[key]+3000);
+  RooBinning xbins3(60,candMassLow[key],candMassLow[key]+3000);
   RooPlot *plot5 = candMass.frame(Title("#bf{CMS} Preliminary #sqrt{s} = 13 TeV"));
-  plot5->SetAxisRange(fitRangeLow[key],fitRangeLow[key]+3000,"X");
+  plot5->SetAxisRange(candMassLow[key],candMassLow[key]+3000,"X");
   allMCns.plotOn(plot5, Name("MC"), Binning(xbins3),DrawOption("B"),LineColor(0),FillColor(kAzure-9));
   //nsObs.plotOn(plot5,Binning(xbins3),RooFit::Invisible());
   const RooCmdArg goodNorm = Normalization(1.0,RooAbsReal::RelativeExpected);
