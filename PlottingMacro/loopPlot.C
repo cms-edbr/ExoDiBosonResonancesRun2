@@ -119,9 +119,10 @@ void loopPlot(){
 
   /// Setup names of MC signal files for trees.
   const int nMCSig=0;//set to zero if you don't want to plot
-  //std::string mcLabelsSig[nMCSig]={"BulkGrav_-M_2000"};
+  //std::string mcLabelsSig[nMCSig]={"BulkGravToZZToZlepZhad_M-2000_mu"};
+  //std::string mcLabelsSig[nMCSig]={"BulkGravToZZToZlepZhad_M-2000_el"};
   std::string mcLabelsSig[nMCSig]={};
-  //double kFactorsSig_array[nMCSig] = {0.5e7};
+  //double kFactorsSig_array[nMCSig] = {7.0e6};
   double kFactorsSig_array[nMCSig] = {};
 
   std::vector<double> kFactorsMCSig;
@@ -314,10 +315,12 @@ void loopPlot(){
   //fColorsMC.push_back(kRed);
   //fColorsMC.push_back(kAzure+1);
   //fColorsMC.push_back(kAzure+2);
-  fColorsMC.push_back(kTeal-8);
-  fColorsMC.push_back(kYellow-7);
-  fColorsMC.push_back(kWhite);
-  
+
+  fColorsMC.push_back(kRed+2);
+  fColorsMC.push_back(kOrange-3);
+  fColorsMC.push_back(kYellow-9);
+  //fColorsMC.push_back(kWhite);
+
   ////// {"BulkG_WW_lvjj_c1p0_M600_xww","BulkG_WW_lvjj_c1p0_M1000_xww","BulkG_WW_lvjj_c1p0_M1500_xww"};
   std::vector<int> fColorsMCSig;
   fColorsMCSig.push_back(kMagenta-7);
