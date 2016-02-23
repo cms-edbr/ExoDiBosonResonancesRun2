@@ -61,27 +61,26 @@ void plotLimit(std::string key)
     }
     i++;
   }
-  Double_t l1[12], l2[12], h1[12], h2[12];
+
+  Double_t mass=700.;
+  Double_t l1[34], l2[34], h1[34], h2[34], x[34], n[34];
   for(int j=0; j<y0.size(); j++){
      l1[j] = y2[j]-y1[j];
      l2[j] = y2[j]-y0[j];
      h1[j] = y3[j]-y2[j];
      h2[j] = y4[j]-y2[j];
+     x[j]  = mass;
+     n[j]  = 0.;
+     mass += 100.;
   }
-
-  Double_t x[12]={600.,800.,1000.,1200.,1400.,1600.,1800.,2000.,2500.,3000.,3500.,4000.};
-  Double_t n[12]={  0.,  0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.};
 
   TGraph *gr5 = new TGraph(y0.size(),x,&(y5[0]));
   gr5->SetLineStyle(1);
-  gr5->SetLineWidth(2);
-  gr5->SetMarkerStyle(20);
-  gr5->SetMarkerColor(4);
+  gr5->SetLineWidth(3);
 
   TGraph *gr0 = new TGraph(y0.size(),x,&(y2[0]));
   gr0->SetLineStyle(2);
   gr0->SetLineWidth(2);
-  gr0->SetMarkerStyle(21);
  
   TGraphAsymmErrors *gr1 = new TGraphAsymmErrors(y0.size(),x,&(y2[0]),n,n,l1,h1);
   TGraphAsymmErrors *gr2 = new TGraphAsymmErrors(y0.size(),x,&(y2[0]),n,n,l2,h2);
@@ -102,8 +101,8 @@ void plotLimit(std::string key)
   gPad->SetLogy();
   gr2->Draw("A3");
   gr1->Draw("same3");
-  gr0->Draw("sameCP");
-  //gr5->Draw("sameCP");
+  gr0->Draw("sameC");
+  gr5->Draw("sameC");
 
   Double_t bulkToZZ_fx1[16] = {
   200,
@@ -151,8 +150,8 @@ void plotLimit(std::string key)
 
   TLegend *leg = new TLegend(0.40,0.11,0.88,0.35);
   leg->SetHeader(legTitle[key].c_str());
-  leg->AddEntry(gr5,"Observed limit","lp");
-  leg->AddEntry(gr0,"Expected 95% C.L. upper limit","lp");
+  leg->AddEntry(gr5,"Observed limit","l");
+  leg->AddEntry(gr0,"Expected 95% C.L. upper limit","l");
   leg->AddEntry(gr1,"Expected #pm 1#sigma","f");
   leg->AddEntry(gr2,"Expected #pm 2#sigma","f");
   leg->AddEntry(graph,"G_{bulk} #rightarrow ZZ, k/M_{Pl} = 0.5","l");

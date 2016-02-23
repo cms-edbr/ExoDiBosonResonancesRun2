@@ -1,0 +1,29 @@
+Combination of MHP=CMS_ZZ_2400_MHP_13TeV.txt  MLP=CMS_ZZ_2400_MLP_13TeV.txt
+imax 2 number of bins
+jmax 1 number of processes minus 1
+kmax 11 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes *         MHP       workSpaces/CMS_ZZ_2400_MHP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  MHP       workSpaces/CMS_ZZ_2400_MHP_13TeV.root ZZ_13TeV:data_obs
+shapes *         MLP       workSpaces/CMS_ZZ_2400_MLP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  MLP       workSpaces/CMS_ZZ_2400_MLP_13TeV.root ZZ_13TeV:data_obs
+----------------------------------------------------------------------------------------------------------------------------------
+bin          MHP    MLP  
+observation  -1.0   -1.0 
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                            MHP         MHP         MLP         MLP       
+process                                        BulkG_2400  ZZ_bkg_eig  BulkG_2400  ZZ_bkg_eig
+process                                        0           1           0           1         
+rate                                           0.3821      1.0000      0.1991      1.0000    
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_eff_vtag_tau21_sf_13TeV   lnN              1.1         1.0         1.1         1.0       
+CMS_scale_M_13TeV       lnN                    1.03        1.0         1.03        1.0       
+CMS_scale_j_13TeV       lnN                    1.01        1.0         1.01        1.0       
+ZZ_bkg_eig_norm         lnU                    1.0         1.18        1.0         1.05      
+lumi_13TeV              lnN                    1.05        1.0         1.05        1.0       
+eig_eig5      param  0. 1.
+eig_eig4      param  0. 1.
+eig_eig3      param  0. 1.
+eig_eig2      param  0. 1.
+eig_eig1      param  0. 1.
+eig_eig0      param  0. 1.
