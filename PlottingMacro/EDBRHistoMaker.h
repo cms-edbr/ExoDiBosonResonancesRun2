@@ -77,6 +77,10 @@ class EDBRHistoMaker {
    Double_t        etajet1;
    Double_t        philep1;
    Double_t        philep2;
+   Double_t        trackIso1;
+   Double_t        trackIso2;
+   Double_t        pfIso03R1;
+   Double_t        pfIso03R2;
    Double_t        miniIso1;
    Double_t        miniIso2;
    Double_t        phijet1;
@@ -120,6 +124,10 @@ class EDBRHistoMaker {
    TBranch        *b_philep2;   //!
    TBranch        *b_miniIso1;   //!
    TBranch        *b_miniIso2;   //!
+   TBranch        *b_trackIso1;   //!
+   TBranch        *b_trackIso2;   //!
+   TBranch        *b_pfIso03R1;   //!
+   TBranch        *b_pfIso03R2;   //!
    TBranch        *b_phijet1;   //!
    TBranch        *b_met;   //!
    TBranch        *b_metPhi;   //!
@@ -267,6 +275,10 @@ void EDBRHistoMaker::Init(TTree *tree)
    fChain->SetBranchAddress("etajet1", &etajet1, &b_etajet1);
    fChain->SetBranchAddress("philep1", &philep1, &b_philep1);
    fChain->SetBranchAddress("philep2", &philep2, &b_philep2);
+   fChain->SetBranchAddress("trackIso1", &trackIso1, &b_trackIso1);
+   fChain->SetBranchAddress("trackIso2", &trackIso2, &b_trackIso2);
+   fChain->SetBranchAddress("pfIso03R1", &pfIso03R1, &b_pfIso03R1);
+   fChain->SetBranchAddress("pfIso03R2", &pfIso03R2, &b_pfIso03R2);
    fChain->SetBranchAddress("miniIso1", &miniIso1, &b_miniIso1);
    fChain->SetBranchAddress("miniIso2", &miniIso2, &b_miniIso2);
    fChain->SetBranchAddress("phijet1", &phijet1, &b_phijet1);
@@ -344,16 +356,16 @@ void EDBRHistoMaker::createAllHistos() {
   /// in the beginning of this file.
   /// Much simpler to create histos now: just add them to
   /// hs with hs.setHisto(name,nbins,min,max);
-  hs.setHisto("nVtx", 40,0,40);
-  hs.setHisto("ptZll",30,20,920); // 20 GeV bins
-  hs.setHisto("ptZjj",30,20,920); // 20 GeV bins
+  hs.setHisto("nVtx", 21,0,21);
+  hs.setHisto("ptZll",30,20,920); // 30 GeV bins
+  hs.setHisto("ptZjj",30,20,920); // 30 GeV bins
   hs.setHisto("yZll",28,-2.8,2.8);
   hs.setHisto("yZjj",28,-2.8,2.8);
   hs.setHisto("phiZll",74,-3.7,3.7);
   hs.setHisto("phiZjj",74,-3.7,3.7);
-  hs.setHisto("massZll",40,50,130); // 2 GeV bins 
-  hs.setHisto("massZjj",44,0,220);  // 5 GeV bins  
-  hs.setHisto("massZjj2",44,0,110);  // 2.5 GeV bins  
+  hs.setHisto("massZll",40,50,130);   // 2 GeV bins 
+  hs.setHisto("massZjj",44,0,220);    // 5 GeV bins  
+  hs.setHisto("massZjj2",44,20,130);  // 2.5 GeV bins  
   hs.setHisto("tau21",20,0,1);
   hs.setHisto("ptlep1",40,0,800); 
   hs.setHisto("ptlep2",50,0,500);
@@ -363,8 +375,12 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("etajet1",28,-2.8,2.8);
   hs.setHisto("philep1",74,-3.7,3.7);
   hs.setHisto("philep2",74,-3.7,3.7);
-  hs.setHisto("miniIso1",50,0.,0.1);
-  hs.setHisto("miniIso2",50,0.,0.1);
+  hs.setHisto("trackIso1",50,0.,0.20);
+  hs.setHisto("trackIso2",50,0.,0.20);
+  hs.setHisto("pfIso03R1",30,0.,0.12);
+  hs.setHisto("pfIso03R2",30,0.,0.12);
+  hs.setHisto("miniIso1",30,0.,0.12);
+  hs.setHisto("miniIso2",30,0.,0.12);
   hs.setHisto("miniIsoAbs1",50,0.,14.);
   hs.setHisto("miniIsoAbs2",50,0.,14.);
   hs.setHisto("phijet1",74,-3.7,3.7);
@@ -373,10 +389,10 @@ void EDBRHistoMaker::createAllHistos() {
   hs.setHisto("triggerWeight",50,0,5); 
   hs.setHisto("lumiWeight",70,0,7);
   hs.setHisto("pileupWeight",70,0,7);
-  hs.setHisto("deltaRleplep",70,0,3.5); 
-  hs.setHisto("deltaRlepjet",70,0,7); 
-  hs.setHisto("candMass",  30,300,3300); // 100 GeV bins...
-  hs.setHisto("candMass2", 20,400,1400); // 50 GeV bins...
+  hs.setHisto("deltaRleplep",15,0,1.5); 
+  hs.setHisto("deltaRlepjet",25,0,5); 
+  hs.setHisto("candMass",  30,350,3350); // 100 GeV bins...
+  hs.setHisto("candMass2", 20,450,1450); // 50 GeV bins...
   //but to have the signal spread around 4 bins maybe we want 25 GeV bins?
   
   char buffer[256];
@@ -572,7 +588,7 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       //if(candMass>2400.0)
       //cout<<"Found one event with MZZ="<<candMass<<endl;
       
-      if(candMass<500.) continue;
+      if(candMass<550.) continue;
       if(massVhad<20.) continue;
       //if(tau21<0.45) continue; //Low purity category
       if(tau21>0.45) continue; // High purity category
@@ -589,6 +605,10 @@ void EDBRHistoMaker::Loop(std::string outFileName){
       (theHistograms["etajet1"])->Fill(etajet1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["philep1"])->Fill(philep1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["philep2"])->Fill(philep2,actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["trackIso1"])->Fill(TMath::Max(0.,trackIso1/ptlep1),actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["trackIso2"])->Fill(TMath::Max(0.,trackIso2/ptlep2),actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["pfIso03R1"])->Fill(pfIso03R1,actualWeight);//printf("line number %i\n",__LINE__);
+      (theHistograms["pfIso03R2"])->Fill(pfIso03R2,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["miniIso1"])->Fill(miniIso1,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["miniIso2"])->Fill(miniIso2,actualWeight);//printf("line number %i\n",__LINE__);
       (theHistograms["miniIsoAbs1"])->Fill(miniIsoAbs1,actualWeight);//printf("line number %i\n",__LINE__);

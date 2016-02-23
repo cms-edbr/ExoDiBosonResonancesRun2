@@ -27,7 +27,7 @@ public:
                    int flavour,
                    bool isZZchannel,
                    bool scaleToData,
-                   bool scaleOnlyWJets,
+                   bool scaleOnlyDYJets,
                    bool makeRatio,
                    bool isSignalStackOnBkg,
                    std::vector<double> kFactorsMC,
@@ -45,7 +45,7 @@ public:
     flavour_        = flavour;
     isZZchannel_    = isZZchannel;
     scaleToData_    = scaleToData;
-    scaleOnlyWJets_ = scaleOnlyWJets;
+    scaleOnlyDYJets_ = scaleOnlyDYJets;
     makeRatio_      = makeRatio;
     isSignalStackOnBkg_ = isSignalStackOnBkg;
     debug_          = true;
@@ -112,7 +112,7 @@ public:
   int    flavour_;
   bool   isZZchannel_;
   bool   scaleToData_;
-  bool   scaleOnlyWJets_;
+  bool   scaleOnlyDYJets_;
   bool   makeRatio_;
   bool   isSignalStackOnBkg_;
   bool   isDataPresent_;
@@ -355,7 +355,8 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
 
   double sumBkgOther = 0.;
-  double sumWJets = 0.;
+  double sumDYJets   = 0.;
+  std::vector<double> yieldMC;
   for (size_t i = 0; i != filesMC.size(); ++i) {
     TH1D* histo = (TH1D*)(filesMC.at(i)->Get(histoName.c_str())->Clone(labels.at(i).c_str()));
 
@@ -365,18 +366,19 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
       histo->Print();
     }
     sumBkgAtTargetLumi += (histo->Integral() * targetLumi_);
+    yieldMC.push_back(     histo->Integral() * targetLumi_);
 
 
     if (debug_)cout << "filesMC.at(i)->GetName()   " << filesMC.at(i)->GetName() << endl;
     TString filename = filesMC.at(i)->GetName();
-    if (filename.Contains("WJets")) sumWJets += (histo->Integral() * targetLumi_);
+    if (filename.Contains("DYJets"))   sumDYJets += (histo->Integral() * targetLumi_);
     else sumBkgOther += (histo->Integral() * targetLumi_);
   }
-  if (debug_)cout << sumBkgAtTargetLumi << " " << sumWJets << " " << sumBkgOther << " " << sumWJets + sumBkgOther << endl;
-  double WJetsScaleFactor = 1.;
-  if (scaleOnlyWJets_) {
-    WJetsScaleFactor = (sumDataIntegral - sumBkgOther) / sumWJets;
-    cout << "WJetsScaleFactor " << WJetsScaleFactor << endl;
+  if (debug_)cout << sumBkgAtTargetLumi << " " << sumDYJets << " " << sumBkgOther << " " << sumDYJets + sumBkgOther << endl;
+  double DYJetsScaleFactor = 1.;
+  if (scaleOnlyDYJets_) {
+    DYJetsScaleFactor = (sumDataIntegral - sumBkgOther) / sumDYJets;
+    cout << "DYJetsScaleFactor " << DYJetsScaleFactor << endl;
   }
 
   for (size_t i = 0; i != filesMC.size(); ++i) {
@@ -386,7 +388,7 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
 
     TString filename = filesMC.at(i)->GetName();
     histo->Scale(kFactorsMC_.at(i));
-    if (filename.Contains("WJets"))histo->Scale(WJetsScaleFactor);
+    if (filename.Contains("DYJets"))histo->Scale(DYJetsScaleFactor);
     histosMC.push_back(histo);
   }
 
@@ -493,23 +495,27 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   axisTitle["h_nVtx"]          = "number of primary vertices";
   axisTitle["h_ptZll"]         = "leptonic Z p_{T} (GeV)"; 
   axisTitle["h_ptZjj"]         = "jet p_{T} (GeV)"; 
-  axisTitle["h_yZll"]          = "leptonic Z #eta"; 
-  axisTitle["h_yZjj"]          = "jet #eta"; 
-  axisTitle["h_phiZll"]        = "leptonic Z #phi"; 
-  axisTitle["h_phiZjj"]        = "jet #phi"; 
+  axisTitle["h_yZll"]          = "leptonic Z eta"; 
+  axisTitle["h_yZjj"]          = "jet eta"; 
+  axisTitle["h_phiZll"]        = "leptonic Z phi"; 
+  axisTitle["h_phiZjj"]        = "jet phi"; 
   axisTitle["h_massZll"]       = "leptonic Z mass (GeV)"; 
   axisTitle["h_massZjj"]       = "jet pruned mass (GeV)"; 
   axisTitle["h_massZjj2"]      = "jet pruned mass (GeV)"; 
-  axisTitle["h_tau21"]         = "#tau_{2}/#tau_{1}"; 
+  axisTitle["h_tau21"]         = "N-subjettiness tau_{21}"; 
   axisTitle["h_ptlep1"]        = "leading lepton p_{T} (GeV)"; 
   axisTitle["h_ptlep2"]        = "second lepton p_{T} (GeV)"; 
   axisTitle["h_ptjet1"]        = "jet p_{T} (GeV)"; 
-  axisTitle["h_etalep1"]       = "leading lepton #eta"; 
-  axisTitle["h_etalep2"]       = "second lepton #eta"; 
-  axisTitle["h_etajet1"]       = "jet #eta"; 
-  axisTitle["h_philep1"]       = "leading lepton #phi"; 
-  axisTitle["h_philep2"]       = "second lepton #phi"; 
-  axisTitle["h_phijet1"]       = "jet #phi"; 
+  axisTitle["h_etalep1"]       = "leading lepton eta"; 
+  axisTitle["h_etalep2"]       = "second lepton eta"; 
+  axisTitle["h_etajet1"]       = "jet eta"; 
+  axisTitle["h_philep1"]       = "leading lepton phi"; 
+  axisTitle["h_philep2"]       = "second lepton phi"; 
+  axisTitle["h_phijet1"]       = "jet phi"; 
+  axisTitle["h_trackIso1"]     = "leading lepton tracker ISO_{rel}"; 
+  axisTitle["h_trackIso2"]     = "second lepton tracker ISO_{rel}"; 
+  axisTitle["h_pfIso03R1"]     = "leading lepton PF ISO_{rel}"; 
+  axisTitle["h_pfIso03R2"]     = "second lepton PF ISO_{rel}"; 
   axisTitle["h_miniIso1"]      = "leading lepton miniISO_{rel}"; 
   axisTitle["h_miniIso2"]      = "second lepton miniISO_{rel}"; 
   axisTitle["h_miniIsoAbs1"]   = "leading lepton miniISO_{abs}"; 
@@ -519,8 +525,8 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   axisTitle["h_triggerWeight"] = "trigger weight"; 
   axisTitle["h_lumiWeight"]    = "luminosity weight"; 
   axisTitle["h_pileupWeight"]  = "pileup weight"; 
-  axisTitle["h_deltaRleplep"]  = "#DeltaR(lep,lep)"; 
-  axisTitle["h_deltaRlepjet"]  = "#DeltaR(lep,jet)"; 
+  axisTitle["h_deltaRleplep"]  = "deltaR(lep,lep)"; 
+  axisTitle["h_deltaRlepjet"]  = "deltaR(lep,jet)"; 
   axisTitle["h_candMass"]      = "VZ candidate mass (GeV)"; 
   axisTitle["h_candMass2"]     = "VZ candidate mass (GeV)"; 
 
@@ -540,24 +546,43 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
     maximumForStack = maximumMC;
   hs->SetMaximum(maximumForStack);
   // Some hacks for better aestetics
-  // Extra vertical space in eta plots
+  // Extra vertical space in some plots 
+  if (histoName.find("yZ") != std::string::npos) {
+    hs->SetMaximum(maximumForStack * 1.25);
+  }
   if (histoName.find("eta") != std::string::npos) {
     hs->SetMaximum(maximumForStack * 1.25);
   }
   if (histoName.find("massZjj") != std::string::npos) {
-      hs->SetMaximum(maximumForStack * 2.75);
+      hs->SetMaximum(maximumForStack * 1.25);
+  }
+  if (histoName.find("nVtx") != std::string::npos) {
+      hs->SetMaximum(maximumForStack * 1.25);
+  }
+  if (histoName.find("deltaRleplep") != std::string::npos) {
+      hs->SetMaximum(maximumForStack * 1.25);
+  }
+  if (histoName.find("tau") != std::string::npos) {
+      hs->SetMaximum(maximumForStack * 1.25);
   }
 
   hs->SetMinimum(0.1);
   hs->Draw("HIST");
   sumMC->SetTitle("");
   TH1* histoForErrors = (TH1*)sumMC->Clone("histoForErrors");
-  histoForErrors->SetLineWidth(3);
-  histoForErrors->SetLineColor(kRed-4);
-  histoForErrors->SetFillColorAlpha(kRed-4,0.8);
+  histoForErrors->SetLineWidth(1);
+  histoForErrors->SetLineColor(0);
+  histoForErrors->SetFillColor(kTeal-7);
   histoForErrors->SetMarkerSize(0);
+  //histoForErrors->SetFillStyle(3002);
   histoForErrors->SetFillStyle(1001);
   histoForErrors->Draw("E2SAME");
+
+  TH1* histoForLine = (TH1*)sumMC->Clone("histoForLine");
+  histoForLine->SetLineWidth(2);
+  histoForLine->SetLineColor(kBlack);
+  histoForLine->SetFillStyle(0);
+  histoForLine->Draw("HISTSAME");
 
   if (isDataPresent_)
     sumDATA->Draw("SAME E X0");
@@ -585,16 +610,17 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
   }
 
   // For the legend, we have to tokenize the name "histos_XXX.root"
-  TLegend* leg = new TLegend(0.40, 0.73, 0.93, 0.93);
+  TLegend* leg = new TLegend(0.35, 0.72, 0.92, 0.93);
   leg->SetMargin(0.4);
   leg->SetNColumns(2);
   leg->SetFillStyle(0);
   if (makeRatio_ ) leg->SetTextSize(0.038);
-  else leg->SetTextSize(0.033);
+  else leg->SetTextSize(0.040);
   if (isDataPresent_) leg->AddEntry(sumDATA, Form("Data (%.0f)",sumDataIntegral), "ep");
-  leg->AddEntry(histoForErrors, Form("MC (%.0f)",sumBkgAtTargetLumi), "lp");
+  leg->AddEntry(histoForErrors, "Stat. Unc.", "f");
   for (int i = histosMC.size()-1; i != -1; --i)
-    leg->AddEntry(histosMC.at(i), labels.at(i).c_str(), "f");
+    leg->AddEntry(histosMC.at(i), Form("%s (%.0f)",labels.at(i).c_str(), yieldMC.at(i)), "f");
+    //leg->AddEntry(histosMC.at(i), labels.at(i).c_str(), "f");
   if (histosMCSig.size() > 0) {
     char rescalingLabel[64];
     for (size_t i = 0; i != histosMCSig.size(); ++i) {
@@ -602,7 +628,8 @@ void EDBRHistoPlotter::makeStackPlots(std::string histoName)
       std::string rescalingStr(rescalingLabel);
       //if (kFactorsSig_.at(i) != 1.0)leg->AddEntry(histosMCSig.at(i), (labelsSig.at(i) + rescalingStr).c_str(), "lf");
       if (false)leg->AddEntry(histosMCSig.at(i), (labelsSig.at(i) + rescalingStr).c_str(), "lf");
-      else leg->AddEntry(histosMCSigOrig.at(i), (labelsSig.at(i)).c_str(), "f");
+      //else leg->AddEntry(histosMCSigOrig.at(i), (labelsSig.at(i)).c_str(), "f");
+      else leg->AddEntry(histosMCSigOrig.at(i), "G_{bulk} 2 TeV", "f");
     }
   }
   leg->SetFillColor(kWhite);
