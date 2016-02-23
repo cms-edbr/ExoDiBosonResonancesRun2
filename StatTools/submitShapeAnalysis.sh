@@ -12,30 +12,20 @@
 #
 #            source submitShapeAnalysis.sh
 
-root -b -q 'shapeAnalysis.C("ELP", 600)'
-root -b -q 'shapeAnalysis.C("ELP", 800)'
-root -b -q 'shapeAnalysis.C("ELP", 1000)'
-root -b -q 'shapeAnalysis.C("ELP", 1200)'
-root -b -q 'shapeAnalysis.C("ELP", 1400)'
-root -b -q 'shapeAnalysis.C("ELP", 1600)'
-root -b -q 'shapeAnalysis.C("ELP", 1800)'
-root -b -q 'shapeAnalysis.C("ELP", 2000)'
-root -b -q 'shapeAnalysis.C("ELP", 2500)'
-root -b -q 'shapeAnalysis.C("ELP", 3000)'
-root -b -q 'shapeAnalysis.C("ELP", 3500)'
-root -b -q 'shapeAnalysis.C("ELP", 4000)'
-root -b -q 'shapeAnalysis.C("ELP", 4500)'
+root -b -q 'bkgEstimation.C("ELP")'
+root -b -q 'bkgEstimation.C("EHP")'
+root -b -q 'bkgEstimation.C("MLP")'
+root -b -q 'bkgEstimation.C("MHP")'
 
-root -b -q 'shapeAnalysis.C("MLP", 600)'
-root -b -q 'shapeAnalysis.C("MLP", 800)'
-root -b -q 'shapeAnalysis.C("MLP", 1000)'
-root -b -q 'shapeAnalysis.C("MLP", 1200)'
-root -b -q 'shapeAnalysis.C("MLP", 1400)'
-root -b -q 'shapeAnalysis.C("MLP", 1600)'
-root -b -q 'shapeAnalysis.C("MLP", 1800)'
-root -b -q 'shapeAnalysis.C("MLP", 2000)'
-root -b -q 'shapeAnalysis.C("MLP", 2500)'
-root -b -q 'shapeAnalysis.C("MLP", 3000)'
-root -b -q 'shapeAnalysis.C("MLP", 3500)'
-root -b -q 'shapeAnalysis.C("MLP", 4000)'
-root -b -q 'shapeAnalysis.C("MLP", 4500)'
+root -b -q 'signalShapes.C("ELP")'
+root -b -q 'signalShapes.C("EHP")'
+root -b -q 'signalShapes.C("MLP")'
+root -b -q 'signalShapes.C("MHP")'
+
+for (( i=600; i<=4000; i+=100 ))
+  do
+    root -b -q 'makeDataCards.C("ELP",'"$i"')'
+    root -b -q 'makeDataCards.C("EHP",'"$i"')'
+    root -b -q 'makeDataCards.C("MLP",'"$i"')'
+    root -b -q 'makeDataCards.C("MHP",'"$i"')'
+  done
