@@ -34,11 +34,11 @@ void shapeAnalysisPlots(std::string key)
   candMassLow["ENP"] = 550.; massVhadLow["ENP"] = 20.; massVhadUpp["ENP"] = 165.;
   candMassLow["MNP"] = 550.; massVhadLow["MNP"] = 20.; massVhadUpp["MNP"] = 150.;
 
-  RooRealVar candMass("candMass","M_{VZ}",         candMassLow[key],                 5000., "GeV");
-  RooRealVar massVhad("massVhad","pruned m_{jet}", massVhadLow[key], massVhadLow[key]+200., "GeV");
-  RooRealVar tau21("tau21","tau21",                              0.,                  0.75       );
-  RooRealVar lep("lep","lep",                                    10,                    15       );
-  RooRealVar totalWeight("totalWeight", "total weight",          0.,                    10.      );
+  RooRealVar candMass("candMass","VZ candidate mass", candMassLow[key],                 5000., "GeV");
+  RooRealVar massVhad("massVhad","jet pruned mass",   massVhadLow[key], massVhadLow[key]+200., "GeV");
+  RooRealVar tau21("tau21","tau21",                                 0.,                  0.75       );
+  RooRealVar lep("lep","lep",                                       10,                    15       );
+  RooRealVar totalWeight("totalWeight", "total weight",             0.,                    10.      );
   RooArgSet variables(candMass,massVhad,tau21,lep,totalWeight);
 
   massVhad.setRange("lowerSB",  massVhadLow[key],   65.);
@@ -187,7 +187,7 @@ void shapeAnalysisPlots(std::string key)
   canvas1->cd(1);
   gPad->SetGridx();
   plot->SetMinimum(0.5 );
-  plot->SetMaximum(180.);
+  plot->SetMaximum(130.);
   plot->GetYaxis()->SetTitleSize(0.05); plot->GetYaxis()->SetTitleOffset(0.85);
   plot->GetXaxis()->SetTitleSize(0.05); plot->GetXaxis()->SetTitleOffset(0.85);
   plot->Draw();
