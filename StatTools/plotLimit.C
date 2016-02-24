@@ -5,7 +5,7 @@
 //        root -b -q 'plotLimit.C("MNP")'
 //        root -b -q 'plotLimit.C("MHP")'
 //        root -b -q 'plotLimit.C("MLP")'
-//        root -b -q 'plotLimit.C("ALL")'
+//        root -b -q 'plotLimit.C("ANP")'
 
 void plotLimit(std::string key)
 {
@@ -16,7 +16,7 @@ void plotLimit(std::string key)
   inputFile["MNP"]="combineMNP.root";
   inputFile["MHP"]="combineMHP.root";
   inputFile["MLP"]="combineMLP.root";
-  inputFile["ALL"]="combineALL.root";
+  inputFile["ANP"]="combineANP.root";
 
   std::map<std::string, std::string> outFile;
   outFile["ENP"]="limitENP.eps";
@@ -25,7 +25,7 @@ void plotLimit(std::string key)
   outFile["MNP"]="limitMNP.eps";
   outFile["MHP"]="limitMHP.eps";
   outFile["MLP"]="limitMLP.eps";
-  outFile["ALL"]="limitALL.eps";
+  outFile["ANP"]="limitANP.eps";
 
   std::map<std::string, std::string> legTitle;
   legTitle["ENP"]="electron channel";
@@ -34,17 +34,17 @@ void plotLimit(std::string key)
   legTitle["MNP"]="muon channel";
   legTitle["MHP"]="muon channel high purity";
   legTitle["MLP"]="muon channel low purity";
-  legTitle["ALL"]="Combination of channels";
+  legTitle["ANP"]="Combination of channels";
 
-  std::map<std::string, std::string> axisTitle;
-  axisTitle["ENP"]="ee";
-  axisTitle["EHP"]="ee";
-  axisTitle["ELP"]="ee";
-  axisTitle["MNP"]="#mu#mu";
-  axisTitle["MHP"]="#mu#mu";
-  axisTitle["MLP"]="#mu#mu";
-  axisTitle["ALL"]="ll";
- 
+  std::map<std::string, Double_t> legY;
+  legY["ENP"]=0.11;
+  legY["EHP"]=0.11;
+  legY["ELP"]=0.11;
+  legY["MNP"]=0.11;
+  legY["MHP"]=0.11;
+  legY["MLP"]=0.11;
+  legY["ANP"]=0.60;
+
   TFile *f = TFile::Open(inputFile[key].c_str());
   TTreeReader myReader("limit", f);
   TTreeReaderValue<Double_t> limit(myReader, "limit");
@@ -91,8 +91,8 @@ void plotLimit(std::string key)
   gr2->GetYaxis()->SetTitleOffset(1.2);
   gr2->SetMinimum(5.e-1);
   gr2->SetMaximum(4.e3);
-  gr2->SetTitle("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 2.6 fb^{-1};M_{VZ} [GeV];\
-                 #sigma_{95%} #times BR(G #rightarrow ZZ) [fb]");
+  gr2->SetTitle("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 2.6 fb^{-1};VZ candidates mass (GeV);\
+                 x-sec 95% C.L. #times BR(G #rightarrow ZZ) (fb)");
 
   TCanvas *c1 = new TCanvas("c1","c1",700,700);
   c1->cd();
@@ -148,7 +148,7 @@ void plotLimit(std::string key)
      
   graph->Draw("sameCP");
 
-  TLegend *leg = new TLegend(0.40,0.11,0.88,0.35);
+  TLegend *leg = new TLegend(0.40,legY[key],0.88,legY[key]+0.24);
   leg->SetHeader(legTitle[key].c_str());
   leg->AddEntry(gr5,"Observed limit","l");
   leg->AddEntry(gr0,"Expected 95% C.L. upper limit","l");
