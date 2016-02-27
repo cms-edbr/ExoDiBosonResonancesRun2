@@ -8,10 +8,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.FwkReport.limit = 99999999
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.GlobalTag.globaltag = '76X_dataRun2_v15'
+process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
 
 # Use private JECs
-usePrivateSQlite = True 
+usePrivateSQlite = False 
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     process.jec = cms.ESSource("PoolDBESSource",
