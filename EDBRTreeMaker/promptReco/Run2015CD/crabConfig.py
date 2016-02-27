@@ -4,7 +4,7 @@ config = config()
 config.JobType.pluginName  = 'Analysis'
 config.JobType.psetName    = 'analysis-data.py'
 config.JobType.pyCfgParams = ['','mu']
-config.JobType.inputFiles  = ['../../data/Fall15_25nsV2_DATA.db']
+#config.JobType.inputFiles  = ['../../data/Fall15_25nsV2_DATA.db']
 config.JobType.maxJobRuntimeMin = 180
 
 config.Data.inputDataset   = '/SingleMuon/Run2015D-16Dec2015-v1/MINIAOD'
