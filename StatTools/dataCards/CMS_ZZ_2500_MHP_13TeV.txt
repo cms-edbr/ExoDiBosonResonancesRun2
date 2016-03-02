@@ -8,19 +8,20 @@ shapes            data_obs           MHP      workSpaces/CMS_ZZ_2500_MHP_13TeV.r
 bin               MHP
 observation       -1.0
 -----------------------------------------------------------------------------------
-bin               MHP                MHP
-process           BulkG_2500         ZZ_bkg_eig
-process           0                  1
-rate              0.375248           1
+bin               MHP                MHP                MHP
+process           BulkG_2500         DY_pdf             Sub_pdf
+process           0                  1                  2
+rate              0.375248           1                  1
 -----------------------------------------------------------------------------------
-ZZ_bkg_eig_norm                lnU       1.            1.18
-lumi_13TeV                     lnN       1.05          1.
-CMS_eff_vtag_tau21_sf_13TeV    lnN       1.1           1.
-CMS_scale_j_13TeV              lnN       1.01          1.
-CMS_scale_M_13TeV              lnN       1.03          1.
-eig_eig0                     param       0.            1.
-eig_eig1                     param       0.            1.
-eig_eig2                     param       0.            1.
-eig_eig3                     param       0.            1.
-eig_eig4                     param       0.            1.
-eig_eig5                     param       0.            1.
+DY_pdf_norm                    lnU         1.            1.09       1.   
+Sub_pdf_norm                   lnU         1.            1.         1.27
+lumi_13TeV                     lnN         1.05          1.         1.
+CMS_eff_vtag_tau21_sf_13TeV    lnN         1.1           1.         1.
+CMS_scale_j_13TeV              lnN         1.01          1.         1.
+CMS_scale_M_13TeV              lnN         1.03          1.         1.
+pdf_eig0                       param       0.            1.
+pdf_eig1                       param       0.            1.
+pdf_eig2                       param       0.            1.
+pdf_eig3                       param       0.            1.
+pdf_eig4                       param       0.            1.
+pdf_eig5                       param       0.            1.

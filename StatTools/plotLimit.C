@@ -19,13 +19,13 @@ void plotLimit(std::string key)
   inputFile["ANP"]="combineANP.root";
 
   std::map<std::string, std::string> outFile;
-  outFile["ENP"]="limitENP.eps";
-  outFile["EHP"]="limitEHP.eps";
-  outFile["ELP"]="limitELP.eps";
-  outFile["MNP"]="limitMNP.eps";
-  outFile["MHP"]="limitMHP.eps";
-  outFile["MLP"]="limitMLP.eps";
-  outFile["ANP"]="limitANP.eps";
+  outFile["ENP"]="limitENP.pdf";
+  outFile["EHP"]="limitEHP.pdf";
+  outFile["ELP"]="limitELP.pdf";
+  outFile["MNP"]="limitMNP.pdf";
+  outFile["MHP"]="limitMHP.pdf";
+  outFile["MLP"]="limitMLP.pdf";
+  outFile["ANP"]="limitANP.pdf";
 
   std::map<std::string, std::string> legTitle;
   legTitle["ENP"]="electron channel";
@@ -62,8 +62,8 @@ void plotLimit(std::string key)
     i++;
   }
 
-  Double_t mass=700.;
-  Double_t l1[34], l2[34], h1[34], h2[34], x[34], n[34];
+  Double_t mass=800.;
+  Double_t l1[33], l2[33], h1[33], h2[33], x[33], n[33];
   for(int j=0; j<y0.size(); j++){
      l1[j] = y2[j]-y1[j];
      l2[j] = y2[j]-y0[j];
@@ -92,9 +92,9 @@ void plotLimit(std::string key)
   gr2->SetMinimum(5.e-1);
   gr2->SetMaximum(4.e3);
   gr2->SetTitle("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 2.6 fb^{-1};VZ candidates mass (GeV);\
-                 x-sec 95% C.L. #times BR(G #rightarrow ZZ) (fb)");
+                 x-sec 95% C.L. BR(G #rightarrow ZZ) (fb)");
 
-  TCanvas *c1 = new TCanvas("c1","c1",700,700);
+  TCanvas *c1 = new TCanvas("c1","c1",700,650);
   c1->cd();
   gPad->SetGridx();
   gPad->SetGridy();
@@ -102,7 +102,7 @@ void plotLimit(std::string key)
   gr2->Draw("A3");
   gr1->Draw("same3");
   gr0->Draw("sameC");
-  gr5->Draw("sameC");
+  //gr5->Draw("sameC");
 
   Double_t bulkToZZ_fx1[16] = {
   200,

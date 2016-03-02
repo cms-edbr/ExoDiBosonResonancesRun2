@@ -10,7 +10,7 @@
 
 eval `scramv1 runtime -sh`
 
-for (( i=700; i<=4000; i+=100 ))
+for (( i=800; i<=4000; i+=100 ))
   do
     combine -M Asymptotic -d dataCards/CMS_ZZ_"$i"_ELP_13TeV.txt -m "$i" -n ELP
     combine -M Asymptotic -d dataCards/CMS_ZZ_"$i"_EHP_13TeV.txt -m "$i" -n EHP

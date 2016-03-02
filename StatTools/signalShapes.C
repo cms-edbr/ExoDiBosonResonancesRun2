@@ -26,7 +26,7 @@ void signalShapes(std::string key){
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_el.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_el.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-800_el.root");
-    files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_el.root");
+    //files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_el.root");
   }
 
   if( key[0]=='M' ){ 
@@ -41,10 +41,10 @@ void signalShapes(std::string key){
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_mu.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_mu.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-800_mu.root");
-    files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_mu.root");
+    //files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_mu.root");
   }
 
-  RooRealVar candMass("candMass","VZ candidate mass", 550., 5000., "GeV");
+  RooRealVar candMass("candMass","VZ candidate mass", 600., 5000., "GeV");
   RooRealVar massVhad("massVhad","M_{j}" ,             65.,  105., "GeV");
   RooRealVar tau21("tau21","tau21",                     0.,  0.75       );
   RooRealVar lep("lep","lep",                           10,    15       );
@@ -85,7 +85,7 @@ void signalShapes(std::string key){
   std::vector<double> MEAN, SIGMA, ALPHAL, ALPHAR, EFF;
 
    // Double Crystall ball
-  RooRealVar mean("mean","mean of the Crystal Ball",600.,500.,5000.);
+  RooRealVar mean("mean","mean of the Crystal Ball",700.,600.,5000.);
   RooRealVar sigma("sigma","Crystal Ball sigma",50.,10.,100.);
   RooRealVar alphaL("alphaL","alpha left",  1.5, 1., 3.);
   RooRealVar alphaR("alphaR","alpha right", 3.0, 1., 5.);
@@ -115,17 +115,17 @@ void signalShapes(std::string key){
      files.pop_back();
   }
 
-  Double_t x[12]={600.,800.,1000.,1200.,1400.,1600.,1800.,2000.,2500.,3000.,3500.,4000.};
-  TGraph *gmean   = new TGraph(12, x, &(MEAN[0])   );
-  TGraph *gsigma  = new TGraph(12, x, &(SIGMA[0])  );
-  TGraph *galphaL = new TGraph(12, x, &(ALPHAL[0]) );
-  TGraph *galphaR = new TGraph(12, x, &(ALPHAR[0]) );
-  TGraph *geff    = new TGraph(12, x, &(EFF[0])    );
+  Double_t x[11]={800.,1000.,1200.,1400.,1600.,1800.,2000.,2500.,3000.,3500.,4000.};
+  TGraph *gmean   = new TGraph(11, x, &(MEAN[0])   );
+  TGraph *gsigma  = new TGraph(11, x, &(SIGMA[0])  );
+  TGraph *galphaL = new TGraph(11, x, &(ALPHAL[0]) );
+  TGraph *galphaR = new TGraph(11, x, &(ALPHAR[0]) );
+  TGraph *geff    = new TGraph(11, x, &(EFF[0])    );
 
   RooWorkspace *w = new RooWorkspace("BulkG","workspace");
 
-  for(Double_t i=600.; i<4100.; i+=100.){
-     RooRealVar _mean(  Form("mean_%.0f",  i), "mean of the Crystal Ball",600.,550.,5000.);
+  for(Double_t i=700.; i<4100.; i+=100.){
+     RooRealVar _mean(  Form("mean_%.0f",  i), "mean of the Crystal Ball",700.,600.,5000.);
      RooRealVar _sigma( Form("sigma_%.0f", i), "Crystal Ball sigma",50.,10.,100.);
      RooRealVar _alphaL(Form("alphaL_%.0f",i), "alpha left",  1.5, 1., 3.);
      RooRealVar _alphaR(Form("alphaR_%.0f",i), "alpha right", 3.0, 1., 5.);
