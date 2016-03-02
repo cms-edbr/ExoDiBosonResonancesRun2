@@ -26,7 +26,6 @@ void signalShapes(std::string key){
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_el.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_el.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-800_el.root");
-    //files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_el.root");
   }
 
   if( key[0]=='M' ){ 
@@ -41,7 +40,6 @@ void signalShapes(std::string key){
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1200_mu.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-1000_mu.root");
     files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-800_mu.root");
-    //files.push_back("trees/treeEDBR_BulkGravToZZToZlepZhad_M-600_mu.root");
   }
 
   RooRealVar candMass("candMass","VZ candidate mass", 600., 5000., "GeV");
@@ -52,7 +50,6 @@ void signalShapes(std::string key){
   RooArgSet variables(candMass,massVhad,tau21,lep,pileupWeight);
 
   std::map<std::string, Double_t> low, Mass, upp;
-  low["600"]  =  550.; Mass["600"]  =  600.; upp["600"]  =  700.;
   low["800"]  =  600.; Mass["800"]  =  800.; upp["800"]  = 1000.;
   low["1000"] =  800.; Mass["1000"] = 1000.; upp["1000"] = 1200.;
   low["1200"] = 1000.; Mass["1200"] = 1200.; upp["1200"] = 1400.;
@@ -64,11 +61,9 @@ void signalShapes(std::string key){
   low["3000"] = 2500.; Mass["3000"] = 3000.; upp["3000"] = 3500.;
   low["3500"] = 3000.; Mass["3500"] = 3500.; upp["3500"] = 4000.;
   low["4000"] = 3500.; Mass["4000"] = 4000.; upp["4000"] = 4500.;
-  low["4500"] = 4000.; Mass["4500"] = 4500.; upp["4500"] = 5000.;
 
   // Total number of signal events in the sample 
   std::map<std::string, Int_t> nEvents;
-  nEvents["600"]  = 50000;
   nEvents["800"]  = 50000;
   nEvents["1000"] = 50000;
   nEvents["1200"] = 50000;
@@ -80,13 +75,12 @@ void signalShapes(std::string key){
   nEvents["3000"] = 50000;
   nEvents["3500"] = 50000;
   nEvents["4000"] = 50000;
-  nEvents["4500"] = 50000;
 
   std::vector<double> MEAN, SIGMA, ALPHAL, ALPHAR, EFF;
 
    // Double Crystall ball
-  RooRealVar mean("mean","mean of the Crystal Ball",700.,600.,5000.);
-  RooRealVar sigma("sigma","Crystal Ball sigma",50.,10.,100.);
+  RooRealVar mean("mean","mean of the Crystal Ball",800.,600.,5000.);
+  RooRealVar sigma("sigma","Crystal Ball sigma",50.,1.,100.);
   RooRealVar alphaL("alphaL","alpha left",  1.5, 1., 3.);
   RooRealVar alphaR("alphaR","alpha right", 3.0, 1., 5.);
   RooRealVar nL("nL","n left", 2.,1., 2.); nL.setConstant(true); 
@@ -124,9 +118,9 @@ void signalShapes(std::string key){
 
   RooWorkspace *w = new RooWorkspace("BulkG","workspace");
 
-  for(Double_t i=700.; i<4100.; i+=100.){
-     RooRealVar _mean(  Form("mean_%.0f",  i), "mean of the Crystal Ball",700.,600.,5000.);
-     RooRealVar _sigma( Form("sigma_%.0f", i), "Crystal Ball sigma",50.,10.,100.);
+  for(Double_t i=800.; i<=4000.; i+=100.){
+     RooRealVar _mean(  Form("mean_%.0f",  i), "mean of the Crystal Ball",800.,600.,5000.);
+     RooRealVar _sigma( Form("sigma_%.0f", i), "Crystal Ball sigma",50.,1.,100.);
      RooRealVar _alphaL(Form("alphaL_%.0f",i), "alpha left",  1.5, 1., 3.);
      RooRealVar _alphaR(Form("alphaR_%.0f",i), "alpha right", 3.0, 1., 5.);
      _mean.setVal(   gmean->Eval(   i ) );
@@ -146,5 +140,4 @@ void signalShapes(std::string key){
   }
 
   w->writeToFile(Form("workSpaces/BulkG_%s_13TeV.root", key.c_str()));
-
 }

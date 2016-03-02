@@ -19,13 +19,13 @@ void plotLimit(std::string key)
   inputFile["ANP"]="combineANP.root";
 
   std::map<std::string, std::string> outFile;
-  outFile["ENP"]="limitENP.pdf";
-  outFile["EHP"]="limitEHP.pdf";
-  outFile["ELP"]="limitELP.pdf";
-  outFile["MNP"]="limitMNP.pdf";
-  outFile["MHP"]="limitMHP.pdf";
-  outFile["MLP"]="limitMLP.pdf";
-  outFile["ANP"]="limitANP.pdf";
+  outFile["ENP"]="limitENP.eps";
+  outFile["EHP"]="limitEHP.eps";
+  outFile["ELP"]="limitELP.eps";
+  outFile["MNP"]="limitMNP.eps";
+  outFile["MHP"]="limitMHP.eps";
+  outFile["MLP"]="limitMLP.eps";
+  outFile["ANP"]="limitANP.eps";
 
   std::map<std::string, std::string> legTitle;
   legTitle["ENP"]="electron channel";
@@ -94,7 +94,7 @@ void plotLimit(std::string key)
   gr2->SetTitle("#bf{CMS} Preliminary   #sqrt{s} = 13 TeV    #int L dt = 2.6 fb^{-1};VZ candidates mass (GeV);\
                  x-sec 95% C.L. BR(G #rightarrow ZZ) (fb)");
 
-  TCanvas *c1 = new TCanvas("c1","c1",700,650);
+  TCanvas *c1 = new TCanvas("c1","c1",700,700);
   c1->cd();
   gPad->SetGridx();
   gPad->SetGridy();
