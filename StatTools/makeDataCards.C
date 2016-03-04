@@ -44,7 +44,7 @@ void makeDataCards(std::string key, Int_t mass){
   ofs << Form("process           %-10s         %-10s         %s\n",               "0",             "1",              "2" );
   ofs << Form("rate              %-10f         %-10s         %s\n",          sigYield,             "1",              "1" );
   ofs << Form("-----------------------------------------------------------------------------------\n");
-  ofs << Form( "DY_pdf_norm                    lnU         %-10s    %.2f       %-5s\n", "1.",        ZZ_13TeV->var( "DY_error")->getVal(), "1." );
+  ofs << Form("DY_pdf_norm                    lnU         %-10s    %.2f       %-5s\n", "1.",        ZZ_13TeV->var( "DY_error")->getVal(), "1." );
   ofs << Form("lumi_13TeV                     lnN         %-10s    %-5s      %s\n", "1.05",  "1.", "1." );
   ofs << Form("CMS_eff_vtag_tau21_sf_13TeV    lnN         %-10s    %-5s      %s\n", "1.1" ,  "1.", "1." );
   ofs << Form("CMS_scale_j_13TeV              lnN         %-10s    %-5s      %s\n", "1.01",  "1.", "1." );
