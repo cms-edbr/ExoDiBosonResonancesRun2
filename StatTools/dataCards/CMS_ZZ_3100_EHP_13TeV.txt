@@ -14,7 +14,6 @@ process           0                  1                  2
 rate              0.283083           1                  1
 -----------------------------------------------------------------------------------
 DY_pdf_norm                    lnU         1.            1.11       1.   
-Sub_pdf_norm                   lnU         1.            1.         1.31
 lumi_13TeV                     lnN         1.05          1.         1.
 CMS_eff_vtag_tau21_sf_13TeV    lnN         1.1           1.         1.
 CMS_scale_j_13TeV              lnN         1.01          1.         1.

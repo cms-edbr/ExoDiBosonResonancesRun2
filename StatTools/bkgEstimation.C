@@ -221,14 +221,12 @@ void bkgEstimation(std::string key)
   RooRealVar  DY_pdf_norm( "DY_pdf_norm",  "DY yield in lowerSIG",  DY_yield.getVal(), 0.,1.e4);
   RooRealVar Sub_pdf_norm("Sub_pdf_norm", "Sub yield in lowerSIG", Sub_yield.getVal(), 0.,1.e4); 
   RooRealVar  DY_error( "DY_error", "DY yield error",1+ DY_yield.getPropagatedError(*rf1)/ DY_yield.getVal(),1.,2.);
-  RooRealVar Sub_error("Sub_error","Sub yield error",1+Sub_yield.getPropagatedError(*rf2)/Sub_yield.getVal(),1.,2.);
 
   Sub_pdf_norm.setConstant(true); // we do not want to let that normalization float
 
   w->import(Sub_pdf);
   w->import(Sub_pdf_norm);
   w->import( DY_pdf_norm);
-  w->import(Sub_error);
   w->import( DY_error);
   // diagonalization
   PdfDiagonalizer diag("pdf", w, *fitres);

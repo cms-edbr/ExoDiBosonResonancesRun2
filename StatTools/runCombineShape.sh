@@ -8,7 +8,7 @@
 #
 # The output trees are merged and analyzed by another macro "plotLimit.C" 
 #
-# Usage: bsub -q 8nh -M 2000 -J limits < runCombineShape.sh
+# Usage: bsub -q 1nh -J limits < runCombineShape.sh
 
 cd /afs/cern.ch/work/j/jruizvar/private/Spring16/higgsCombineTool/CMSSW_7_4_16_patch2/src
 eval `scramv1 runtime -sh`
