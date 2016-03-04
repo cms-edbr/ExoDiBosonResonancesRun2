@@ -7,10 +7,13 @@
 # This macro executes the Higgs Combine tool inside a valid working area
 #
 # The output trees are merged and analyzed by another macro "plotLimit.C" 
+#
+# Usage: bsub -q 1nh -J limits < runCombineShape.sh
 
+cd /afs/cern.ch/work/j/jruizvar/private/Spring16/higgsCombineTool/CMSSW_7_4_16_patch2/src
 eval `scramv1 runtime -sh`
 
-for (( i=700; i<=4000; i+=100 ))
+for (( i=800; i<=4000; i+=100 ))
   do
     combine -M Asymptotic -d dataCards/CMS_ZZ_"$i"_ELP_13TeV.txt -m "$i" -n ELP
     combine -M Asymptotic -d dataCards/CMS_ZZ_"$i"_EHP_13TeV.txt -m "$i" -n EHP
@@ -34,10 +37,6 @@ hadd combineMLP.root *MLP*mH?00.root *MLP*mH??00.root
 hadd combineMHP.root *MHP*mH?00.root *MHP*mH??00.root
 hadd combineMNP.root *MNP*mH?00.root *MNP*mH??00.root
 hadd combineANP.root *ANP*mH?00.root *ANP*mH??00.root
-
-# ROOT6
-source /afs/cern.ch/sw/lcg/contrib/gcc/4.9/x86_64-slc6/setup.sh
-source /afs/cern.ch/sw/lcg/app/releases/ROOT/6.06.00/x86_64-slc6-gcc49-opt/root/bin/thisroot.sh
 
 root -b -q 'plotLimit.C("ELP")'
 root -b -q 'plotLimit.C("EHP")'

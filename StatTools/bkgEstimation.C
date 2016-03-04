@@ -23,7 +23,7 @@ void bkgEstimation(std::string key)
   // Silent RooFit
   RooMsgService::instance().setGlobalKillBelow(FATAL);
 
-  RooRealVar candMass("candMass","M_{VZ}",                     550., 5000., "GeV");
+  RooRealVar candMass("candMass","M_{VZ}",                     600., 5000., "GeV");
   RooRealVar massVhad("massVhad","pruned m_{jet}",              20.,  220., "GeV");
   RooRealVar tau21("tau21","tau21",                              0.,  0.75       );
   RooRealVar lep("lep","lep",                                    10,    15       );
@@ -86,7 +86,7 @@ void bkgEstimation(std::string key)
   }
 
   // dataset to host data in sideband
-  RooDataSet sbObs("sbObs","sbObs", variables, Cut(allSB), Import(treeData));
+  RooDataSet Data_SB("Data_SB","Data_SB", variables, Cut(allSB), Import(treeData));
 
   // MC datasets
   RooDataSet bkg1( "bkg1", "bkg1", variables, Cut(selectedCategory), WeightVar(totalWeight), Import(treeMC1));
@@ -115,39 +115,42 @@ void bkgEstimation(std::string key)
   RooErfExpPdf model2("model2","fiting mj spectrum2",massVhad,c2,offset2,width2);
   RooExtendPdf emodel1("emodel1","extended dom backgrounds",model1,nbkg1);
   RooExtendPdf emodel2("emodel2","extended sub backgrounds",model2,nbkg2);
-  emodel1.fitTo(bkg1, PrintLevel(-1));
-  emodel2.fitTo(bkg2, PrintLevel(-1));
+  RooFitResult *rf1 = emodel1.fitTo(bkg1, Save(1), PrintLevel(-1));
+  RooFitResult *rf2 = emodel2.fitTo(bkg2, Save(1), PrintLevel(-1));
+
+  // Fix the shapes and the subdominant background yields,
+  // let only the yield of the dominant background to fluctuate
   c1.setConstant(true);
   c2.setConstant(true);
   offset1.setConstant(true);
   offset2.setConstant(true);
   width1.setConstant(true);
   width2.setConstant(true);
+  nbkg1.setConstant(false);
+  nbkg2.setConstant(true);
 
   // Final background model
   RooAddPdf model_ext("model_ext","sum of extended models",RooArgList(emodel1,emodel2));
 
-  // IMPORTANT! The final result strongly depends on the upper sideband limit
-  //            For electron (muons) a limit at 165 (150) seems to work  
-  std::map<std::string, double> massVhadUpp;
-  massVhadUpp["EHP"] = massVhadUpp["ELP"] = massVhadUpp["ENP"] = 165.;
-  massVhadUpp["MHP"] = massVhadUpp["MLP"] = massVhadUpp["MNP"] = 150.;
-  massVhad.setRange("lowerSB",      20.,               65.);
-  massVhad.setRange("lowerSIG",     65.,              105.);
-  massVhad.setRange("upperSIG",    105.,              135.);
-  massVhad.setRange("upperSB",     135.,  massVhadUpp[key]);
+  massVhad.setRange("lowerSB",   20.,   65.);
+  massVhad.setRange("lowerSIG",  65.,  105.);
+  massVhad.setRange("upperSIG", 105.,  135.);
+  massVhad.setRange("upperSB",  135.,  220.);
 
-  RooFitResult* erf = model_ext.fitTo(sbObs,Extended(kTRUE),Range("lowerSB,upperSB"),PrintLevel(-1),Save());
+  model_ext.fitTo(Data_SB,Extended(kTRUE),Range("lowerSB,upperSB"),PrintLevel(-1));
+  nbkg1.setConstant(true);
 
-  // Calculate integral of the model
-  RooAbsReal* domBkgIntegralSR = model1.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
-  RooAbsReal* subBkgIntegralSR = model2.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
-  RooFormulaVar domBkgSRyield("domBkgSRyield","@0*@1",RooArgList(*domBkgIntegralSR,nbkg1));
-  RooFormulaVar subBkgSRyield("subBkgSRyield","@0*@1",RooArgList(*subBkgIntegralSR,nbkg2));
-  RooFormulaVar lowerSIGyield("lowerSIGyield","extrapolation to lowerSIG","@0+@1", RooArgList(domBkgSRyield,subBkgSRyield));
-  Double_t bkgYield       =     lowerSIGyield.getVal(); 
-  RooRealVar ZZ_bkg_eig_norm("ZZ_bkg_eig_norm","expected yield in lowerSIG",bkgYield,0.,1.e4);
-  RooRealVar bkgYield_error("bkgYield_error","background yield error",1+lowerSIGyield.getPropagatedError(*erf)/bkgYield,1.,2.);
+  // Calculate integrals of the model
+  RooAbsReal*     DY_integral = model1.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
+  RooAbsReal*    Sub_integral = model2.createIntegral(massVhad,NormSet(massVhad),Range("lowerSIG"));
+  RooAbsReal*  DY_SB_integral = model1.createIntegral(massVhad,NormSet(massVhad),Range("lowerSB,upperSB"));
+  RooAbsReal* Sub_SB_integral = model2.createIntegral(massVhad,NormSet(massVhad),Range("lowerSB,upperSB"));
+  RooFormulaVar     DY_yield(    "DY_yield","@0*@1",RooArgList(    *DY_integral,nbkg1));
+  RooFormulaVar    Sub_yield(   "Sub_yield","@0*@1",RooArgList(   *Sub_integral,nbkg2));
+  RooFormulaVar  DY_SB_yield( "DY_SB_yield","@0*@1",RooArgList( *DY_SB_integral,nbkg1));
+  RooFormulaVar Sub_SB_yield("Sub_SB_yield","@0*@1",RooArgList(*Sub_SB_integral,nbkg2));
+  // Subdominant over Dominant ratio
+  RooFormulaVar coef( "coef","@0/@1", RooArgList(Sub_SB_yield,DY_SB_yield));
 
 ///////////////////////////////////////////////////////////////////////////////
 //                           _____ _                                         //
@@ -160,56 +163,79 @@ void bkgEstimation(std::string key)
 //                                            |_|                            // 
 ///////////////////////////////////////////////////////////////////////////////
 
-  // Declare PDFs (3 levelled-exponentials) 
-  RooRealVar s0("s0","slope of the exp0", 100.,    0., 1000.);
-  RooRealVar s1("s1","slope of the exp1", 100.,    0., 1000.);
-  RooRealVar s2("s2","slope of the exp2", 100.,    0., 1000.);
-  RooRealVar a0("a0","parameter of exp0", 0.1 , 0.001,   10.);
-  RooRealVar a1("a1","parameter of exp1", 0.1 , 0.001,   10.);
-  RooRealVar a2("a2","parameter of exp2", 0.1 , 0.001,   10.);
-  RooExpTailPdf       nsBkg_pdf("nsBkg_pdf", "fit bkg  in nominal  reg",   candMass,s0,a0);
-  RooExpTailPdf       sbBkg_pdf("sbBkg_pdf", "fit bkg  in sideband reg",   candMass,s1,a1);
-  RooExpTailPdf       sbObs_pdf("sbObs_pdf", "fit data in sideband reg",   candMass,s2,a2);
-  RooAlpha4ExpTailPdf alpha_pdf("alpha_pdf", "alpha ratio",                   candMass,s0,a0,s1,a1);
-  RooProdPdf             ZZ_bkg("ZZ_bkg", "Data-driven bakground estimation", alpha_pdf, sbObs_pdf);
+  // Declare PDFs (levelled-exponentials) 
+  RooRealVar      s0("s0","slope of the exp0", 100.,    0., 1000.);
+  RooRealVar      s1("s1","slope of the exp1", 100.,    0., 1000.);
+  RooRealVar      s2("s2","slope of the exp2", 100.,    0., 1000.);
+  RooRealVar      s3("s3","slope of the exp3", 100.,    0., 1000.);
+  RooRealVar      s4("s4","slope of the exp4", 100.,    0., 1000.);
+  RooRealVar      a0("a0","parameter of exp0", 0.1 , 0.001,   10.);
+  RooRealVar      a1("a1","parameter of exp1", 0.1 , 0.001,   10.);
+  RooRealVar      a2("a2","parameter of exp2", 0.1 , 0.001,   10.);
+  RooRealVar      a3("a3","parameter of exp3", 0.1 , 0.001,   10.);
+  RooRealVar      a4("a4","parameter of exp4", 0.1 , 0.001,   10.);
+  RooExpTailPdf     Sub_pdf(   "Sub_pdf", "Sub in nominal  region", candMass,s0,a0);
+  RooExpTailPdf  Sub_SB_pdf("Sub_SB_pdf", "Sub in sideband region", candMass,s1,a1);
+  RooExpTailPdf  Dat_SB    ("Dat_SB"    , "Data sideband",          candMass,s2,a2);
+  RooExpTailPdf   DY_SR_pdf( "DY_SR_pdf", "DY in nominal   region", candMass,s3,a3);
+  RooExpTailPdf   DY_SB_pdf( "DY_SB_pdf", "DY in sideband  region", candMass,s4,a4);
 
-  // Fit 1) Dominant backgrounds in lowerSIG
-  // Fit 2) Dominant backgrounds in lowerSB and upperSB
-  // Fit 3) Blinded data in lowerSB and upperSB
-  RooDataSet nsBkg("nsBkg", "nsBkg", variables, Cut(lowerSIG), WeightVar(totalWeight), Import(treeMC1));
-  RooDataSet sbBkg("sbBkg", "sbBkg", variables, Cut(allSB),    WeightVar(totalWeight), Import(treeMC1));
+  // Model sideband Data as the contribution of subdominant and dominant 
+  RooAddPdf Data_SB_pdf("Data_SB_pdf", "Model data in sideband", Sub_SB_pdf, Dat_SB, coef);
+  // Alpha function
+  RooAlpha4ExpTailPdf alpha("alpha", "alpha function for DY",  candMass,s3,a3,s4,a4);
+  // Model DY in signal region
+  RooProdPdf DY("DY", "DY in SIG", alpha, Dat_SB);
+
+  // Range for fits
+  candMass.setRange("range", 600., 3000);
+
+  // Fit Subdominant backgrounds
+  RooDataSet Sub(   "Sub",    "Sub",    variables, Cut(lowerSIG), WeightVar(totalWeight), Import(treeMC2));
+  RooDataSet Sub_SB("Sub_SB", "Sub_SB", variables, Cut(allSB),    WeightVar(totalWeight), Import(treeMC2));
+  Sub_pdf.fitTo(   Sub,    Range("range"), SumW2Error(true), PrintLevel(-1));
+  Sub_SB_pdf.fitTo(Sub_SB, Range("range"), SumW2Error(true), PrintLevel(-1));
+  s0.setConstant(true); a0.setConstant(true);
+  s1.setConstant(true); a1.setConstant(true);
+
+  // Fit Dominant backgrounds in lowerSIG
+  // Fit Dominant backgrounds in lowerSB and upperSB
+  // Fit Blinded data in lowerSB and upperSB
+  RooDataSet  DY_SR("DY_SR", "DY_SR", variables, Cut(lowerSIG), WeightVar(totalWeight), Import(treeMC1));
+  RooDataSet  DY_SB("DY_SB", "DY_SB", variables, Cut(allSB),    WeightVar(totalWeight), Import(treeMC1));
   RooCategory reg("reg","reg");
-  reg.defineType("nsMC");
-  reg.defineType("sbMC");
-  reg.defineType("sbDA");
-  RooDataSet bigSample("bigSample","bigSample",variables,WeightVar(totalWeight),Index(reg),Import("nsMC",nsBkg),Import("sbMC",sbBkg),Import("sbDA",sbObs));
-  RooSimultaneous bigSample_pdf("bigSample_pdf", "simultaneous pdf", RooArgList(nsBkg_pdf,sbBkg_pdf,sbObs_pdf), reg); 
+  reg.defineType("1");
+  reg.defineType("2");
+  reg.defineType("3");
+  RooDataSet bigSample("bigSample","bigSample",variables,WeightVar(totalWeight),Index(reg),Import("1",DY_SR),Import("2",DY_SB),Import("3",Data_SB));
+  RooSimultaneous bigSample_pdf("bigSample_pdf", "simultaneous pdf", RooArgList(DY_SR_pdf,DY_SB_pdf,Data_SB_pdf), reg); 
 
-  candMass.setRange("range", 550., 4000);
   RooFitResult *fitres = bigSample_pdf.fitTo(bigSample, Save(1), Range("range"), SumW2Error(kTRUE), PrintLevel(-1));
-
-  s0.setConstant(true);
-  s1.setConstant(true);
-  s2.setConstant(true);
-  a0.setConstant(true);
-  a1.setConstant(true);
-  a2.setConstant(true);
+  s2.setConstant(true); a2.setConstant(true);
+  s3.setConstant(true); a3.setConstant(true);
+  s4.setConstant(true); a4.setConstant(true);
 
   // create workspace
   RooWorkspace *w = new RooWorkspace("ZZ_13TeV","workspace") ;
-  w->import(ZZ_bkg);
-  w->import(ZZ_bkg_eig_norm);
-  w->import(bkgYield_error);
-  
+
+  RooRealVar  DY_pdf_norm( "DY_pdf_norm",  "DY yield in lowerSIG",  DY_yield.getVal(), 0.,1.e4);
+  RooRealVar Sub_pdf_norm("Sub_pdf_norm", "Sub yield in lowerSIG", Sub_yield.getVal(), 0.,1.e4); 
+  RooRealVar  DY_error( "DY_error", "DY yield error",1+ DY_yield.getPropagatedError(*rf1)/ DY_yield.getVal(),1.,2.);
+
+  Sub_pdf_norm.setConstant(true); // we do not want to let that normalization float
+
+  w->import(Sub_pdf);
+  w->import(Sub_pdf_norm);
+  w->import( DY_pdf_norm);
+  w->import( DY_error);
   // diagonalization
-  PdfDiagonalizer diago("eig", w, *fitres);
-  RooAbsPdf *ZZ_bkg_eig = diago.diagonalize(*w->pdf("ZZ_bkg"));
-  w->import(*ZZ_bkg_eig, RecycleConflictNodes());
+  PdfDiagonalizer diag("pdf", w, *fitres);
+  RooAbsPdf *DY_pdf = diag.diagonalize( DY );
+  w->import(*DY_pdf , RecycleConflictNodes() );
 
   // Observed data
   RooDataSet data_obs("data_obs","data_obs",variables,Cut(lowerSIG),Import(treeData));
   w->import(data_obs);
 
   w->writeToFile(Form("workSpaces/CMS_ZZ_%s_13TeV.root",key.c_str()));
- 
 }

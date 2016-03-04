@@ -22,7 +22,7 @@ root -b -q 'signalShapes.C("EHP")'
 root -b -q 'signalShapes.C("MLP")'
 root -b -q 'signalShapes.C("MHP")'
 
-for (( i=600; i<=4000; i+=100 ))
+for (( i=800; i<=4000; i+=100 ))
   do
     root -b -q 'makeDataCards.C("ELP",'"$i"')'
     root -b -q 'makeDataCards.C("EHP",'"$i"')'

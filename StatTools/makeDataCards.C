@@ -5,7 +5,6 @@ void makeDataCards(std::string key, Int_t mass){
   using namespace RooFit;
   TFile *f = TFile::Open( Form("workSpaces/CMS_ZZ_%s_13TeV.root", key.c_str()));
   RooWorkspace* ZZ_13TeV = (RooWorkspace*) f->Get("ZZ_13TeV");
-  RooRealVar *bkgYield_error = ZZ_13TeV->var("bkgYield_error");
 
   TFile *sig  = TFile::Open(Form("workSpaces/BulkG_%s_13TeV.root",  key.c_str()));
   RooWorkspace* BulkG = (RooWorkspace*) sig->Get("BulkG");
@@ -40,22 +39,23 @@ void makeDataCards(std::string key, Int_t mass){
   ofs << Form("bin               %s\n", key.c_str());
   ofs << Form("observation       %s\n",      "-1.0");
   ofs << Form("-----------------------------------------------------------------------------------\n");
-  ofs << Form("bin               %-10s         %s\n",       key.c_str(),      key.c_str());
-  ofs << Form("process           %-10s         %s\n", ZZ_sig->GetName(),     "ZZ_bkg_eig");
-  ofs << Form("process           %-10s         %s\n",               "0",              "1");
-  ofs << Form("rate              %-10f         %s\n",          sigYield,              "1");
+  ofs << Form("bin               %-10s         %-10s         %s\n",       key.c_str(),     key.c_str(),      key.c_str() );
+  ofs << Form("process           %-10s         %-10s         %s\n", ZZ_sig->GetName(),        "DY_pdf",        "Sub_pdf" );
+  ofs << Form("process           %-10s         %-10s         %s\n",               "0",             "1",              "2" );
+  ofs << Form("rate              %-10f         %-10s         %s\n",          sigYield,             "1",              "1" );
   ofs << Form("-----------------------------------------------------------------------------------\n");
-  ofs << Form("ZZ_bkg_eig_norm                lnU       %-10s    %.2f\n", "1.",  bkgYield_error->getVal() );
-  ofs << Form("lumi_13TeV                     lnN       %-10s    %s\n", "1.05",  "1." );
-  ofs << Form("CMS_eff_vtag_tau21_sf_13TeV    lnN       %-10s    %s\n", "1.1" ,  "1." );
-  ofs << Form("CMS_scale_j_13TeV              lnN       %-10s    %s\n", "1.01",  "1." );
-  ofs << Form("CMS_scale_%c_13TeV              lnN       %-10s    %s\n", key[0], lepton_scale.c_str(),  "1." );
-  ofs << Form("eig_eig0                     param       %-10s    %s\n", "0.",    "1." );
-  ofs << Form("eig_eig1                     param       %-10s    %s\n", "0.",    "1." );
-  ofs << Form("eig_eig2                     param       %-10s    %s\n", "0.",    "1." );
-  ofs << Form("eig_eig3                     param       %-10s    %s\n", "0.",    "1." );
-  ofs << Form("eig_eig4                     param       %-10s    %s\n", "0.",    "1." );
-  ofs << Form("eig_eig5                     param       %-10s    %s\n", "0.",    "1." );
+  ofs << Form( "DY_pdf_norm                    lnU         %-10s    %.2f       %-5s\n", "1.",        ZZ_13TeV->var( "DY_error")->getVal(), "1." );
+  ofs << Form("Sub_pdf_norm                   lnU         %-10s    %-5s      %.2f\n",   "1.",  "1.", ZZ_13TeV->var("Sub_error")->getVal()       );
+  ofs << Form("lumi_13TeV                     lnN         %-10s    %-5s      %s\n", "1.05",  "1.", "1." );
+  ofs << Form("CMS_eff_vtag_tau21_sf_13TeV    lnN         %-10s    %-5s      %s\n", "1.1" ,  "1.", "1." );
+  ofs << Form("CMS_scale_j_13TeV              lnN         %-10s    %-5s      %s\n", "1.01",  "1.", "1." );
+  ofs << Form("CMS_scale_%c_13TeV              lnN         %-10s    %-5s      %s\n", key[0], lepton_scale.c_str(),  "1.", "1." );
+  ofs << Form("pdf_eig0                       param       %-10s    %s\n",    "0.",    "1." );
+  ofs << Form("pdf_eig1                       param       %-10s    %s\n",    "0.",    "1." );
+  ofs << Form("pdf_eig2                       param       %-10s    %s\n",    "0.",    "1." );
+  ofs << Form("pdf_eig3                       param       %-10s    %s\n",    "0.",    "1." );
+  ofs << Form("pdf_eig4                       param       %-10s    %s\n",    "0.",    "1." );
+  ofs << Form("pdf_eig5                       param       %-10s    %s\n",    "0.",    "1." );
 
   ofs.close();
   
