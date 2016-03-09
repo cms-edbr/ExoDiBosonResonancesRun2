@@ -6,7 +6,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1'
 
 import sys
