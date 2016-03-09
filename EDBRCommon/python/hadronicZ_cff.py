@@ -14,9 +14,11 @@ nsubjettiness = cms.EDFilter(      "CandViewSelector",
 
 hadronicV = cms.EDFilter(          "CandViewSelector",
                                     src = cms.InputTag("nsubjettiness"),
-                                    cut = cms.string('pt>170. & abs(eta)<2.4'),
+                                    cut = cms.string('pt>170. & abs(eta)<2.4 & \
+                                                      userFloat("ak8PFJetsCHSCorrPrunedMass")>20. & \
+                                                      userFloat("ak8PFJetsCHSCorrPrunedMass")<220.'),
                                     filter = cms.bool(True) )
 
-hadronicVSequence = cms.Sequence(   corrJetsProducer + 
+hadronicVSequence = cms.Sequence(   corrJetsProducer +
                                     nsubjettiness    +
                                     hadronicV        )
