@@ -10,12 +10,12 @@ daughterCharge               =  "((daughter(0).charge == -daughter(1).charge) ||
                                   (daughter(0).pdgId  == -daughter(1).pdgId))"
 
 boostedIso                   =  "? deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi) < 0.3 & \
-                                  (daughter(0).userFloat('trackIso')-daughter(1).userFloat('innerPt'))/daughter(0).pt < 0.2 & \
-                                  (daughter(1).userFloat('trackIso')-daughter(0).userFloat('innerPt'))/daughter(1).pt < 0.2 ? 1 : 0"
+                                  (daughter(0).userFloat('trackIso')-daughter(1).userFloat('innerPt'))/daughter(0).pt < 0.1 & \
+                                  (daughter(1).userFloat('trackIso')-daughter(0).userFloat('innerPt'))/daughter(1).pt < 0.1 ? 1 : 0"
 
 regularIso                   =  "? deltaR(daughter(0).eta,daughter(0).phi,daughter(1).eta,daughter(1).phi) > 0.3 & \
-                                   daughter(0).userFloat('trackIso')/daughter(0).pt < 0.2 & \
-                                   daughter(1).userFloat('trackIso')/daughter(1).pt < 0.2 ? 1 : 0"
+                                   daughter(0).userFloat('trackIso')/daughter(0).pt < 0.1 & \
+                                   daughter(1).userFloat('trackIso')/daughter(1).pt < 0.1 ? 1 : 0"
 
 Ztoee = cms.EDProducer(           "CandViewCombiner",
                                    decay = cms.string("idElectrons idElectrons"),
