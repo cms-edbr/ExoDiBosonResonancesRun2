@@ -13,7 +13,7 @@ process           BulkG_1300         DY_pdf             Sub_pdf
 process           0                  1                  2
 rate              0.131656           1                  1
 -----------------------------------------------------------------------------------
-DY_pdf_norm                    lnU         1.            1.09       1.   
+DY_pdf_norm                    lnU         1.            1.06       1.   
 lumi_13TeV                     lnN         1.05          1.         1.
 CMS_eff_vtag_tau21_sf_13TeV    lnN         1.1           1.         1.
 CMS_scale_j_13TeV              lnN         1.01          1.         1.

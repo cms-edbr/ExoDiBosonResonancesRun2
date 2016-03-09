@@ -1,0 +1,29 @@
+Combination of EHP=CMS_ZZ_2700_EHP_13TeV.txt  ELP=CMS_ZZ_2700_ELP_13TeV.txt
+imax 2 number of bins
+jmax 2 number of processes minus 1
+kmax 11 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes *         EHP       workSpaces/CMS_ZZ_2700_EHP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  EHP       workSpaces/CMS_ZZ_2700_EHP_13TeV.root ZZ_13TeV:data_obs
+shapes *         ELP       workSpaces/CMS_ZZ_2700_ELP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  ELP       workSpaces/CMS_ZZ_2700_ELP_13TeV.root ZZ_13TeV:data_obs
+----------------------------------------------------------------------------------------------------------------------------------
+bin          EHP    ELP  
+observation  -1.0   -1.0 
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                            EHP         EHP         EHP         ELP         ELP         ELP       
+process                                        BulkG_2700  Sub_pdf     DY_pdf      BulkG_2700  Sub_pdf     DY_pdf    
+process                                        0           1           2           0           1           2         
+rate                                           0.3045      1.0000      1.0000      0.1769      1.0000      1.0000    
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_eff_vtag_tau21_sf_13TeV   lnN              1.1         1.0         1.0         1.1         1.0         1.0       
+CMS_scale_E_13TeV       lnN                    1.005       1.0         1.0         1.005       1.0         1.0       
+CMS_scale_j_13TeV       lnN                    1.01        1.0         1.0         1.01        1.0         1.0       
+DY_pdf_norm             lnU                    1.0         1.0         1.06        1.0         1.0         1.06      
+lumi_13TeV              lnN                    1.05        1.0         1.0         1.05        1.0         1.0       
+pdf_eig2      param  0. 1.
+pdf_eig3      param  0. 1.
+pdf_eig0      param  0. 1.
+pdf_eig1      param  0. 1.
+pdf_eig4      param  0. 1.
+pdf_eig5      param  0. 1.

@@ -113,10 +113,8 @@ void bkgEstimation(std::string key)
   RooRealVar width2("width2",  "width of the erf",     50.0,   1.,  200.);
   RooErfExpPdf model1("model1","fiting mj spectrum1",massVhad,c1,offset1,width1);
   RooErfExpPdf model2("model2","fiting mj spectrum2",massVhad,c2,offset2,width2);
-  RooExtendPdf emodel1("emodel1","extended dom backgrounds",model1,nbkg1);
-  RooExtendPdf emodel2("emodel2","extended sub backgrounds",model2,nbkg2);
-  RooFitResult *rf1 = emodel1.fitTo(bkg1, Save(1), PrintLevel(-1));
-  RooFitResult *rf2 = emodel2.fitTo(bkg2, Save(1), PrintLevel(-1));
+  RooFitResult *rf1 = model1.fitTo(bkg1, Save(1), PrintLevel(-1));
+  RooFitResult *rf2 = model2.fitTo(bkg2, Save(1), PrintLevel(-1));
 
   // Fix the shapes and the subdominant background yields,
   // let only the yield of the dominant background to fluctuate
@@ -130,7 +128,9 @@ void bkgEstimation(std::string key)
   nbkg2.setConstant(true);
 
   // Final background model
-  RooAddPdf model_ext("model_ext","sum of extended models",RooArgList(emodel1,emodel2));
+  RooExtendPdf emodel1("emodel1","extended dom backgrounds",model1,nbkg1);
+  RooExtendPdf emodel2("emodel2","extended sub backgrounds",model2,nbkg2);
+  RooAddPdf  model_ext("model_ext","sum of extended models",RooArgList(emodel1,emodel2));
 
   massVhad.setRange("lowerSB",   20.,   65.);
   massVhad.setRange("lowerSIG",  65.,  105.);
@@ -151,6 +151,14 @@ void bkgEstimation(std::string key)
   RooFormulaVar Sub_SB_yield("Sub_SB_yield","@0*@1",RooArgList(*Sub_SB_integral,nbkg2));
   // Subdominant over Dominant ratio
   RooFormulaVar coef( "coef","@0/@1", RooArgList(Sub_SB_yield,DY_SB_yield));
+
+  RooRealVar Sub_pdf_norm("Sub_pdf_norm", "Sub yield in lowerSIG", Sub_yield.getVal(), 0.,1.e4); 
+  RooRealVar  DY_pdf_norm( "DY_pdf_norm",  "DY yield in lowerSIG",  DY_yield.getVal(), 0.,1.e4);
+  RooRealVar  DY_error(    "DY_error",     "DY yield error",    1 + DY_yield.getPropagatedError(*rf1)/ DY_yield.getVal(),1.,2.);
+  cout <<  "DY estimation = " <<  DY_yield.getVal() << " +/- " <<  DY_yield.getPropagatedError(*rf1) << endl;
+  cout << "Sub estimation = " << Sub_yield.getVal() << " +/- " << Sub_yield.getPropagatedError(*rf2) << endl;
+
+  Sub_pdf_norm.setConstant(true); // we do not want to let that normalization float
 
 ///////////////////////////////////////////////////////////////////////////////
 //                           _____ _                                         //
@@ -217,12 +225,6 @@ void bkgEstimation(std::string key)
 
   // create workspace
   RooWorkspace *w = new RooWorkspace("ZZ_13TeV","workspace") ;
-
-  RooRealVar  DY_pdf_norm( "DY_pdf_norm",  "DY yield in lowerSIG",  DY_yield.getVal(), 0.,1.e4);
-  RooRealVar Sub_pdf_norm("Sub_pdf_norm", "Sub yield in lowerSIG", Sub_yield.getVal(), 0.,1.e4); 
-  RooRealVar  DY_error( "DY_error", "DY yield error",1+ DY_yield.getPropagatedError(*rf1)/ DY_yield.getVal(),1.,2.);
-
-  Sub_pdf_norm.setConstant(true); // we do not want to let that normalization float
 
   w->import(Sub_pdf);
   w->import(Sub_pdf_norm);
