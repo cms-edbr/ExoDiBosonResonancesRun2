@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
 from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import cleanPatJets 
 from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
 
-patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
                                     src     = cms.InputTag("slimmedJetsAK8"),
                                     levels  = ['L1FastJet','L2Relative','L3Absolute'],
                                     payload = 'AK8PFchs')
 
-patJetsReapplyJEC = patJetsUpdated.clone(
+patJetsReapplyJEC = updatedPatJets.clone(
                                     jetSource = cms.InputTag("slimmedJetsAK8"),
                                     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC") ))
 
