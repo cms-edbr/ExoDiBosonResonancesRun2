@@ -1,0 +1,29 @@
+Combination of MHP=CMS_ZZ_800_MHP_13TeV.txt  MLP=CMS_ZZ_800_MLP_13TeV.txt
+imax 2 number of bins
+jmax 2 number of processes minus 1
+kmax 11 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes *         MHP       workSpaces/CMS_ZZ_800_MHP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  MHP       workSpaces/CMS_ZZ_800_MHP_13TeV.root ZZ_13TeV:data_obs
+shapes *         MLP       workSpaces/CMS_ZZ_800_MLP_13TeV.root ZZ_13TeV:$PROCESS
+shapes data_obs  MLP       workSpaces/CMS_ZZ_800_MLP_13TeV.root ZZ_13TeV:data_obs
+----------------------------------------------------------------------------------------------------------------------------------
+bin          MHP    MLP  
+observation  -1.0   -1.0 
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                            MHP        MHP        MHP        MLP        MLP        MLP      
+process                                        BulkG_800  Sub_pdf    DY_pdf     BulkG_800  Sub_pdf    DY_pdf   
+process                                        0          1          2          0          1          2        
+rate                                           0.4041     1.0000     1.0000     0.1207     1.0000     1.0000   
+----------------------------------------------------------------------------------------------------------------------------------
+CMS_eff_vtag_tau21_sf_13TeV   lnN              1.1        1.0        1.0        1.1        1.0        1.0      
+CMS_scale_M_13TeV       lnN                    1.03       1.0        1.0        1.03       1.0        1.0      
+CMS_scale_j_13TeV       lnN                    1.01       1.0        1.0        1.01       1.0        1.0      
+DY_pdf_norm             lnU                    1.0        1.0        1.05       1.0        1.0        1.05     
+lumi_13TeV              lnN                    1.05       1.0        1.0        1.05       1.0        1.0      
+pdf_eig2      param  0. 1.
+pdf_eig3      param  0. 1.
+pdf_eig0      param  0. 1.
+pdf_eig1      param  0. 1.
+pdf_eig4      param  0. 1.
+pdf_eig5      param  0. 1.
