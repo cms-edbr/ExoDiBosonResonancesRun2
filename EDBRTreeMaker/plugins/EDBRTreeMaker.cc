@@ -74,6 +74,10 @@ private:
   edm::EDGetTokenT<pat::JetCollection> jetsToken;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > puInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken;
+  edm::EDGetTokenT<reco::CandidateCollection> genleptonicZ_;
+  edm::EDGetTokenT<reco::CandidateCollection> genhadronicZ_;
+  edm::EDGetTokenT<reco::CandidateView> zhadtoken;
+  edm::EDGetTokenT<reco::CandidateView> zleptoken;
 
   //------------------------ GENERAL ----------------------------------------------
   int nVtx;
@@ -82,7 +86,17 @@ private:
   int channel, lep, reg;
   double triggerWeight, lumiWeight, pileupWeight, genWeight;
   double totalWeight;
+  int trigger;
 
+  //------------------------ GENERATOR ----------------------------------------------
+  double genptZl,genptZh,genetaZl,genetaZh,genphiZl,genphzZh,genmassZl,genmassZh;
+  double genptl1,genptl2,genetal1,genetal2,genphil1,genphil2,genmassl1,genmassl2;
+  double genptq1,genptq2,genetaq1,genetaq2,genphiq1,genphiq2,genmassq1,genmassq2;
+  double genptG ,genetaG,genphiG,genmassG;
+
+  // single reco object quantities
+  int passVlep, passVhad;
+  
   //------------------------ V quantities ------------------------------------------
   double ptVlep, ptVhad, yVlep, yVhad, phiVlep, phiVhad, massVlep, massVhad, mtVlep, massVhadSD;
 
@@ -213,6 +227,15 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   jetsToken         = consumes<pat::JetCollection>(            InputTag("slimmedJetsAK8"      ));
   puInfoToken       = consumes<std::vector<PileupSummaryInfo>>(InputTag("slimmedAddPileupInfo"));
   genEvtInfoToken   = consumes<GenEventInfoProduct>(           InputTag("generator"           ));
+                                     
+  genleptonicZ_     =consumes<reco::CandidateCollection>( InputTag("leptonicDecay::TEST" ));
+  genhadronicZ_     =consumes<reco::CandidateCollection>( InputTag("hadronicDecay::TEST" ));
+
+
+  consumes<TriggerResults>(InputTag("TriggerResults","","TEST"));
+  zleptoken = consumes<reco::CandidateView>(InputTag("bestLeptonicV","","TEST"));
+  zhadtoken = consumes<reco::CandidateView>(InputTag("bestHadronicV","","TEST"));
+
 
   if(EDBRChannel_ == "VZ_CHANNEL")
     channel=VZ_CHANNEL;
@@ -230,6 +253,38 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   }
 
   outTree_ = fs->make<TTree>("EDBRCandidates","EDBR Candidates");
+
+  // Generator info
+  
+  outTree_->Branch("genptZl",&genptZl,"genptZl/D");
+  outTree_->Branch("genptZh",&genptZh,"genptZh/D");
+  outTree_->Branch("genetaZl",&genetaZl,"genetaZl/D");
+  outTree_->Branch("genetaZh",&genetaZh,"genetaZh/D");
+  outTree_->Branch("genphiZl",&genphiZl,"genphiZl/D");
+  outTree_->Branch("genphzZh",&genphzZh,"genphzZh/D");
+  outTree_->Branch("genmassZl",&genmassZl,"genmassZl/D");
+  outTree_->Branch("genmassZh",&genmassZh,"genmassZh/D");
+  outTree_->Branch("genptl1",&genptl1,"genptl1/D");
+  outTree_->Branch("genptl2",&genptl2,"genptl2/D");
+  outTree_->Branch("genetal1",&genetal1,"genetal1/D");
+  outTree_->Branch("genetal2",&genetal2,"genetal2/D");
+  outTree_->Branch("genphil1",&genphil1,"genphil1/D");
+  outTree_->Branch("genphil2",&genphil2,"genphil2/D");
+  outTree_->Branch("genmassl1",&genmassl1,"genmassl1/D");
+  outTree_->Branch("genmassl2",&genmassl2,"genmassl2/D");
+  outTree_->Branch("genptq1",&genptq1,"genptq1/D");
+  outTree_->Branch("genptq2",&genptq2,"genptq2/D");
+  outTree_->Branch("genetaq1",&genetaq1,"genetaq1/D");
+  outTree_->Branch("genetaq2",&genetaq2,"genetaq2/D");
+  outTree_->Branch("genphiq1",&genphiq1,"genphiq1/D");
+  outTree_->Branch("genphiq2",&genphiq2,"genphiq2/D");
+  outTree_->Branch("genmassq1",&genmassq1,"genmassq1/D");
+  outTree_->Branch("genmassq2",&genmassq2,"genmassq2/D");
+  outTree_->Branch("genptG",&genptG,"genptG/D");
+  outTree_->Branch("genetaG",&genetaG,"genetaG/D");
+  outTree_->Branch("genphiG",&genphiG,"genphiG/D");
+  outTree_->Branch("genmassG",&genmassG,"genmassG/D");
+
 
   // Basic event quantities
   outTree_->Branch("event"            ,&nevent           ,"event/I"           );
@@ -395,6 +450,10 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("deltaRlepjet"     ,&deltaRlepjet     ,"deltaRlepjet/D"    );
   outTree_->Branch("delPhijetmet"     ,&delPhijetmet     ,"delPhijetmet/D"    );
   outTree_->Branch("deltaphijetmet"   ,&deltaphijetmet   ,"deltaphijetmet/D"  );
+  outTree_->Branch("passedtrigger"    ,&trigger          ,"passedtrigger/I"   );
+  outTree_->Branch("passVlep"         ,&passVlep         ,"passVlep/I"   );
+  outTree_->Branch("passVhad"         ,&passVhad         ,"passVhad/I"   );
+  
 }
 
 EDBRTreeMaker::~EDBRTreeMaker() {}
@@ -413,20 +472,108 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    Handle<ValueMap<bool> > matchHlt_handle;
    Handle<ValueMap<float> > deltaPt_handle;
    Handle<ValueMap<float> >  deltaR_handle;
-   iEvent.getByToken(elHltToken, elHlt_handle);
-   iEvent.getByToken(muHltToken, muHlt_handle);
-   elhltbit = (int)(*elHlt_handle);
-   muhltbit = (int)(*muHlt_handle);
 
    setDummyValues(); //Initalize variables with dummy values
+   bool passed_trigger = iEvent.triggerResultsByName("TEST").accept("triggersel"); 
+   if(passed_trigger)
+     trigger = 1;
 
-   Handle<reco::CompositeCandidateView > gravitons;
-   iEvent.getByToken(gravitonsToken, gravitons);
-   numCands = gravitons->size();
-   if(numCands != 0 ) {
+   bool passed_analysis= iEvent.triggerResultsByName("TEST").accept("analysis"); // basically just generator selection for correct flavor semi-leptonic decay
+
+   // save generator information
+   if(not iEvent.isRealData() && passed_analysis){ // event may not have the proper info if it hasn't passed
+     Handle< reco::CandidateCollection > genZlep;
+     iEvent.getByToken(genleptonicZ_ ,      genZlep);
+     const reco::Candidate& Zlep = (*genZlep)[0];
+     const reco::Candidate* genGrav = Zlep.mother(0);
+     const reco::Candidate* lep1 = Zlep.daughter(0);
+     const reco::Candidate* lep2 = Zlep.daughter(1);
+     Handle< reco::CandidateCollection > genZhad;
+     iEvent.getByToken(genhadronicZ_ ,      genZhad);
+     const reco::Candidate& Zhad = (*genZhad)[0];
+     const reco::Candidate* q1 = Zhad.daughter(0);
+     const reco::Candidate* q2 = Zhad.daughter(1);
+
+     genptZl          = Zlep.pt();
+     genetaZl         = Zlep.eta();
+     genphiZl         = Zlep.phi();
+     genmassZl        = Zlep.mass();
+
+     genptZh          = Zhad.pt();
+     genetaZh         = Zhad.eta();
+     genphzZh         = Zhad.phi();
+     genmassZh       = Zhad.mass();
+
+     genptl1          = lep1->pt();
+     genetal1         = lep1->eta();
+     genphil1         = lep1->phi();
+     genmassl1        = lep1->mass();
+     
+     genptl2          = lep2->pt();
+     genetal2         = lep2->eta();
+     genphil2         = lep2->phi();
+     genmassl2       = lep2->mass();
+
+     genptq1          = q1->pt();
+     genetaq1         = q1->eta();
+     genphiq1         = q1->phi();
+     genmassq1        = q1->mass();
+
+     genptq2          = q2->pt();
+     genetaq2         = q2->eta();
+     genphiq2         = q2->phi();
+     genmassq2        = q2->mass();
+     
+     genptG           = genGrav->pt();
+     genetaG          = genGrav->eta();
+     genphiG          = genGrav->phi();
+     genmassG         = genGrav->mass();
+   }
+
+   if(passed_analysis){
+     // save relevant information for efficiency studies, even if no complete candidate exisist
+     Handle<reco::CandidateView> Zhads;
+     iEvent.getByToken(zhadtoken,Zhads);
+     if(Zhads->size()!=0){
+       const reco::Candidate& Zhad  = Zhads->at(0);
+       const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(Zhad);
+       tau1           = hadronicV.userFloat("NjettinessAK8:tau1");
+       tau2           = hadronicV.userFloat("NjettinessAK8:tau2");
+       tau3           = hadronicV.userFloat("NjettinessAK8:tau3");
+       tau21          = tau2/tau1;
+       massVhad       = hadronicV.userFloat("ak8PFJetsCHSCorrPrunedMass");
+       passVhad = 1;      
+     }
+     Handle<reco::CandidateView> Zlept;
+     iEvent.getByToken(zleptoken,Zlept);
+     if(Zlept->size()!=0){
+       const reco::Candidate& Zlep  = Zlept->at(0);
+       lep = abs(Zlep.daughter(0)->pdgId());
+       passVlep = 1;
+     }
+     Handle<reco::CompositeCandidateView > gravitons;
+     iEvent.getByToken(gravitonsToken, gravitons);
+     numCands = gravitons->size();
+     if(numCands != 0 ) {
+       const reco::Candidate& graviton  = gravitons->at(0);
+       candMass = graviton.mass();
+     }
+   }
+
+     
+   if(passed_trigger && passed_analysis){ // only fill usual tree if trigger+analysis path passed
+     iEvent.getByToken(elHltToken, elHlt_handle);
+     iEvent.getByToken(muHltToken, muHlt_handle);
+     elhltbit = (int)(*elHlt_handle);
+     muhltbit = (int)(*muHlt_handle);
+
+     Handle<reco::CompositeCandidateView > gravitons;
+     iEvent.getByToken(gravitonsToken, gravitons);
+     numCands = gravitons->size();
+     if(numCands != 0 ) {
        const reco::Candidate& graviton  = gravitons->at(0);
        const pat::Jet& hadronicV = dynamic_cast<const pat::Jet&>(*graviton.daughter("hadronicV"));
-
+       
        // met
        Handle<pat::METCollection> metHandle;
        iEvent.getByToken(metToken, metHandle);
@@ -763,63 +910,64 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	   nVtx = 0;
        }
 
-       /// For data, all weights are equal to 1.
-       triggerWeight = 1.0;
-       pileupWeight  = 1.0;
-       lumiWeight    = 1.0;
-       genWeight     = 1.0;
-       if( !isData_ ) {
-           // pileup reweight
-           Handle<std::vector< PileupSummaryInfo > >  puInfo;
-           iEvent.getByToken(puInfoToken, puInfo);
-           std::vector<PileupSummaryInfo>::const_iterator PVI;
-           for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
-                int BX = PVI->getBunchCrossing();
-                if( BX == 0 ){
-                     int  bin     = h1->FindBin(PVI->getTrueNumInteractions());
-                     pileupWeight = h1->GetBinContent(bin);
-                     continue;
-                }
-           }
-           // generator weight
-           edm::Handle<GenEventInfoProduct>   genEvtInfo; 
-           iEvent.getByToken(genEvtInfoToken, genEvtInfo );
-           genWeight = genEvtInfo->weight();
-           // lumi weight
-           double targetEvents = targetLumiInvPb_*crossSectionPb_;
-           lumiWeight = targetEvents/originalNEvents_;
+     }// end if n_cands>0
+   }// end passed trigger && passed analysis
+
+   /// For data, all weights are equal to 1.
+   triggerWeight = 1.0;
+   pileupWeight  = 1.0;
+   lumiWeight    = 1.0;
+   genWeight     = 1.0;
+   if( !isData_ ) {
+     // pileup reweight
+     Handle<std::vector< PileupSummaryInfo > >  puInfo;
+     iEvent.getByToken(puInfoToken, puInfo);
+     std::vector<PileupSummaryInfo>::const_iterator PVI;
+     for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
+       int BX = PVI->getBunchCrossing();
+       if( BX == 0 ){
+	 int  bin     = h1->FindBin(PVI->getTrueNumInteractions());
+	 pileupWeight = h1->GetBinContent(bin);
+	 continue;
        }
-       totalWeight = triggerWeight*pileupWeight*lumiWeight;
-
-       // Enumarate regions
-       enum {
-           excluded = -1,
-           lowerSB,
-           lowerSIG,
-           upperSIG,
-           upperSB,
-       }; 
-
-       if( massVhad < 20. )
-	   reg = excluded;
-       if( massVhad > 20.  and  massVhad < 65.  )
-	   reg = lowerSB;
-       if( massVhad > 65.  and  massVhad < 105. )
-	   reg = lowerSIG;
-       if( massVhad > 105. and  massVhad < 135. )
-	   reg = upperSIG;
-       if( massVhad > 135. )
-	   reg = upperSB;
+     }
+     // generator weight
+     edm::Handle<GenEventInfoProduct>   genEvtInfo; 
+     iEvent.getByToken(genEvtInfoToken, genEvtInfo );
+     genWeight = genEvtInfo->weight();
+     // lumi weight
+     double targetEvents = targetLumiInvPb_*crossSectionPb_;
+     lumiWeight = targetEvents/originalNEvents_;
+   }
+   totalWeight = triggerWeight*pileupWeight*lumiWeight;
    
-       outTree_->Fill();
-   }
-   else {
-       /// If we arrive here, that means we have NOT found a resonance candidate,
-       /// i.e. numCands == 0.
-       outTree_->Fill();
-       //return; // skip event if there is no resonance candidate
-   }
+   // Enumarate regions
+   enum {
+     excluded = -1,
+     lowerSB,
+     lowerSIG,
+     upperSIG,
+     upperSB,
+   }; 
+   
+   if( massVhad < 20. )
+     reg = excluded;
+   if( massVhad > 20.  and  massVhad < 65.  )
+     reg = lowerSB;
+   if( massVhad > 65.  and  massVhad < 105. )
+     reg = lowerSIG;
+   if( massVhad > 105. and  massVhad < 135. )
+     reg = upperSIG;
+   if( massVhad > 135. )
+     reg = upperSB;
+   
+   if(passed_analysis)
+     outTree_->Fill();
+   // fill dummy values, weights and regions even if no candidate is found if analysis is "defiltered"
+   // region should be "excluded" in that case
+   // otherwise proceed as usual
 }
+
 
 void EDBRTreeMaker::setDummyValues() {
      nVtx             = -1e4;
@@ -961,6 +1109,39 @@ void EDBRTreeMaker::setDummyValues() {
      pfIso03R2        = -1e4;
      pfIso04R1        = -1e4;
      pfIso04R2        = -1e4;
+
+     genptZl          = -1e4;
+     genptZh          = -1e4;
+     genetaZl         = -1e4;
+     genetaZh         = -1e4;
+     genphiZl         = -1e4;
+     genphzZh         = -1e4;
+     genmassZl        = -1e4;
+     genmassZh       = -1e4;
+     genptl1          = -1e4;
+     genptl2          = -1e4;
+     genetal1         = -1e4;
+     genetal2         = -1e4;
+     genphil1         = -1e4;
+     genphil2         = -1e4;
+     genmassl1        = -1e4;
+     genmassl2       = -1e4;
+     genptq1          = -1e4;
+     genptq2          = -1e4;
+     genetaq1         = -1e4;
+     genetaq2         = -1e4;
+     genphiq1         = -1e4;
+     genphiq2         = -1e4;
+     genmassq1        = -1e4;
+     genmassq2       = -1e4;
+     genptG           = -1e4;
+     genetaG          = -1e4;
+     genphiG          = -1e4;
+     genmassG         = -1e4;
+     
+     trigger          =0;
+     passVlep         =0;
+     passVhad         =0;
 }
 
 void EDBRTreeMaker::beginJob(){ 

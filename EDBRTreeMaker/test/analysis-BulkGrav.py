@@ -129,25 +129,52 @@ process.treeDumper = cms.EDAnalyzer(     "EDBRTreeMaker",
                                           puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 
+process.triggersel =  cms.Path( process.hltFilter)
+
 process.analysis = cms.Path(              process.leptonicDecay            + 
+                                          process.hadronicDecay            +  # move gen-selection forward
                                           process.hltSequence              +
+                                          #process.hltMatchingElectrons    +
+                                          #process.hltMatchingMuons        +
                                           process.goodLeptonsProducer      +  
                                           process.leptonicVSequence        +
                                           process.bestLeptonicV            +
-                                          process.hadronicDecay            +
                                           process.fatJetsSequence          +
                                           process.hadronicVSequence        +
                                           process.bestHadronicV            +
                                           process.graviton                 +
-                                          process.gravitonFilter           +
-                                          process.treeDumper               )
+                                          process.gravitonFilter           )#+
+#                                          process.treeDumper               )
 
 process.analysis.replace(                 process.goodOfflinePrimaryVertex,
                                           process.goodOfflinePrimaryVertex +
                                           process.egmGsfElectronIDs        )
 
+if len(sys.argv) > 4: 
+    # switch of filtering for signal samples
+    # process.leptonicDecay.filter=cms.bool(False) # keep this filter to sort by lepton type.
+    # process.hadronicDecay.filter=cms.bool(False) # keep this filter to sort by lepton type.
+    process.analysis.remove(process.hltFilter)
+    process.kinMuons.filter=cms.bool(False)
+    process.idMuons.filter=cms.bool(False)
+    process.kinElectrons.filter=cms.bool(False)
+    process.idElectrons.filter=cms.bool(False)    
+    process.goodOfflinePrimaryVertex.filter=cms.bool(False)
+    process.leptonicVFilter.minNumber=0
+    process.leptonicVSelector.filter=cms.bool(False)
+    process.ZdaughterCharge.filter=cms.bool(False)
+    process.ZdaughterIso.filter=cms.bool(False)
+    process.leptonicVSelector.filter=cms.bool(False)
+    process.goodJets.filter=cms.bool(False)
+    process.countCleanJets.minNumber=0
+    process.nsubjettiness.filter=cms.bool(False)
+    process.hadronicV.filter=cms.bool(False)
+    process.gravitonFilter.minNumber=0
+
+
+
 process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
-process.endpath = cms.EndPath( process.trigReportAnalyzer )
+process.endpath = cms.EndPath( process.treeDumper  +  process.trigReportAnalyzer )
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("treeEDBR_"+SAMPLE+"_"+TRIGGER+".root")
