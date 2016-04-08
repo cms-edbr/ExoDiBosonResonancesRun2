@@ -151,14 +151,14 @@ process.gravitonSequence = cms.Sequence(  process.graviton                 +
 
 process.analysis = cms.Path(              process.leptonSequence           +
                                           process.jetSequence              +
-                                          process.gravitonSequence         +
-                                          process.treeDumper               )
+                                          process.gravitonSequence         )#+
+#                                          process.treeDumper               )
 
 #************************************ TRIGGER REPORT DATA *******************************************#
 # Supported for VZ channel only                                   
 
 process.load("ExoDiBosonResonances.EDBRCommon.trigReportData_cff")
-process.endpath = cms.EndPath( process.trigReportData )
+process.endpath = cms.EndPath(process.treeDumper + process.trigReportData )
 
 #****************************************************************************************************#
 
@@ -197,3 +197,5 @@ print "\n++++++++++++++++++++++++++"
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("treeEDBR_background.root")
                                   )
+
+process.triggersel =  cms.Path( process.hltFilter)

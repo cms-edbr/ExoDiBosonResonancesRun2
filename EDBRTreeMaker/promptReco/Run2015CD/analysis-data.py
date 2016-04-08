@@ -154,16 +154,21 @@ process.gravitonSequence = cms.Sequence(  process.graviton                 +
 
 process.analysis = cms.Path(              process.leptonSequence           +
                                           process.jetSequence              +
-                                          process.gravitonSequence         +
-                                          process.treeDumper               )
+                                          process.gravitonSequence         )#+
+#                                          process.treeDumper               )
+
+
 
 #************************************ TRIGGER REPORT DATA *******************************************#
 # Supported for VZ channel only                                   
 
+process.triggersel =  cms.Path( process.hltFilter)
+
 process.load("ExoDiBosonResonances.EDBRCommon.trigReportData_cff")
-process.endpath = cms.EndPath( process.trigReportData )
+process.endpath = cms.EndPath( process.treeDumper + process.trigReportData )
 
 #****************************************************************************************************#
+
 
 #***************************************** FILTER MODE **********************************************#
 
