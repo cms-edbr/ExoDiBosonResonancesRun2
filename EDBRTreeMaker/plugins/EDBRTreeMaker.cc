@@ -52,6 +52,7 @@ private:
   // Parameters to steer the treeDumper
   bool isGen_;
   bool isData_;
+  bool isSignal_;
   int originalNEvents_;
   double crossSectionPb_;
   double targetLumiInvPb_;
@@ -207,6 +208,11 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   if( iConfig.existsAs<bool>("isData") )
        isData_ = iConfig.getParameter<bool> ("isData");
   else isData_ = true;
+
+  if( iConfig.existsAs<bool>("isSignal") )
+    isSignal_ = iConfig.getParameter<bool> ("isSignal");
+  else isSignal_ = false;
+
 
   if( iConfig.existsAs<FileInPath>("puWeights") )
        puWeights_ = iConfig.getParameter<FileInPath>("puWeights") ;
@@ -481,7 +487,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    bool passed_analysis= iEvent.triggerResultsByName("TEST").accept("analysis"); // basically just generator selection for correct flavor semi-leptonic decay
 
    // save generator information
-   if(not iEvent.isRealData() && passed_analysis){ // event may not have the proper info if it hasn't passed
+   if(isSignal_ && not iEvent.isRealData() && passed_analysis){ // event may not have the proper info if it hasn't passed
      Handle< reco::CandidateCollection > genZlep;
      iEvent.getByToken(genleptonicZ_ ,      genZlep);
      const reco::Candidate& Zlep = (*genZlep)[0];

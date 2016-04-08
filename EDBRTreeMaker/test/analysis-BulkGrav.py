@@ -171,6 +171,7 @@ if len(sys.argv) > 4:
     process.hadronicV.filter=cms.bool(False)
     process.gravitonFilter.minNumber=0
 
+    process.treeDumper.isSignal=cms.bool(True)
 
 
 process.load("ExoDiBosonResonances.EDBRGenStudies.trigReportAnalyzer_cff")
