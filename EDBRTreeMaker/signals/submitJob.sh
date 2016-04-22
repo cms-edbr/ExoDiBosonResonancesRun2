@@ -14,7 +14,7 @@
 #            bsub -q 1nh -M 2000 -J Bulk800mu < submitJob.sh
 
 export X509_USER_PROXY=/afs/cern.ch/user/j/jruizvar/x509up_u9472
-cd /afs/cern.ch/work/j/jruizvar/private/Spring16/CMSSW_7_6_4/src/ExoDiBosonResonances/EDBRTreeMaker/signals
+cd /afs/cern.ch/work/j/jruizvar/private/Spring16/CMSSW_7_6_5/src/ExoDiBosonResonances/EDBRTreeMaker/signals
 eval `scramv1 runtime -sh`
 
 cmsRun analysis-BulkGrav.py BulkGravToZZToZlepZhad_M-800 mu

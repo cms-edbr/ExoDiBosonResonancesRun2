@@ -127,24 +127,22 @@ process.treeDumper = cms.EDAnalyzer(     "EDBRTreeMaker",
                                           targetLumiInvPb = cms.double    (  2630.245                  ),
                                           EDBRChannel     = cms.string    ( "VZ_CHANNEL"               ),
                                           puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
+                                          egammaSFs       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/CutBasedID_LooseWP_76X_18Feb.txt_SF2D.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 
 process.triggersel =  cms.Path( process.hltFilter)
 
 process.analysis = cms.Path(              process.leptonicDecay            + 
-                                          process.hadronicDecay            +  # move gen-selection forward
                                           process.hltSequence              +
-                                          #process.hltMatchingElectrons    +
-                                          #process.hltMatchingMuons        +
                                           process.goodLeptonsProducer      +  
                                           process.leptonicVSequence        +
                                           process.bestLeptonicV            +
+                                          process.hadronicDecay            +
                                           process.fatJetsSequence          +
                                           process.hadronicVSequence        +
                                           process.bestHadronicV            +
                                           process.graviton                 +
-                                          process.gravitonFilter           )#+
-#                                          process.treeDumper               )
+                                          process.gravitonFilter           )
 
 process.analysis.replace(                 process.goodOfflinePrimaryVertex,
                                           process.goodOfflinePrimaryVertex +

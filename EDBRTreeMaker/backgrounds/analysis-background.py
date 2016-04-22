@@ -42,7 +42,7 @@ configNevents = {
                   "WW"          : 988418,
                   "WZ"          : 1000000,
                   "ZZ"          : 985600,
-                  "TT"          : 19090400,
+                  "TT"          : 12771412, ## Effective (sumweight) -> generated : 38475776 
                 }
 usedXsec    = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
@@ -114,6 +114,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           targetLumiInvPb = cms.double    (  2630.245                   ),
                                           EDBRChannel     = cms.string    (  CHANNEL                    ),
                                           puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
+                                          egammaSFs       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/CutBasedID_LooseWP_76X_18Feb.txt_SF2D.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"  ))
 
 #***************************************** SEQUENCES **********************************************# 
@@ -151,14 +152,13 @@ process.gravitonSequence = cms.Sequence(  process.graviton                 +
 
 process.analysis = cms.Path(              process.leptonSequence           +
                                           process.jetSequence              +
-                                          process.gravitonSequence         )#+
-#                                          process.treeDumper               )
+                                          process.gravitonSequence         )
 
 #************************************ TRIGGER REPORT DATA *******************************************#
 # Supported for VZ channel only                                   
 
 process.load("ExoDiBosonResonances.EDBRCommon.trigReportData_cff")
-process.endpath = cms.EndPath(process.treeDumper + process.trigReportData )
+process.endpath = cms.EndPath(process.treeDumper)
 
 #****************************************************************************************************#
 

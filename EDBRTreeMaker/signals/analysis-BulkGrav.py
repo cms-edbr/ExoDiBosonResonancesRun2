@@ -119,6 +119,7 @@ process.treeDumper = cms.EDAnalyzer(     "EDBRTreeMaker",
                                           targetLumiInvPb = cms.double    (  2630.245                  ),
                                           EDBRChannel     = cms.string    ( "VZ_CHANNEL"               ),
                                           puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
+                                          egammaSFs       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/CutBasedID_LooseWP_76X_18Feb.txt_SF2D.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex" ))
 
 process.analysis = cms.Path(              process.hltSequence              +
@@ -129,16 +130,17 @@ process.analysis = cms.Path(              process.hltSequence              +
                                           process.hadronicVSequence        +
                                           process.bestHadronicV            +
                                           process.graviton                 +
-                                          process.gravitonFilter           +
-                                          process.treeDumper               )
+                                          process.gravitonFilter           )
 
 process.analysis.replace(                 process.goodOfflinePrimaryVertex,
                                           process.goodOfflinePrimaryVertex +
                                           process.egmGsfElectronIDs        )
 
 process.load("ExoDiBosonResonances.EDBRCommon.trigReportData_cff")
-process.endpath = cms.EndPath( process.trigReportData )
+process.endpath = cms.EndPath( process.treeDumper )
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("treeEDBR_"+SAMPLE+"_"+TRIGGER+".root")
                                   )
+
+process.triggersel =  cms.Path( process.hltFilter )

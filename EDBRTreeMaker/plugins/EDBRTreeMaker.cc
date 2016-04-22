@@ -36,6 +36,7 @@
 #include "TEfficiency.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TString.h"
 #include "TTree.h"
 
@@ -58,6 +59,7 @@ private:
   double targetLumiInvPb_;
   std::string EDBRChannel_;
   edm::FileInPath puWeights_;
+  edm::FileInPath egammaSFs_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<bool> elHltToken;
   edm::EDGetTokenT<bool> muHltToken;
@@ -85,7 +87,7 @@ private:
   int numCands;
   int nevent, run, lumisec;
   int channel, lep, reg;
-  double triggerWeight, lumiWeight, pileupWeight, genWeight;
+  double triggerWeight, lumiWeight, pileupWeight, genWeight, leptonWeight;
   double totalWeight;
   int trigger;
 
@@ -190,8 +192,9 @@ private:
 
   edm::Service<TFileService> fs;
   TTree* outTree_;
-  TFile *f1;
+  TFile *f1, *f2;
   TH1D *h1;
+  TH2F *h2;
 
 };
 
@@ -213,6 +216,8 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
     isSignal_ = iConfig.getParameter<bool> ("isSignal");
   else isSignal_ = false;
 
+  if( iConfig.existsAs<FileInPath>("egammaSFs") )
+       egammaSFs_ = iConfig.getParameter<FileInPath>("egammaSFs") ;
 
   if( iConfig.existsAs<FileInPath>("puWeights") )
        puWeights_ = iConfig.getParameter<FileInPath>("puWeights") ;
@@ -450,6 +455,7 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
   outTree_->Branch("lumiWeight"       ,&lumiWeight       ,"lumiWeight/D"      );
   outTree_->Branch("pileupWeight"     ,&pileupWeight     ,"pileupWeight/D"    );
   outTree_->Branch("genWeight"        ,&genWeight        ,"genWeight/D"       );
+  outTree_->Branch("leptonWeight"     ,&leptonWeight     ,"leptonWeight/D"    );
   outTree_->Branch("totalWeight"      ,&totalWeight      ,"totalWeight/D"     );
   outTree_->Branch("deltaRleplep"     ,&deltaRleplep     ,"deltaRleplep/D"    );
   outTree_->Branch("delPhilepmet"     ,&delPhilepmet     ,"delPhilepmet/D"    );
@@ -923,6 +929,7 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    triggerWeight = 1.0;
    pileupWeight  = 1.0;
    lumiWeight    = 1.0;
+   leptonWeight  = 1.0;
    genWeight     = 1.0;
    if( !isData_ ) {
      // pileup reweight
@@ -940,12 +947,18 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      // generator weight
      edm::Handle<GenEventInfoProduct>   genEvtInfo; 
      iEvent.getByToken(genEvtInfoToken, genEvtInfo );
-     genWeight = genEvtInfo->weight();
+     genWeight = genEvtInfo->weight()/fabs(genEvtInfo->weight());
      // lumi weight
      double targetEvents = targetLumiInvPb_*crossSectionPb_;
      lumiWeight = targetEvents/originalNEvents_;
+     // EGamma Scale Factor
+     if ( lep==11 ){
+         int bin1 = ptlep1<200. ? h2->FindBin(fabs(etaSC1),ptlep1) : h2->FindBin(fabs(etaSC1),199.);
+         int bin2 = ptlep2<200. ? h2->FindBin(fabs(etaSC2),ptlep2) : h2->FindBin(fabs(etaSC2),199.);
+         leptonWeight = h2->GetBinContent(bin1) * h2->GetBinContent(bin2);
+     }
    }
-   totalWeight = triggerWeight*pileupWeight*lumiWeight;
+   totalWeight = triggerWeight*pileupWeight*genWeight*lumiWeight*leptonWeight;
    
    // Enumarate regions
    enum {
@@ -980,6 +993,7 @@ void EDBRTreeMaker::setDummyValues() {
      triggerWeight    = -1e4;
      pileupWeight     = -1e4;
      lumiWeight       = -1e4;
+     leptonWeight     = -1e4;
      totalWeight      = -1e4;
      candMass         = -1e4;
      ptVlep           = -1e4;
@@ -1153,7 +1167,9 @@ void EDBRTreeMaker::setDummyValues() {
 void EDBRTreeMaker::beginJob(){ 
      if ( !isData_ ){
         f1 = new TFile( puWeights_.fullPath().c_str() );
+        f2 = new TFile( egammaSFs_.fullPath().c_str() );
         h1 = (TH1D*)f1->Get("pileupWeights");
+        h2 = (TH2F*)f2->Get("EGamma_SF2D");
      }
 }
 
