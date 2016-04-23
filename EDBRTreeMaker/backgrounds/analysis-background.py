@@ -115,6 +115,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           EDBRChannel     = cms.string    (  CHANNEL                    ),
                                           puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
                                           egammaSFs       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/CutBasedID_LooseWP_76X_18Feb.txt_SF2D.root"),
+                                          muonSFs         = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/MuonHighPt_Z_RunCD_Reco74X_Dec17.root"),
                                           vertex          = cms.InputTag  ( "goodOfflinePrimaryVertex"  ))
 
 #***************************************** SEQUENCES **********************************************# 

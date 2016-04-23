@@ -60,6 +60,7 @@ private:
   std::string EDBRChannel_;
   edm::FileInPath puWeights_;
   edm::FileInPath egammaSFs_;
+  edm::FileInPath   muonSFs_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<bool> elHltToken;
   edm::EDGetTokenT<bool> muHltToken;
@@ -192,9 +193,9 @@ private:
 
   edm::Service<TFileService> fs;
   TTree* outTree_;
-  TFile *f1, *f2;
-  TH1D *h1;
-  TH2F *h2;
+  TFile *f1, *f2, *f3;
+  TH1D  *h1;
+  TH2F  *h2, *h3, *h4;
 
 };
 
@@ -218,6 +219,9 @@ EDBRTreeMaker::EDBRTreeMaker(const edm::ParameterSet& iConfig):
 
   if( iConfig.existsAs<FileInPath>("egammaSFs") )
        egammaSFs_ = iConfig.getParameter<FileInPath>("egammaSFs") ;
+
+  if( iConfig.existsAs<FileInPath>("muonSFs") )
+       muonSFs_ = iConfig.getParameter<FileInPath>("muonSFs") ;
 
   if( iConfig.existsAs<FileInPath>("puWeights") )
        puWeights_ = iConfig.getParameter<FileInPath>("puWeights") ;
@@ -957,6 +961,12 @@ void EDBRTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          int bin2 = ptlep2<200. ? h2->FindBin(fabs(etaSC2),ptlep2) : h2->FindBin(fabs(etaSC2),199.);
          leptonWeight = h2->GetBinContent(bin1) * h2->GetBinContent(bin2);
      }
+     // Muon Scale Factor
+     if ( lep==13 ){
+         int bin1 = ptlep1<300. ? h3->FindBin(fabs(etalep1),ptlep1) : h3->FindBin(fabs(etalep1),299.);
+         int bin2 = ptlep2<120. ? h4->FindBin(fabs(etalep2),ptlep2) : h4->FindBin(fabs(etalep2),119.);
+         leptonWeight = h3->GetBinContent(bin1) * h4->GetBinContent(bin2);
+     }
    }
    totalWeight = triggerWeight*pileupWeight*genWeight*lumiWeight*leptonWeight;
    
@@ -1137,7 +1147,7 @@ void EDBRTreeMaker::setDummyValues() {
      genphiZl         = -1e4;
      genphzZh         = -1e4;
      genmassZl        = -1e4;
-     genmassZh       = -1e4;
+     genmassZh        = -1e4;
      genptl1          = -1e4;
      genptl2          = -1e4;
      genetal1         = -1e4;
@@ -1145,7 +1155,7 @@ void EDBRTreeMaker::setDummyValues() {
      genphil1         = -1e4;
      genphil2         = -1e4;
      genmassl1        = -1e4;
-     genmassl2       = -1e4;
+     genmassl2        = -1e4;
      genptq1          = -1e4;
      genptq2          = -1e4;
      genetaq1         = -1e4;
@@ -1153,7 +1163,7 @@ void EDBRTreeMaker::setDummyValues() {
      genphiq1         = -1e4;
      genphiq2         = -1e4;
      genmassq1        = -1e4;
-     genmassq2       = -1e4;
+     genmassq2        = -1e4;
      genptG           = -1e4;
      genetaG          = -1e4;
      genphiG          = -1e4;
@@ -1168,8 +1178,11 @@ void EDBRTreeMaker::beginJob(){
      if ( !isData_ ){
         f1 = new TFile( puWeights_.fullPath().c_str() );
         f2 = new TFile( egammaSFs_.fullPath().c_str() );
+        f3 = new TFile(   muonSFs_.fullPath().c_str() );
         h1 = (TH1D*)f1->Get("pileupWeights");
         h2 = (TH2F*)f2->Get("EGamma_SF2D");
+        h3 = (TH2F*)f3->Get("HighPtID_PtEtaBins_Pt53/abseta_pTtuneP_ratio");
+        h4 = (TH2F*)f3->Get("HighPtID_PtEtaBins_Pt20/abseta_pTtuneP_ratio");
      }
 }
 
