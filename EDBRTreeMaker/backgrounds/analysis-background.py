@@ -42,7 +42,8 @@ configNevents = {
                   "WW"          : 988418,
                   "WZ"          : 1000000,
                   "ZZ"          : 985600,
-                  "TT"          : 12771412, ## Effective (sumweight) -> generated : 38475776 
+                  #"TT"          : 12771412, ## Effective (sumweight) -> generated : 38475776 
+                  "TT"          : 65363623, ## Effective (sumweight) -> generated : 196937036 
                 }
 usedXsec    = configXsecs[SAMPLE]
 usedNevents = configNevents[SAMPLE]
@@ -111,7 +112,7 @@ process.treeDumper = cms.EDAnalyzer(      "EDBRTreeMaker",
                                           isData          = cms.bool      (  False                      ),
                                           originalNEvents = cms.int32     (  usedNevents                ),
                                           crossSectionPb  = cms.double    (  usedXsec                   ),
-                                          targetLumiInvPb = cms.double    (  2630.245                   ),
+                                          targetLumiInvPb = cms.double    (  2690.55                    ),
                                           EDBRChannel     = cms.string    (  CHANNEL                    ),
                                           puWeights       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/pileupWeights69mb.root"),
                                           egammaSFs       = cms.FileInPath( "ExoDiBosonResonances/EDBRTreeMaker/data/CutBasedID_LooseWP_76X_18Feb.txt_SF2D.root"),
